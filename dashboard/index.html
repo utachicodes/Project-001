@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mafalia Agent Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+    body { background: #080c14; color: #e2e8f0; }
+    .glass { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); }
+    .agent-card { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); cursor: pointer; }
+    .agent-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    .agent-card.active { box-shadow: 0 0 0 2px var(--agent-color), 0 20px 40px rgba(0,0,0,0.4); }
+    .pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .slide-in { animation: slideIn 0.4s ease-out; }
+    @keyframes slideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .gradient-text { background: linear-gradient(135deg, #00ff88, #0080ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .metric-card { border-left: 3px solid; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f1724; }
+    ::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 3px; }
+    .response-content { white-space: pre-wrap; font-size: 0.875rem; line-height: 1.7; }
+    .loader { border: 2px solid #1a2332; border-top-color: #00ff88; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+    .skill-bar { height: 4px; border-radius: 2px; background: #1e2d3d; }
+    .skill-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- TOP NAV -->
+  <nav class="glass border-b border-white/5 sticky top-0 z-50">
+    <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-sm font-bold text-black">M</div>
+        <span class="font-bold text-lg">Mafalia<span class="text-green-400"> AI</span></span>
+        <span class="tag bg-green-400/10 text-green-400 border border-green-400/20 ml-2">10 Agents</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <div id="apiStatus" class="flex items-center gap-2 text-sm text-slate-400">
+          <div class="w-2 h-2 rounded-full bg-slate-600" id="statusDot"></div>
+          <span id="statusText">Connecting...</span>
+        </div>
+        <div class="text-xs mono text-slate-500" id="currentTime"></div>
+        <button onclick="refreshMetrics()" class="glass px-3 py-1.5 rounded-lg text-xs text-green-400 hover:bg-green-400/10 transition-colors border border-green-400/20">
+          ↺ Refresh
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-screen-2xl mx-auto px-6 py-6">
+
+    <!-- KEY METRICS ROW -->
+    <div id="metricsRow" class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+      <div class="glass rounded-xl p-4 metric-card border-yellow-400/60">
+        <div class="text-xs text-slate-400 mb-1">Total Revenue</div>
+        <div class="text-xl font-bold text-yellow-400" id="metRevenue">—</div>
+        <div class="text-xs text-slate-500 mt-1" id="metTransactions">— transactions</div>
+      </div>
+      <div class="glass rounded-xl p-4 metric-card border-purple-400/60">
+        <div class="text-xs text-slate-400 mb-1">Customers</div>
+        <div class="text-xl font-bold text-purple-400" id="metCustomers">—</div>
+        <div class="text-xs text-slate-500 mt-1" id="metActive">— active</div>
+      </div>
+      <div class="glass rounded-xl p-4 metric-card border-cyan-400/60">
+        <div class="text-xs text-slate-400 mb-1">Total Orders</div>
+        <div class="text-xl font-bold text-cyan-400" id="metOrders">—</div>
+        <div class="text-xs text-slate-500 mt-1">All channels</div>
+      </div>
+      <div class="glass rounded-xl p-4 metric-card border-green-400/60">
+        <div class="text-xs text-slate-400 mb-1">Inventory</div>
+        <div class="text-xl font-bold text-green-400" id="metInventory">—</div>
+        <div class="text-xs text-red-400 mt-1" id="metCritical">— critical</div>
+      </div>
+      <div class="glass rounded-xl p-4 metric-card border-violet-400/60">
+        <div class="text-xs text-slate-400 mb-1">Financial Health</div>
+        <div class="text-xl font-bold text-violet-400" id="metHealth">—</div>
+        <div class="text-xs text-slate-500 mt-1" id="metHealthRating">—</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+      <!-- LEFT: AGENT GRID -->
+      <div class="xl:col-span-1">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">AI Agents</h2>
+          <span class="tag bg-green-400/10 text-green-400">All Active</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3" id="agentGrid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- CENTER: AGENT INTERACTION PANEL -->
+      <div class="xl:col-span-1 flex flex-col gap-4">
+
+        <!-- Active Agent Info -->
+        <div class="glass rounded-2xl p-5" id="activeAgentPanel">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" id="activeAgentEmoji" style="background:rgba(0,255,136,0.1)">🤖</div>
+            <div>
+              <div class="font-bold text-base" id="activeAgentName">Select an Agent</div>
+              <div class="text-xs text-slate-400" id="activeAgentTitle">Click any agent card to start</div>
+            </div>
+            <div class="ml-auto">
+              <span class="tag bg-green-400/10 text-green-400 border border-green-400/20" id="activeAgentPersonality" style="display:none"></span>
+            </div>
+          </div>
+          <div class="text-sm text-slate-400 mb-4" id="activeAgentDesc">Choose an agent from the grid to see their profile and query them directly.</div>
+
+          <!-- Superpowers -->
+          <div id="superpowersSection" style="display:none">
+            <div class="text-xs text-slate-500 uppercase tracking-wider mb-2">Superpowers</div>
+            <div id="superpowersList" class="flex flex-wrap gap-2 mb-4"></div>
+          </div>
+
+          <!-- Ask Agent Input -->
+          <div id="askSection" class="mt-4" style="display:none">
+            <div class="flex gap-2">
+              <input
+                id="agentInput"
+                type="text"
+                placeholder="Ask this agent something..."
+                class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-green-400/50 focus:bg-white/8 transition-all"
+                onkeydown="if(event.key==='Enter') queryAgent()"
+              />
+              <button
+                onclick="queryAgent()"
+                id="askBtn"
+                class="px-4 py-2.5 rounded-xl text-sm font-semibold text-black transition-all"
+                style="background: linear-gradient(135deg,#00ff88,#0080ff)"
+              >Ask</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Response Panel -->
+        <div class="glass rounded-2xl p-5 flex-1" id="responsePanel" style="min-height:200px">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="text-xs text-slate-500 uppercase tracking-wider">Response</div>
+            <div id="responseLoader" class="loader ml-auto" style="display:none"></div>
+          </div>
+          <div id="responseContent" class="text-slate-500 text-sm">Response will appear here after you ask a question.</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: ORCHESTRATION + ALERTS -->
+      <div class="xl:col-span-1 flex flex-col gap-4">
+
+        <!-- Orchestrate Box -->
+        <div class="glass rounded-2xl p-5">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-lg">🎯</span>
+            <h3 class="font-semibold text-sm">Smart Orchestration</h3>
+            <span class="tag bg-blue-400/10 text-blue-400 border border-blue-400/20 ml-auto text-xs">Auto-Routes</span>
+          </div>
+          <div class="flex gap-2 mb-3">
+            <input
+              id="orchestrateInput"
+              type="text"
+              placeholder="Ask a complex business question..."
+              class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-400/50 transition-all"
+              onkeydown="if(event.key==='Enter') runOrchestration()"
+            />
+            <button onclick="runOrchestration()" class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-blue-500/20 border border-blue-400/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+              Route
+            </button>
+          </div>
+          <div id="orchResult" class="text-slate-500 text-xs mono overflow-auto max-h-40 hidden rounded-lg bg-black/20 p-3"></div>
+        </div>
+
+        <!-- Alerts Panel -->
+        <div class="glass rounded-2xl p-5 flex-1">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-sm flex items-center gap-2"><span>🚨</span> Live Alerts</h3>
+            <button onclick="loadAlerts()" class="text-xs text-slate-500 hover:text-white transition-colors">Refresh</button>
+          </div>
+          <div id="alertsList" class="space-y-2">
+            <div class="text-slate-500 text-xs">Loading alerts...</div>
+          </div>
+        </div>
+
+        <!-- Knowledge Base Quick Search -->
+        <div class="glass rounded-2xl p-5">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-lg">📚</span>
+            <h3 class="font-semibold text-sm">Knowledge Base</h3>
+          </div>
+          <div class="flex gap-2 mb-3">
+            <input
+              id="kbInput"
+              type="text"
+              placeholder="Search knowledge..."
+              class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-400/50 transition-all"
+              onkeydown="if(event.key==='Enter') searchKB()"
+            />
+            <button onclick="searchKB()" class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-purple-500/20 border border-purple-400/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+              Search
+            </button>
+          </div>
+          <div id="kbResults" class="space-y-2 max-h-48 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM: SKILLS TABLE + MCP CONFIG -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+
+      <!-- Skills Overview -->
+      <div class="glass rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-sm flex items-center gap-2"><span>⚡</span> Skill Catalog</h3>
+          <span id="skillCount" class="tag bg-green-400/10 text-green-400">50 skills</span>
+        </div>
+        <div id="skillsTable" class="space-y-2 max-h-72 overflow-y-auto">
+          <div class="text-slate-500 text-xs">Loading skills...</div>
+        </div>
+      </div>
+
+      <!-- MCP Config + System Info -->
+      <div class="glass rounded-2xl p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-lg">🔌</span>
+          <h3 class="font-semibold text-sm">MCP Integration</h3>
+          <span class="tag bg-orange-400/10 text-orange-400 border border-orange-400/20 ml-auto">Claude Desktop</span>
+        </div>
+        <p class="text-slate-400 text-xs mb-3">Add Mafalia agents to Claude Desktop via Model Context Protocol:</p>
+        <pre class="bg-black/30 rounded-lg p-3 text-xs mono text-green-400 overflow-x-auto mb-4" id="mcpConfigBlock">Loading...</pre>
+        <div class="text-xs text-slate-500 mb-4">
+          <strong class="text-slate-400">Windows:</strong> <code class="text-slate-300">%APPDATA%\Claude\claude_desktop_config.json</code><br/>
+          <strong class="text-slate-400">Mac:</strong> <code class="text-slate-300">~/Library/Application Support/Claude/claude_desktop_config.json</code>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white/3 rounded-xl p-3 text-center">
+            <div class="text-xl font-bold text-green-400" id="sysTools">17</div>
+            <div class="text-xs text-slate-500">MCP Tools</div>
+          </div>
+          <div class="bg-white/3 rounded-xl p-3 text-center">
+            <div class="text-xl font-bold text-blue-400" id="sysResources">5</div>
+            <div class="text-xs text-slate-500">Resources</div>
+          </div>
+          <div class="bg-white/3 rounded-xl p-3 text-center">
+            <div class="text-xl font-bold text-purple-400" id="sysPrompts">5</div>
+            <div class="text-xs text-slate-500">Prompts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API = 'http://localhost:8000';
+
+    const AGENTS = [
+      { name:'zara',  title:'Revenue Strategist',    emoji:'💰', color:'#f59e0b', tags:['revenue','pricing','profit'] },
+      { name:'kofi',  title:'Operations Commander',  emoji:'⚡', color:'#22d3ee', tags:['operations','efficiency'] },
+      { name:'amara', title:'Customer Champion',     emoji:'💜', color:'#a78bfa', tags:['customers','loyalty'] },
+      { name:'idris', title:'Inventory Guardian',    emoji:'📦', color:'#34d399', tags:['inventory','stock'] },
+      { name:'nala',  title:'Marketing Maven',       emoji:'🎯', color:'#fb923c', tags:['marketing','campaigns'] },
+      { name:'tariq', title:'Finance Wizard',        emoji:'🧙', color:'#818cf8', tags:['finance','cashflow'] },
+      { name:'sana',  title:'Data Scientist',        emoji:'🔬', color:'#f1f5f9', tags:['data','forecasting'] },
+      { name:'ravi',  title:'Tech Architect',        emoji:'🏗️', color:'#f87171', tags:['tech','security'] },
+      { name:'luna',  title:'Growth Hacker',         emoji:'🚀', color:'#c084fc', tags:['growth','funnels'] },
+      { name:'omar',  title:'Partnership Connector', emoji:'🤝', color:'#4ade80', tags:['partners','deals'] },
+    ];
+
+    let activeAgent = null;
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAgentGrid();
+      updateClock();
+      setInterval(updateClock, 1000);
+      checkAPIStatus();
+      setInterval(checkAPIStatus, 10000);
+      refreshMetrics();
+      loadAlerts();
+      loadSkills();
+      loadMCPConfig();
+    });
+
+    function updateClock() {
+      document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('en-GB');
+    }
+
+    // ── API STATUS ────────────────────────────────────────────────────────────
+
+    async function checkAPIStatus() {
+      try {
+        const r = await fetch(`${API}/health`, { signal: AbortSignal.timeout(3000) });
+        if (r.ok) {
+          document.getElementById('statusDot').className = 'w-2 h-2 rounded-full bg-green-400 pulse';
+          document.getElementById('statusText').textContent = 'API Online';
+          document.getElementById('statusText').className = 'text-green-400';
+        }
+      } catch {
+        document.getElementById('statusDot').className = 'w-2 h-2 rounded-full bg-red-400';
+        document.getElementById('statusText').textContent = 'API Offline';
+        document.getElementById('statusText').className = 'text-red-400';
+      }
+    }
+
+    // ── AGENT GRID ────────────────────────────────────────────────────────────
+
+    function renderAgentGrid() {
+      const grid = document.getElementById('agentGrid');
+      grid.innerHTML = AGENTS.map(agent => `
+        <div class="agent-card glass rounded-xl p-3" onclick="selectAgent('${agent.name}')" id="card-${agent.name}"
+             style="--agent-color:${agent.color}; border-color: transparent;">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xl">${agent.emoji}</span>
+            <div>
+              <div class="font-semibold text-sm" style="color:${agent.color}">${agent.name.charAt(0).toUpperCase()+agent.name.slice(1)}</div>
+              <div class="text-xs text-slate-500" style="font-size:0.65rem">${agent.title}</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            ${agent.tags.slice(0,2).map(t => `<span class="tag text-slate-400 bg-white/5" style="font-size:0.6rem">${t}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectAgent(name) {
+      activeAgent = AGENTS.find(a => a.name === name);
+      if (!activeAgent) return;
+
+      AGENTS.forEach(a => {
+        const card = document.getElementById(`card-${a.name}`);
+        card.classList.remove('active');
+        card.style.borderColor = 'transparent';
+      });
+      const card = document.getElementById(`card-${name}`);
+      card.classList.add('active');
+      card.style.borderColor = activeAgent.color;
+
+      document.getElementById('activeAgentEmoji').textContent = activeAgent.emoji;
+      document.getElementById('activeAgentEmoji').style.background = `${activeAgent.color}15`;
+      document.getElementById('activeAgentName').textContent = `${activeAgent.emoji} ${name.charAt(0).toUpperCase()+name.slice(1)}`;
+      document.getElementById('activeAgentName').style.color = activeAgent.color;
+      document.getElementById('activeAgentTitle').textContent = activeAgent.title;
+      document.getElementById('activeAgentDesc').textContent = 'Loading profile...';
+      document.getElementById('superpowersSection').style.display = 'none';
+      document.getElementById('askSection').style.display = 'block';
+      document.getElementById('agentInput').focus();
+
+      fetchAgentProfile(name);
+    }
+
+    async function fetchAgentProfile(name) {
+      try {
+        const r = await fetch(`${API}/agents/${name}`);
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+        document.getElementById('activeAgentDesc').textContent = data.description;
+
+        const persBadge = document.getElementById('activeAgentPersonality');
+        persBadge.textContent = data.personality;
+        persBadge.style.display = 'inline-block';
+
+        const spList = document.getElementById('superpowersList');
+        spList.innerHTML = data.superpowers.map(sp =>
+          `<span class="tag bg-white/5 text-slate-300 border border-white/10">${sp}</span>`
+        ).join('');
+        document.getElementById('superpowersSection').style.display = 'block';
+      } catch {
+        document.getElementById('activeAgentDesc').textContent = activeAgent ? activeAgent.title : 'Profile unavailable (API offline)';
+      }
+    }
+
+    // ── ASK AGENT ─────────────────────────────────────────────────────────────
+
+    async function queryAgent() {
+      if (!activeAgent) { alert('Select an agent first'); return; }
+      const msg = document.getElementById('agentInput').value.trim();
+      if (!msg) return;
+
+      const btn = document.getElementById('askBtn');
+      const loader = document.getElementById('responseLoader');
+      const content = document.getElementById('responseContent');
+
+      btn.disabled = true;
+      btn.textContent = '...';
+      loader.style.display = 'block';
+      content.innerHTML = `<span class="text-slate-500">Asking ${activeAgent.emoji} ${activeAgent.name.charAt(0).toUpperCase()+activeAgent.name.slice(1)}...</span>`;
+
+      try {
+        const r = await fetch(`${API}/agents/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent: activeAgent.name, message: msg }),
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+        content.innerHTML = `<div class="slide-in">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-lg">${data.emoji}</span>
+            <span class="font-semibold" style="color:${activeAgent.color}">${data.agent.toUpperCase()} — ${data.title}</span>
+            <span class="text-xs text-slate-500 ml-auto">${data.timestamp?.slice(11,19)}</span>
+          </div>
+          <div class="response-content text-slate-300 mono">${formatResponse(data.response)}</div>
+        </div>`;
+      } catch (e) {
+        content.innerHTML = `<span class="text-red-400 text-xs">Error: ${e.message}. Make sure the API is running on port 8000.</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Ask';
+        loader.style.display = 'none';
+      }
+    }
+
+    function formatResponse(obj, depth=0) {
+      if (typeof obj !== 'object' || obj === null) return String(obj);
+      const pad = '  '.repeat(depth);
+      if (Array.isArray(obj)) {
+        if (obj.length === 0) return '(none)';
+        return obj.slice(0,6).map(item => {
+          if (typeof item === 'object') return `\n${pad}• ${formatResponse(item, depth+1)}`;
+          return `\n${pad}• ${item}`;
+        }).join('') + (obj.length > 6 ? `\n${pad}... +${obj.length-6} more` : '');
+      }
+      return Object.entries(obj).map(([k,v]) => {
+        const val = typeof v === 'object' ? formatResponse(v, depth+1) : v;
+        return `${pad}<span class="text-slate-500">${k}:</span> <span class="text-green-300">${val}</span>`;
+      }).join('\n');
+    }
+
+    // ── ORCHESTRATION ─────────────────────────────────────────────────────────
+
+    async function runOrchestration() {
+      const msg = document.getElementById('orchestrateInput').value.trim();
+      if (!msg) return;
+
+      const box = document.getElementById('orchResult');
+      box.classList.remove('hidden');
+      box.textContent = 'Routing to best agents...';
+
+      try {
+        const r = await fetch(`${API}/orchestrate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ request: msg, max_agents: 3 }),
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+        const agents = data.results?.map(a => `${a.emoji || '🤖'} ${a.agent}`).join(', ') || '—';
+        box.innerHTML = `<span class="text-blue-400">Agents: ${agents}</span>\n<span class="text-slate-500">Time: ${data.execution_time}</span>\n\n` +
+          (data.results||[]).map(r =>
+            `<span class="text-green-400">${r.agent?.toUpperCase()}</span>\n${JSON.stringify(r.response, null, 2).slice(0,300)}...`
+          ).join('\n\n---\n');
+      } catch (e) {
+        box.textContent = `Error: ${e.message}`;
+      }
+    }
+
+    // ── METRICS ───────────────────────────────────────────────────────────────
+
+    async function refreshMetrics() {
+      try {
+        const r = await fetch(`${API}/orchestrate/metrics`);
+        if (!r.ok) return;
+        const m = await r.json();
+
+        if (m.revenue) {
+          document.getElementById('metRevenue').textContent = m.revenue.total || '—';
+          document.getElementById('metTransactions').textContent = `${m.revenue.transactions || 0} transactions`;
+        }
+        if (m.customers) {
+          document.getElementById('metCustomers').textContent = m.customers.total || '—';
+          document.getElementById('metActive').textContent = `${m.customers.active || 0} active`;
+        }
+        if (m.operations) {
+          document.getElementById('metOrders').textContent = m.operations.total_orders || '—';
+        }
+        if (m.inventory) {
+          document.getElementById('metInventory').textContent = `${m.inventory.total_items || 0} items`;
+          const critical = m.inventory.critical || 0;
+          document.getElementById('metCritical').textContent = `${critical} critical`;
+          document.getElementById('metCritical').className = critical > 0 ? 'text-xs text-red-400 mt-1' : 'text-xs text-green-400 mt-1';
+        }
+        if (m.finance) {
+          document.getElementById('metHealth').textContent = m.finance.health_score || '—';
+          document.getElementById('metHealthRating').textContent = m.finance.rating || '—';
+        }
+      } catch { }
+    }
+
+    // ── ALERTS ────────────────────────────────────────────────────────────────
+
+    async function loadAlerts() {
+      const list = document.getElementById('alertsList');
+      try {
+        const r = await fetch(`${API}/orchestrate/summary`);
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+        const alerts = data.cross_agent_alerts || [];
+
+        if (!alerts.length) {
+          list.innerHTML = '<div class="text-slate-500 text-xs">No alerts.</div>';
+          return;
+        }
+
+        const severityStyles = {
+          high: 'border-red-400/30 bg-red-400/5 text-red-300',
+          medium: 'border-yellow-400/30 bg-yellow-400/5 text-yellow-300',
+          low: 'border-green-400/30 bg-green-400/5 text-green-300',
+        };
+
+        list.innerHTML = alerts.map(a => `
+          <div class="rounded-lg border p-3 slide-in ${severityStyles[a.severity] || ''}">
+            <div class="text-xs font-medium mb-1">${a.message}</div>
+            <div class="text-xs opacity-70">→ ${a.action}</div>
+          </div>
+        `).join('');
+      } catch {
+        list.innerHTML = '<div class="text-slate-500 text-xs">Start the API server to see live alerts.</div>';
+      }
+    }
+
+    // ── KNOWLEDGE BASE ────────────────────────────────────────────────────────
+
+    async function searchKB() {
+      const q = document.getElementById('kbInput').value.trim();
+      if (!q) return;
+      const container = document.getElementById('kbResults');
+      container.innerHTML = '<div class="text-slate-500 text-xs">Searching...</div>';
+
+      try {
+        const r = await fetch(`${API}/knowledge/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q, top_k: 3 }),
+        });
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+
+        if (!data.results?.length) {
+          container.innerHTML = '<div class="text-slate-500 text-xs">No results found.</div>';
+          return;
+        }
+
+        container.innerHTML = data.results.map(res => `
+          <div class="rounded-lg bg-white/3 border border-white/5 p-3 slide-in">
+            <div class="text-xs font-semibold text-purple-300 mb-1">${res.title}</div>
+            <div class="text-xs text-slate-400">${res.content.slice(0,120)}...</div>
+            <div class="flex gap-1 mt-1">
+              <span class="tag bg-purple-400/10 text-purple-400">${res.category}</span>
+              <span class="tag bg-white/5 text-slate-500">score: ${res.relevance}</span>
+            </div>
+          </div>
+        `).join('');
+      } catch {
+        container.innerHTML = '<div class="text-slate-500 text-xs">API unavailable.</div>';
+      }
+    }
+
+    // ── SKILLS TABLE ──────────────────────────────────────────────────────────
+
+    async function loadSkills() {
+      const container = document.getElementById('skillsTable');
+      try {
+        const r = await fetch(`${API}/skills/summary`);
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+
+        document.getElementById('skillCount').textContent = `${data.total_skills} skills`;
+
+        const diffColors = { easy: 'text-green-400', medium: 'text-yellow-400', hard: 'text-red-400' };
+
+        container.innerHTML = Object.entries(data.skills_per_agent).map(([agent, count]) => {
+          const a = AGENTS.find(x => x.name === agent) || { emoji:'🤖', color:'#fff', title:'' };
+          const pct = Math.round((count / data.total_skills) * 100);
+          return `
+            <div class="flex items-center gap-3 py-1.5 hover:bg-white/3 rounded-lg px-2 transition-colors cursor-pointer" onclick="selectAgent('${agent}')">
+              <span class="text-base">${a.emoji}</span>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-medium" style="color:${a.color}">${agent.charAt(0).toUpperCase()+agent.slice(1)}</span>
+                  <span class="text-xs text-slate-500">${count} skills</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-fill" style="width:${pct}%;background:${a.color}55"></div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch {
+        container.innerHTML = '<div class="text-slate-500 text-xs">Skills data unavailable.</div>';
+      }
+    }
+
+    // ── MCP CONFIG ────────────────────────────────────────────────────────────
+
+    async function loadMCPConfig() {
+      try {
+        const r = await fetch(`${API}/mcp/config`);
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+        document.getElementById('mcpConfigBlock').textContent =
+          JSON.stringify(data.claude_desktop_config, null, 2);
+
+        const toolsR = await fetch(`${API}/mcp/tools`);
+        if (toolsR.ok) {
+          const tools = await toolsR.json();
+          document.getElementById('sysTools').textContent = tools.count || '17';
+        }
+      } catch {
+        document.getElementById('mcpConfigBlock').textContent =
+`{
+  "mcpServers": {
+    "mafalia": {
+      "command": "python",
+      "args": ["run_mcp.py"]
+    }
+  }
+}`;
+      }
+    }
+  </script>
+</body>
+</html>

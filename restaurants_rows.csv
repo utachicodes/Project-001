@@ -1,0 +1,4 @@
+id,name,establishment_type,establishment_count,referral_source,country,state,city,address,phone,email,created_at,updated_at
+1,masterchef,Fast Food,2-5,Bouche à oreille,Senegal,Dakar,Dakar,,,,2025-07-23 15:40:21.516185+00,2025-07-23 15:40:21.516185+00
+2,lekeu,Restaurant,2-5,Bouche à oreille,Senegal,Dakar,Dakar,,,,2025-07-23 10:13:20.405074+00,2025-07-23 10:13:20.405074+00
+3,masterchef,Fast Food,2-5,Bouche à oreille,Senegal,Dakar,Dakar,,,,2025-07-23 15:38:36.761784+00,2025-07-23 15:38:36.761784+00

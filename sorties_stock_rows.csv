@@ -1,0 +1,6 @@
+id,created_at,nom_produit,date_sortie,quantite,motif,nom_utilisateur,heure,statut,restaurant_id,notes,entree_id
+0d7e84f6-d0d2-41ba-9fc7-13ed9b14e209,2025-08-08 16:29:28.170169+00,Tomate ROMA,2025-08-08,6,Utilisation cuisine,Ibrahima Miniane Diouf,16:29:00,validé,c13c2163-c6e3-449f-8f00-993c85c811e8,,df60f049-bd87-4550-a0e5-176ad4b6823f
+3799d94c-bbc0-4184-ad99-a79a7acceb74,2025-08-10 10:43:36.993459+00,Sombie,2025-10-08,7,Utilisation cuisine,Ibrahima Miniane Diouf,10:43:00,validé,c13c2163-c6e3-449f-8f00-993c85c811e8,,e146eef1-1763-4b35-ad86-f614380438d1
+4d1f960a-5ae1-48ce-95f3-eee65f7beafc,2025-08-10 10:55:50.602077+00,Tomate simple,2025-10-08,3,Produit périmé,Ibrahima Miniane Diouf,10:55:00,validé,c13c2163-c6e3-449f-8f00-993c85c811e8,,dc6d6910-192d-4ff8-846c-71214c0bd7be
+908fc8b7-46b4-4f10-bc63-320640888220,2025-08-12 11:36:52.264844+00,Tomate simple,2025-12-08,4,Test recette,Ibrahima Miniane Diouf,11:36:00,validé,c13c2163-c6e3-449f-8f00-993c85c811e8,,dc6d6910-192d-4ff8-846c-71214c0bd7be
+d0354e1e-f2d3-4e6b-ad75-133d3cc8e487,2025-08-04 12:27:53.45321+00,Tomate ROMA,2025-04-08,6,Utilisation cuisine,Ibrahima Miniane Diouf,12:27:00,validé,c13c2163-c6e3-449f-8f00-993c85c811e8,,df60f049-bd87-4550-a0e5-176ad4b6823f

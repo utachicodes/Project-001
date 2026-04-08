@@ -1,0 +1,4 @@
+# Mafalia MCP Package
+from mafalia_mcp.tools import MAFALIA_TOOLS, MAFALIA_RESOURCES, MAFALIA_PROMPTS
+
+__all__ = ["MAFALIA_TOOLS", "MAFALIA_RESOURCES", "MAFALIA_PROMPTS"]

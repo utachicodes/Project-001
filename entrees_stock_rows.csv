@@ -1,0 +1,6 @@
+id,created_at,nom_produit,quantite,numero_facture,date_facture,date_peremption,prix_unitaire,reference_interne,emplacement,statut,restaurant_id,fournisseur_id,fournisseur
+17af387f-48ce-4381-b478-f9e7634b3b5a,2025-08-10 23:01:12.801874+00,Fromage,7,sks ks,2025-08-06,2025-08-20,24,,Entrepot A,en-attente,c13c2163-c6e3-449f-8f00-993c85c811e8,3d059b74-d593-4cd0-aa71-8eaa1f432c01,
+694bc02e-348a-4f78-98eb-554ad3498c2c,2025-08-10 11:01:14.055545+00,ksnkds,9,sd sds,2025-08-10,2025-08-28,1000,,Entrepot A,en-attente,c13c2163-c6e3-449f-8f00-993c85c811e8,3d059b74-d593-4cd0-aa71-8eaa1f432c01,
+cdd8af6e-f473-415c-ad9d-2bccbb3592c6,2025-08-10 10:16:51.004611+00,Guerté,9,SKQKNKQS?QK,2025-08-06,2025-08-20,500,,Entrepot A,en-attente,c13c2163-c6e3-449f-8f00-993c85c811e8,3d059b74-d593-4cd0-aa71-8eaa1f432c01,
+dc6d6910-192d-4ff8-846c-71214c0bd7be,2025-08-08 16:27:27.948964+00,Tomate simple,17,DSMD-SDSGS,2025-08-13,2025-08-27,1000,,Entrepot A,en-attente,c13c2163-c6e3-449f-8f00-993c85c811e8,3d059b74-d593-4cd0-aa71-8eaa1f432c01,
+e146eef1-1763-4b35-ad86-f614380438d1,2025-08-10 10:25:03.026797+00,Sombie,30,"l,sls,ss",2025-08-14,2025-08-20,90,,Entrepot A,en-attente,c13c2163-c6e3-449f-8f00-993c85c811e8,3d059b74-d593-4cd0-aa71-8eaa1f432c01,

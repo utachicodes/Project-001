@@ -1,0 +1,11 @@
+{
+  "agent": "zara",
+  "room": "revenue_analysis",
+  "hall": "hall_facts",
+  "timestamp": "2026-04-07T17:00:10.306432",
+  "data": {
+    "total_revenue": 3240000,
+    "trend": "+8%"
+  },
+  "metadata": {}
+}
