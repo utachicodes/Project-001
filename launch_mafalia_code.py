@@ -33,7 +33,7 @@ def start_python_bridge():
     # Wait a moment for it to start
     time.sleep(2)
     
-    # Check if it's running
+    # Check if it's running``
     if proc.poll() is None:
         print("✓ Python bridge API started successfully")
         return proc

@@ -38,3 +38,10 @@ build/
 
 # Mafalia Code user config
 .mafalia/
+
+# Node.js / Electron
+node_modules/
+dist-electron/
+release/
+package-lock.json
+*.asar

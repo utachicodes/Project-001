@@ -99,9 +99,10 @@ def _print_agent_response(agent_name: str, result: dict):
             return str(v)
 
     content = _format_value(result)
+    tag = AGENT_TAGS.get(agent_name, "[AGT]")
     console.print(Panel(
         content,
-        title=f"[bold {color}]{emoji} {agent_name.upper()}[/bold {color}]",
+        title=f"[bold {color}]{tag} {agent_name.upper()}[/bold {color}]",
         border_style=color,
         expand=False,
     ))

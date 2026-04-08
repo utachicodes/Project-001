@@ -36,3 +36,8 @@ pyinstaller>=6.0.0
 # MemPalace - AI memory system (palace structure + AAAK compression)
 # https://github.com/milla-jovovich/mempalace
 mempalace>=1.0.0
+
+# Graphify - Knowledge graph builder from code, docs, and data
+# https://pypi.org/project/graphifyy/
+graphifyy>=0.3.12
+networkx>=3.0
