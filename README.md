@@ -35,6 +35,8 @@ The flagship interface. A modern **Electron + React + TypeScript** desktop appli
 - **Configuration Validation** - Automatic validation of API keys and Ollama connectivity on startup
 - **Setup Wizard** - First-run configuration for API keys and settings
 - **Real Business Data** - Powered by your 10 Mafalia agents with actual CSV data
+- **Cloud Sync (Supabase)** - Optional cloud backup for chat sessions and agent memory
+- **Environment Support** - Load API keys and config from `.env` files
 
 **Architecture:**
 - **Frontend:** Electron + React + TypeScript + TailwindCSS + Vite
@@ -80,7 +82,8 @@ Mafalia Code supports multiple LLM providers with automatic configuration valida
 **Setup Options:**
 1. **API Key** - Enter your provider's API key in the Settings panel
 2. **Environment Variable** - Set `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, or `OPENROUTER_API_KEY`
-3. **Ollama** - Run `ollama serve` locally, select Ollama provider in settings
+3. **.env File** - Store keys in `mafalia_code/.env` for automatic loading
+4. **Ollama** - Run `ollama serve` locally, select Ollama provider in settings
 
 **API Endpoint:**
 - `GET /config/validate` - Check current configuration status
