@@ -89,7 +89,7 @@ DEFAULT_CONFIG = {
     "model": "",
     "api_key": "",
     "base_url": "",
-    "max_tokens": 4096,
+    "max_tokens": 1024,
     "temperature": 0.4,
     "data_dir": ".",
     "theme": "dark",
@@ -102,15 +102,23 @@ def _ensure_dir():
 
 def load_config() -> Dict[str, Any]:
     _ensure_dir()
+    cfg = dict(DEFAULT_CONFIG)
     if CONFIG_FILE.exists():
         try:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 saved = json.load(f)
-            merged = {**DEFAULT_CONFIG, **saved}
-            return merged
+            cfg = {**DEFAULT_CONFIG, **saved}
         except Exception:
-            return dict(DEFAULT_CONFIG)
-    return dict(DEFAULT_CONFIG)
+            pass
+    
+    # Override with environment variables if present
+    if os.environ.get("OPENROUTER_API_KEY") and not cfg.get("api_key"):
+        cfg["provider"] = "openrouter"
+        cfg["api_key"] = os.environ.get("OPENROUTER_API_KEY")
+        if not cfg.get("model"):
+            cfg["model"] = "google/gemini-2.5-pro-preview-06-05"
+    
+    return cfg
 
 
 def save_config(cfg: Dict[str, Any]):

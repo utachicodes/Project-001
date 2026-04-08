@@ -14,6 +14,10 @@ from typing import Dict, Any, Optional, List
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+# Load environment variables from .env if present
+load_dotenv()
 
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
