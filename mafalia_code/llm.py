@@ -93,7 +93,10 @@ class MafaliaLLM:
             "temperature": self.temperature,
             "tools": TOOLS_SCHEMA,
         }
-        hdrs = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        hdrs = {"Content-Type": "application/json"}
+        # Only add Authorization header if we have an API key (Ollama doesn't need one)
+        if self.api_key:
+            hdrs["Authorization"] = f"Bearer {self.api_key}"
         if self.provider == "openrouter":
             hdrs["HTTP-Referer"] = "https://mafalia.com"
             hdrs["X-Title"] = "Mafalia Code"

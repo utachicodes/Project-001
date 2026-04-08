@@ -67,6 +67,21 @@ PROVIDERS = {
         "models": [],
         "env_key": "CUSTOM_API_KEY",
     },
+    "ollama": {
+        "name": "Ollama (Local)",
+        "base_url": "http://localhost:11434/v1",
+        "models": [
+            "llama3.2",
+            "llama3.1",
+            "llama3",
+            "mistral",
+            "gemma2",
+            "qwen2.5",
+            "phi3",
+            "deepseek-coder",
+        ],
+        "env_key": "",
+    },
 }
 
 DEFAULT_CONFIG = {
@@ -121,3 +136,74 @@ def resolve_base_url(cfg: Dict[str, Any]) -> str:
     if provider in PROVIDERS:
         return PROVIDERS[provider]["base_url"]
     return ""
+
+
+def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Validate configuration and return status dict.
+    Checks if API key is set for cloud providers or if Ollama is accessible.
+    """
+    provider = cfg.get("provider", "")
+    model = cfg.get("model", "")
+    
+    result = {
+        "valid": False,
+        "provider": provider,
+        "model": model,
+        "message": "",
+        "checks": {},
+    }
+    
+    if not provider:
+        result["message"] = "No provider selected. Please select a provider in settings."
+        return result
+    
+    if not model:
+        result["message"] = f"No model selected for {provider}. Please select a model."
+        return result
+    
+    # For Ollama, check if server is accessible
+    if provider == "ollama":
+        try:
+            import httpx
+            base_url = resolve_base_url(cfg) or "http://localhost:11434/v1"
+            client = httpx.Client(timeout=5.0)
+            response = client.get(f"{base_url}/models")
+            if response.status_code == 200:
+                result["valid"] = True
+                result["message"] = f"Ollama server accessible at {base_url}"
+                result["checks"]["ollama_server"] = "ok"
+                result["checks"]["available_models"] = [m["name"] for m in response.json().get("models", [])]
+            else:
+                result["message"] = f"Ollama server returned status {response.status_code}. Ensure Ollama is running: 'ollama serve'"
+                result["checks"]["ollama_server"] = f"error_{response.status_code}"
+        except Exception as e:
+            result["message"] = f"Cannot connect to Ollama at {base_url}. Ensure Ollama is running with 'ollama serve'. Error: {str(e)}"
+            result["checks"]["ollama_server"] = "connection_failed"
+        return result
+    
+    # For cloud providers, check API key
+    api_key = get_api_key(cfg)
+    if not api_key:
+        env_key = PROVIDERS.get(provider, {}).get("env_key", "")
+        if env_key:
+            result["message"] = f"No API key set for {provider}. Set {env_key} environment variable or enter key in settings."
+        else:
+            result["message"] = f"No API key set for {provider}. Please enter API key in settings."
+        result["checks"]["api_key"] = "missing"
+        return result
+    
+    # Validate API key format (basic check)
+    if provider == "anthropic" and not api_key.startswith("sk-ant-"):
+        result["message"] = f"Invalid Anthropic API key format. Should start with 'sk-ant-'"
+        result["checks"]["api_key"] = "invalid_format"
+        return result
+    elif provider == "openai" and not api_key.startswith("sk-"):
+        result["message"] = f"Invalid OpenAI API key format. Should start with 'sk-'"
+        result["checks"]["api_key"] = "invalid_format"
+        return result
+    
+    result["valid"] = True
+    result["message"] = f"Configuration valid: {provider} with model {model}"
+    result["checks"]["api_key"] = "present"
+    return result

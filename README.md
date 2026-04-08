@@ -28,10 +28,11 @@ The flagship interface. A modern **Electron + React + TypeScript** desktop appli
 
 **Features:**
 - **Beautiful Chat Interface** - Modern dark theme with color-coded agent responses
-- **10 Agent Sidebar** - Click any agent for instant domain briefing  
+- **10 Agent Sidebar** - Click any agent for instant domain briefing
 - **Quick Actions** - One-click Business Summary, Live Metrics, New Chat
 - **Slash Commands** - `/summary`, `/metrics`, `/agents`, `/ask`, `/config`, `/help`
-- **Multi-Provider LLM** - Connect OpenAI, Anthropic (Claude), Google (Gemini), OpenRouter, or custom endpoints
+- **Multi-Provider LLM** - Connect OpenAI, Anthropic (Claude), Google (Gemini), OpenRouter, Ollama (local), or custom endpoints
+- **Configuration Validation** - Automatic validation of API keys and Ollama connectivity on startup
 - **Setup Wizard** - First-run configuration for API keys and settings
 - **Real Business Data** - Powered by your 10 Mafalia agents with actual CSV data
 
@@ -57,6 +58,32 @@ npm run dev
 npm run package
 # Output: release/MafaliaCode Setup.exe
 ```
+
+### Configuration
+
+Mafalia Code supports multiple LLM providers with automatic configuration validation:
+
+**Supported Providers:**
+- **OpenAI** - GPT-4o, GPT-4o-mini, GPT-4-turbo, o1-preview, o1-mini
+- **Anthropic (Claude)** - claude-sonnet-4, claude-3-5-sonnet, claude-3-5-haiku, claude-3-opus
+- **Google (Gemini)** - gemini-2.5-pro, gemini-2.0-flash, gemini-1.5-pro
+- **OpenRouter** - Access to 100+ models via single API key
+- **Ollama (Local)** - llama3.2, llama3.1, mistral, gemma2, qwen2.5, phi3, deepseek-coder
+- **Custom** - Any OpenAI-compatible endpoint
+
+**Configuration Validation:**
+- Automatic validation on startup checks API keys and Ollama connectivity
+- Clear error messages guide you to fix configuration issues
+- API key format validation (e.g., OpenAI keys must start with `sk-`)
+- Ollama server connectivity check at `http://localhost:11434/v1`
+
+**Setup Options:**
+1. **API Key** - Enter your provider's API key in the Settings panel
+2. **Environment Variable** - Set `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, or `OPENROUTER_API_KEY`
+3. **Ollama** - Run `ollama serve` locally, select Ollama provider in settings
+
+**API Endpoint:**
+- `GET /config/validate` - Check current configuration status
 
 ### Project Structure
 
