@@ -2,20 +2,27 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Message } from '../types'
 import {
-  Send, Loader2, Sparkles, Cpu, Zap, Slash,
-  BarChart3, TrendingUp, Network, MessageSquare,
-  Paperclip, FolderOpen, Wand2, Palette, Compass, Globe,
-  Repeat, Crown
+  Send, Sparkles, Slash,
+  BarChart3, TrendingUp, Wand2, Compass,
+  Paperclip, FolderOpen, Crown,
+  Cpu,
 } from 'lucide-react'
 
 const QUICK_ACTIONS = [
-  { label: 'Business Summary', cmd: '/summary', icon: BarChart3, color: '#10b981', bg: '#10b98115' },
-  { label: 'Analyze Revenue', cmd: '/analyze revenue', icon: TrendingUp, color: '#3b82f6', bg: '#3b82f615' },
-  { label: 'Create Campaign', cmd: '/create campaign', icon: Wand2, color: '#f97316', bg: '#f9731615' },
-  { label: 'Research Trends', cmd: '/research trends', icon: Compass, color: '#06b6d4', bg: '#06b6d415' },
-  { label: 'Predict Growth', cmd: '/predict growth', icon: TrendingUp, color: '#9b5de5', bg: '#9b5de515' },
-  { label: 'Boss Dashboard', cmd: '/boss', icon: Crown, color: '#f59e0b', bg: '#f59e0b15' },
+  { label: 'Business Summary', cmd: '/summary',         icon: BarChart3,  color: '#7C3AED', bg: 'rgba(124,58,237,0.12)'  },
+  { label: 'Analyze Revenue',  cmd: '/analyze revenue', icon: TrendingUp, color: '#00D4FF', bg: 'rgba(0,212,255,0.10)'   },
+  { label: 'Create Campaign',  cmd: '/create campaign', icon: Wand2,      color: '#A855F7', bg: 'rgba(168,85,247,0.12)'  },
+  { label: 'Research Trends',  cmd: '/research trends', icon: Compass,    color: '#06B6D4', bg: 'rgba(6,182,212,0.10)'   },
+  { label: 'Predict Growth',   cmd: '/predict growth',  icon: TrendingUp, color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)'  },
+  { label: 'Boss Dashboard',   cmd: '/boss',            icon: Crown,      color: '#F59E0B', bg: 'rgba(245,158,11,0.12)'  },
 ]
+
+const AGENT_COLORS: Record<string, string> = {
+  '[REV]': '#FF6B35', '[OPS]': '#2E86AB', '[CUS]': '#A23B72',
+  '[INV]': '#1B998B', '[MKT]': '#F77F00', '[FIN]': '#6C5B7B',
+  '[DAT]': '#2D6A4F', '[TEC]': '#E63946', '[GRO]': '#9B5DE5',
+  '[PAR]': '#06D6A0', '[MAF]': '#7C3AED', '[ERR]': '#EF4444',
+}
 
 interface ChatAreaProps {
   messages: Message[]
@@ -25,24 +32,19 @@ interface ChatAreaProps {
   onCommandPaletteOpen: () => void
   pendingInput?: string
   onPendingInputConsumed?: () => void
-  onAgentGridOpen?: () => void
 }
 
-function ChatArea({ messages, isLoading, currentModel, onSendMessage, onCommandPaletteOpen, pendingInput, onPendingInputConsumed, onAgentGridOpen }: ChatAreaProps) {
+export default function ChatArea({
+  messages, isLoading, currentModel, onSendMessage,
+  onCommandPaletteOpen, pendingInput, onPendingInputConsumed,
+}: ChatAreaProps) {
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const isWelcome = messages.length === 0 || (messages.length === 1 && (!messages[0].content || messages[0].id === 'welcome'))
 
-  const setInputAndFocus = (text: string) => {
-    setInput(text)
-    setTimeout(() => inputRef.current?.focus(), 50)
-  }
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   useEffect(() => {
     if (pendingInput) {
@@ -55,7 +57,7 @@ function ChatArea({ messages, isLoading, currentModel, onSendMessage, onCommandP
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.style.height = 'auto'
-      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 120)}px`
+      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 140)}px`
     }
   }, [input])
 
@@ -67,50 +69,42 @@ function ChatArea({ messages, isLoading, currentModel, onSendMessage, onCommandP
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSubmit()
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value
-    if (val === '/' && input === '') {
-      onCommandPaletteOpen()
-      return
-    }
+    if (val === '/' && input === '') { onCommandPaletteOpen(); return }
     setInput(val)
   }
 
-  // Parse inline markdown: **bold** and `code`
+  // ── Markdown Parser ─────────────────────────────────────────────
   const parseInline = (text: string): React.ReactNode[] => {
     const parts: React.ReactNode[] = []
     let remaining = text
     let key = 0
     while (remaining.length > 0) {
-      // Bold
-      const boldIdx = remaining.indexOf('**')
-      const codeIdx = remaining.indexOf('`')
-      // Find whichever comes first
+      const boldIdx  = remaining.indexOf('**')
+      const codeIdx  = remaining.indexOf('`')
       const nextBold = boldIdx !== -1 ? boldIdx : Infinity
       const nextCode = codeIdx !== -1 ? codeIdx : Infinity
-
-      if (nextBold === Infinity && nextCode === Infinity) {
-        parts.push(remaining)
-        break
-      }
-
+      if (nextBold === Infinity && nextCode === Infinity) { parts.push(remaining); break }
       if (nextBold <= nextCode) {
         if (boldIdx > 0) parts.push(remaining.slice(0, boldIdx))
         const end = remaining.indexOf('**', boldIdx + 2)
         if (end === -1) { parts.push(remaining.slice(boldIdx)); break }
-        parts.push(<strong key={key++} className="font-semibold text-zinc-100">{remaining.slice(boldIdx + 2, end)}</strong>)
+        parts.push(<strong key={key++} className="font-semibold text-slate-100">{remaining.slice(boldIdx + 2, end)}</strong>)
         remaining = remaining.slice(end + 2)
       } else {
         if (codeIdx > 0) parts.push(remaining.slice(0, codeIdx))
         const end = remaining.indexOf('`', codeIdx + 1)
         if (end === -1) { parts.push(remaining.slice(codeIdx)); break }
-        parts.push(<code key={key++} className="px-1.5 py-0.5 rounded bg-black/30 text-orange-300 text-xs font-mono border border-white/[0.06]">{remaining.slice(codeIdx + 1, end)}</code>)
+        parts.push(
+          <code key={key++} className="px-1.5 py-0.5 rounded-md text-xs font-mono"
+                style={{ background: 'rgba(124,58,237,0.18)', color: '#C4B5FD', border: '1px solid rgba(124,58,237,0.2)' }}>
+            {remaining.slice(codeIdx + 1, end)}
+          </code>
+        )
         remaining = remaining.slice(end + 1)
       }
     }
@@ -121,162 +115,179 @@ function ChatArea({ messages, isLoading, currentModel, onSendMessage, onCommandP
     const lines = content.split('\n')
     const elements: React.ReactNode[] = []
     let inCodeBlock = false
+    let codeLang = ''
     let codeLines: string[] = []
 
     lines.forEach((line, i) => {
-      // Code block toggle
       if (line.startsWith('```')) {
         if (inCodeBlock) {
           elements.push(
-            <pre key={i} className="font-mono text-xs bg-black/30 rounded-lg px-4 py-3 mt-2 mb-2 text-zinc-300 border border-white/[0.06] overflow-x-auto whitespace-pre-wrap">
-              {codeLines.join('\n')}
-            </pre>
+            <div key={i} className="my-3 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="flex items-center justify-between px-4 py-1.5" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">{codeLang || 'code'}</span>
+              </div>
+              <pre className="font-mono text-[12.5px] px-4 py-3 text-slate-300 overflow-x-auto"
+                   style={{ background: 'rgba(0,0,0,0.35)', whiteSpace: 'pre-wrap' }}>
+                {codeLines.join('\n')}
+              </pre>
+            </div>
           )
-          codeLines = []
-          inCodeBlock = false
+          codeLines = []; codeLang = ''; inCodeBlock = false
         } else {
+          codeLang = line.slice(3).trim()
           inCodeBlock = true
         }
         return
       }
       if (inCodeBlock) { codeLines.push(line); return }
 
-      // Headers
       if (line.startsWith('### ')) {
-        elements.push(<h3 key={i} className="text-base font-bold text-orange-400 mt-4 mb-1.5">{parseInline(line.slice(4))}</h3>)
+        elements.push(<h3 key={i} className="text-[15px] font-bold mt-4 mb-1.5" style={{ color: '#A78BFA' }}>{parseInline(line.slice(4))}</h3>)
         return
       }
       if (line.startsWith('## ')) {
-        elements.push(<h2 key={i} className="text-lg font-bold text-zinc-100 mt-4 mb-1.5">{parseInline(line.slice(3))}</h2>)
+        elements.push(<h2 key={i} className="text-base font-bold text-slate-100 mt-5 mb-2">{parseInline(line.slice(3))}</h2>)
         return
       }
-      // Bullets
       if (line.startsWith('• ') || line.startsWith('- ')) {
-        const text = line.startsWith('• ') ? line.slice(2) : line.slice(2)
         elements.push(
-          <div key={i} className="flex gap-2 mt-1 ml-1">
-            <span className="text-zinc-500 shrink-0">•</span>
-            <span className="text-zinc-300">{parseInline(text)}</span>
+          <div key={i} className="flex gap-2 mt-1.5 ml-2">
+            <span className="mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: 'rgba(124,58,237,0.7)' }} />
+            <span className="text-slate-300 leading-relaxed text-[13.5px]">{parseInline(line.slice(2))}</span>
           </div>
         )
         return
       }
-      // Empty
       if (line.trim() === '') { elements.push(<div key={i} className="h-2" />); return }
-      // Normal line with inline formatting
-      elements.push(<p key={i} className="text-zinc-300 mt-1 leading-relaxed">{parseInline(line)}</p>)
+      elements.push(<p key={i} className="text-slate-300 leading-relaxed text-[13.5px] mt-1">{parseInline(line)}</p>)
     })
 
-    // Close unclosed code block
     if (inCodeBlock && codeLines.length > 0) {
       elements.push(
-        <pre key="code-end" className="font-mono text-xs bg-black/30 rounded-lg px-4 py-3 mt-2 text-zinc-300 border border-white/[0.06] overflow-x-auto whitespace-pre-wrap">
+        <pre key="code-end" className="my-3 rounded-xl font-mono text-[12.5px] px-4 py-3 text-slate-300 overflow-x-auto"
+             style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', whiteSpace: 'pre-wrap' }}>
           {codeLines.join('\n')}
         </pre>
       )
     }
-
     return elements
   }
 
-  const getAgentColor = (tag?: string) => {
-    if (!tag) return '#f97316'
-    const colors: Record<string, string> = {
-      '[REV]': '#f97316', '[OPS]': '#06b6d4', '[CUS]': '#ec4899',
-      '[INV]': '#10b981', '[MKT]': '#f59e0b', '[FIN]': '#8b5cf6',
-      '[DAT]': '#14b8a6', '[TEC]': '#ef4444', '[GRO]': '#a855f7',
-      '[PAR]': '#22c55e', '[MAF]': '#f97316', '[ERR]': '#ef4444',
-    }
-    return colors[tag] || '#f97316'
-  }
-
   return (
-    <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-[#0a0e14]">
-      {/* Model indicator */}
+    <div className="flex-1 flex flex-col h-full relative overflow-hidden" style={{ background: '#060A10' }}>
+
+      {/* Active model badge */}
       <AnimatePresence>
         {currentModel && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            exit={{ opacity: 0, y: -16 }}
             className="absolute top-4 left-1/2 -translate-x-1/2 z-20"
           >
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/[0.08]">
-              <Cpu size={14} className="text-orange-400" />
-              <span className="text-xs text-orange-400 font-medium">{currentModel.split('/').pop()}</span>
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full"
+                 style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', backdropFilter: 'blur(12px)' }}>
+              <Cpu size={12} style={{ color: '#A78BFA' }} />
+              <span className="text-[11px] font-medium" style={{ color: '#A78BFA' }}>
+                {currentModel.split('/').pop()}
+              </span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Content area */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
+      {/* ── Message / Welcome Area ─────────────── */}
+      <div className="flex-1 overflow-y-auto px-6 py-6" style={{ scrollbarWidth: 'thin' }}>
         <div className="max-w-3xl mx-auto">
 
+          {/* Welcome screen */}
           {isWelcome && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="flex flex-col items-center justify-center min-h-[60vh] pt-8"
+              className="flex flex-col items-center justify-center min-h-[64vh] pt-8"
             >
-              {/* Hero */}
+              {/* Hero logo */}
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
+                initial={{ scale: 0.85, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', damping: 25 }}
+                transition={{ delay: 0.1, type: 'spring', damping: 22 }}
                 className="relative mb-6"
               >
-                <div className="absolute inset-0 rounded-full bg-orange-500/10 blur-2xl scale-150" />
-                <img
-                  src="/mafalia-logo.png"
-                  alt="Mafalia"
-                  className="relative w-16 h-16 object-contain"
-                />
+                <div className="absolute inset-0 rounded-full"
+                     style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 70%)', transform: 'scale(2.5)', filter: 'blur(20px)' }} />
+                <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center"
+                     style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.2))', border: '1px solid rgba(124,58,237,0.5)' }}>
+                  <span className="text-2xl font-bold gradient-text">M</span>
+                </div>
               </motion.div>
-              <h1 className="text-[28px] font-bold text-zinc-100 mb-2 tracking-tight">
-                Your AI Business Command Center
-              </h1>
-              <p className="text-zinc-500 text-sm mb-2 max-w-lg text-center leading-relaxed">
-                10 specialized agents. One boss. Analyze, predict, create, automate — all from one place.
-              </p>
-              <p className="text-zinc-600 text-xs mb-8">
-                Type a question, use a quick action, or press <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] text-[10px] font-mono border border-white/[0.08] text-zinc-400">/</kbd> for commands
-              </p>
 
-              {/* Quick Action Grid */}
-              <div className="grid grid-cols-3 gap-2.5 w-full max-w-xl">
+              <motion.h1
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-[28px] font-bold text-slate-100 mb-2 tracking-tight text-center"
+              >
+                Your AI Business <span className="gradient-text">Command Center</span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.28 }}
+                className="text-slate-500 text-[13.5px] mb-2 max-w-md text-center leading-relaxed"
+              >
+                10 specialized agents. One boss. Analyze, predict, create, automate — all from one platform.
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.35 }}
+                className="text-slate-600 text-[12px] mb-8 text-center"
+              >
+                Type a message, click an action, or press{' '}
+                <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400"
+                     style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  /
+                </kbd>{' '}
+                for commands
+              </motion.p>
+
+              {/* Quick action grid */}
+              <div className="grid grid-cols-3 gap-2.5 w-full max-w-[480px]">
                 {QUICK_ACTIONS.map((action, i) => {
                   const Icon = action.icon
                   return (
                     <motion.button
                       key={action.cmd}
-                      initial={{ opacity: 0, y: 16 }}
+                      initial={{ opacity: 0, y: 18 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.12 + i * 0.04, type: 'spring', damping: 22, stiffness: 300 }}
+                      transition={{ delay: 0.12 + i * 0.05, type: 'spring', damping: 22 }}
                       whileHover={{ y: -2, scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => onSendMessage(action.cmd)}
-                      className="flex flex-col items-center gap-2.5 px-4 py-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.14] hover:bg-white/[0.04] transition-all group"
+                      className="flex flex-col items-center gap-2.5 px-3 py-4 rounded-2xl transition-all group"
+                      style={{ background: action.bg, border: `1px solid ${action.color}20` }}
+                      onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.borderColor = `${action.color}45`}
+                      onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.borderColor = `${action.color}20`}
                     >
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center"
-                        style={{ background: action.bg, border: `1px solid ${action.color}20` }}
-                      >
-                        <Icon size={18} style={{ color: action.color }} />
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                           style={{ background: `${action.color}15`, border: `1px solid ${action.color}25` }}>
+                        <Icon size={16} style={{ color: action.color }} />
                       </div>
-                      <span className="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">{action.label}</span>
+                      <span className="text-[11.5px] font-medium text-slate-400 group-hover:text-slate-200 transition-colors text-center leading-tight">
+                        {action.label}
+                      </span>
                     </motion.button>
                   )
                 })}
               </div>
 
-              {/* Agent indicator */}
+              {/* Agent dots */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
+                transition={{ delay: 0.7 }}
                 className="mt-8 flex items-center gap-1.5"
               >
                 {['#FF6B35','#2E86AB','#A23B72','#1B998B','#F77F00','#6C5B7B','#2D6A4F','#E63946','#9B5DE5','#06D6A0'].map((c, i) => (
@@ -284,63 +295,62 @@ function ChatArea({ messages, isLoading, currentModel, onSendMessage, onCommandP
                     key={c}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ delay: 0.65 + i * 0.03, type: 'spring', damping: 20 }}
+                    transition={{ delay: 0.72 + i * 0.03, type: 'spring', damping: 18 }}
                     className="w-2 h-2 rounded-full"
-                    style={{ background: c, opacity: 0.6 }}
+                    style={{ background: c, opacity: 0.7 }}
                   />
                 ))}
-                <span className="text-[10px] text-zinc-600 ml-2">10 agents ready</span>
+                <span className="text-[10px] text-slate-600 ml-2">10 agents ready</span>
               </motion.div>
             </motion.div>
           )}
 
           {/* Messages */}
           {!isWelcome && (
-            <div className="space-y-6">
+            <div className="space-y-5 pb-4">
               {messages.map((msg) => {
-                const color = getAgentColor(msg.agentTag)
+                const color = AGENT_COLORS[msg.agentTag || ''] || '#7C3AED'
                 return (
                   <motion.div
                     key={msg.id}
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    className="group"
+                    transition={{ type: 'spring', damping: 22, stiffness: 280 }}
                   >
                     {msg.role === 'user' && (
                       <div className="flex flex-col items-end">
-                        <div className="flex items-center gap-2 mb-1 px-1">
-                          <span className="text-[11px] text-zinc-500">
+                        <div className="flex items-center gap-2 mb-1.5 px-1">
+                          <span className="text-[11px] text-slate-600">
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
-                          <span className="text-xs font-semibold text-zinc-400">You</span>
+                          <span className="text-[12px] font-semibold text-slate-500">You</span>
                         </div>
-                        <div className="bg-blue-600/80 backdrop-blur-sm rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[85%] border border-blue-500/20">
-                          <p className="text-sm text-white leading-relaxed">{msg.content}</p>
+                        <div className="px-5 py-3.5 rounded-2xl rounded-tr-sm max-w-[84%]"
+                             style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.15))', border: '1px solid rgba(124,58,237,0.3)' }}>
+                          <p className="text-[13.5px] text-slate-100 leading-relaxed">{msg.content}</p>
                         </div>
                       </div>
                     )}
 
                     {msg.role === 'assistant' && (
                       <div className="flex flex-col items-start">
-                        <div className="flex items-center gap-2 mb-2 px-1">
-                          <div
-                            className="w-6 h-6 rounded-lg flex items-center justify-center"
-                            style={{ background: `${color}20`, border: `1px solid ${color}30` }}
-                          >
-                            {msg.agentTag === '[MAF]' ? <Sparkles size={12} style={{ color }} /> :
-                             msg.agentTag === '[ERR]' ? <Zap size={12} style={{ color }} /> :
-                             <span className="text-[10px] font-bold" style={{ color }}>{msg.agentTag?.slice(1, 4)}</span>}
+                        <div className="flex items-center gap-2.5 mb-2 px-1">
+                          <div className="w-6 h-6 rounded-lg flex items-center justify-center"
+                               style={{ background: `${color}18`, border: `1px solid ${color}30` }}>
+                            {msg.agentTag === '[MAF]'
+                              ? <Sparkles size={11} style={{ color }} />
+                              : <span className="text-[10px] font-bold" style={{ color }}>{msg.agentTag?.slice(1, 4)}</span>}
                           </div>
-                          <span className="text-xs font-semibold" style={{ color }}>
+                          <span className="text-[12px] font-semibold" style={{ color }}>
                             {msg.agentTag || 'MAF'}
                           </span>
-                          <span className="text-[11px] text-zinc-500">
+                          <span className="text-[11px] text-slate-600">
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <div className="rounded-2xl rounded-tl-sm px-5 py-4 max-w-[90%] bg-zinc-800/50 backdrop-blur-sm border border-white/[0.07]">
-                          <div className="text-sm leading-relaxed text-zinc-200">
+                        <div className="px-5 py-4 rounded-2xl rounded-tl-sm max-w-[92%]"
+                             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderLeft: `2px solid ${color}50` }}>
+                          <div className="text-[13.5px] leading-relaxed">
                             {formatContent(msg.content)}
                           </div>
                         </div>
@@ -350,20 +360,26 @@ function ChatArea({ messages, isLoading, currentModel, onSendMessage, onCommandP
                 )
               })}
 
+              {/* Typing indicator */}
               <AnimatePresence>
                 {isLoading && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="flex items-center gap-3 text-zinc-400 px-2"
+                    className="flex items-center gap-3 px-2"
                   >
-                    <div className="w-6 h-6 rounded-lg bg-zinc-800/60 flex items-center justify-center border border-white/[0.08]">
-                      <Loader2 size={14} className="animate-spin text-orange-400" />
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center"
+                         style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)' }}>
+                      <Sparkles size={11} style={{ color: '#A78BFA' }} />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-zinc-300">Mafalia is thinking...</span>
-                      <span className="text-xs text-zinc-500">Selecting optimal model</span>
+                    <div className="px-4 py-3 rounded-2xl rounded-tl-sm"
+                         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderLeft: '2px solid rgba(124,58,237,0.4)' }}>
+                      <div className="flex items-center gap-1.5">
+                        <span className="typing-dot" />
+                        <span className="typing-dot" />
+                        <span className="typing-dot" />
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -375,58 +391,60 @@ function ChatArea({ messages, isLoading, currentModel, onSendMessage, onCommandP
         </div>
       </div>
 
-      {/* Input bar — Script.io inspired with action row */}
-      <div className="border-t border-white/[0.06] bg-[#0d1117]/80 backdrop-blur-md px-6 py-4">
+      {/* ── Input Bar ─────────────────────────── */}
+      <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(5,8,16,0.8)', backdropFilter: 'blur(16px)' }}>
         <div className="max-w-3xl mx-auto">
-          <div className="bg-black/30 rounded-2xl border border-white/[0.08] backdrop-blur-sm focus-within:border-orange-500/30 transition-all overflow-hidden">
+          <div className="rounded-2xl overflow-hidden input-focus-ring transition-all"
+               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="flex items-end">
               <textarea
                 ref={inputRef}
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about your business..."
-                className="flex-1 bg-transparent text-zinc-100 placeholder-zinc-500 text-sm px-5 py-4 resize-none outline-none min-h-[52px] max-h-[120px]"
+                placeholder="Ask about your business… (/ for commands)"
+                className="flex-1 bg-transparent text-slate-100 placeholder-slate-600 text-[13.5px] px-5 py-4 resize-none outline-none leading-relaxed"
+                style={{ minHeight: '52px', maxHeight: '140px', fontFamily: 'Space Grotesk, sans-serif' }}
                 rows={1}
               />
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
                 onClick={handleSubmit}
                 disabled={!input.trim() || isLoading}
-                className="mr-3 mb-3 p-2.5 rounded-xl bg-orange-600/90 hover:bg-orange-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="mr-3 mb-3 p-2.5 rounded-xl transition-all disabled:opacity-25 disabled:cursor-not-allowed"
+                style={{ background: 'linear-gradient(135deg, #7C3AED, #00D4FF)' }}
               >
-                <Send size={16} className="text-white" />
+                <Send size={15} className="text-white" />
               </motion.button>
             </div>
 
-            <div className="flex items-center gap-0.5 px-3 pb-2.5 pt-0">
-              <ActionChip icon={Paperclip} label="Attach" onClick={() => setInputAndFocus('/browse ')} />
-              <ActionChip icon={Slash} label="Commands" onClick={onCommandPaletteOpen} />
-              <ActionChip icon={FolderOpen} label="Find CSVs" onClick={() => setInputAndFocus('/csvs ')} />
+            {/* Action chips */}
+            <div className="flex items-center gap-0.5 px-3 pb-2.5 pt-0 border-t"
+                 style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <Chip icon={Paperclip} label="Attach"   onClick={() => { setInput('/browse '); inputRef.current?.focus() }} />
+              <Chip icon={Slash}     label="Commands" onClick={onCommandPaletteOpen} />
+              <Chip icon={FolderOpen} label="Find CSVs" onClick={() => { setInput('/csvs '); inputRef.current?.focus() }} />
               <div className="flex-1" />
-              <span className="text-[11px] text-zinc-600 tabular-nums select-none">{input.length}</span>
+              <span className="text-[11px] text-slate-700 tabular-nums select-none">{input.length}</span>
             </div>
           </div>
-        
         </div>
       </div>
     </div>
   )
 }
 
-function ActionChip({ icon: Icon, label, onClick }: { icon: React.ComponentType<any>; label: string; onClick: () => void }) {
+function Chip({ icon: Icon, label, onClick }: { icon: React.ComponentType<any>; label: string; onClick: () => void }) {
   return (
     <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04] transition-colors text-xs"
+      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-400 hover:bg-white/[0.04] transition-colors text-[11.5px]"
     >
-      <Icon size={13} />
+      <Icon size={12} />
       <span>{label}</span>
     </motion.button>
   )
 }
-
-export default ChatArea
