@@ -39,23 +39,20 @@ export default function Sidebar({
 
   return (
     <div className="w-[272px] min-w-[272px] h-full flex flex-col relative overflow-hidden"
-         style={{ background: 'rgba(5,8,16,0.95)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+         style={{ background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)' }}>
 
-      {/* Subtle top glow stripe */}
-      <div className="absolute top-0 left-0 right-0 h-px"
-           style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.5), rgba(0,212,255,0.4), transparent)' }} />
+      <div className="absolute top-0 left-0 right-0 h-[4px]"
+           style={{ background: 'var(--primary)' }} />
 
       {/* ── Logo ──────────────────────────────────── */}
       <div className="px-5 pt-5 pb-4 drag-region">
         <div className="flex items-center gap-3 no-drag">
-          <div className="relative w-9 h-9 rounded-xl flex items-center justify-center"
-               style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.2))', border: '1px solid rgba(124,58,237,0.4)' }}>
-            <span className="text-base font-bold gradient-text">M</span>
-            <div className="absolute -inset-0.5 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(0,212,255,0.1))', filter: 'blur(6px)', zIndex: -1 }} />
+          <div className="relative w-10 h-10 rounded-xl flex items-center justify-center bg-[#E63946] shadow-sm">
+            <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6"><path d="M12 2L2 22h4l6-12 6 12h4L12 2z"/></svg>
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-100 tracking-tight">Mafalia <span className="gradient-text">Code</span></p>
-            <p className="text-[10px] text-slate-500 font-medium tracking-wide mt-0.5">AI Command Center</p>
+            <p className="text-sm font-bold text-slate-900 tracking-tight">Mafalia <span className="text-[#E63946]">Code</span></p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">AI Platform</p>
           </div>
         </div>
       </div>
@@ -67,13 +64,12 @@ export default function Sidebar({
           whileTap={{ scale: 0.98 }}
           onClick={onCommandPaletteOpen}
           className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all no-drag"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+          style={{ background: '#F1F5F9', border: '1px solid #E2E8F0' }}
         >
-          <Search size={13} className="text-slate-500" />
-          <span className="flex-1 text-xs text-left text-slate-500">Search commands…</span>
-          <kbd className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-mono text-slate-600"
-               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <Command size={9} />/
+          <Search size={13} className="text-slate-400" />
+          <span className="flex-1 text-xs text-left text-slate-500 font-medium">Quick search…</span>
+          <kbd className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-mono text-slate-400 bg-white border border-slate-200 shadow-sm">
+            /
           </kbd>
         </motion.button>
       </div>
@@ -84,16 +80,16 @@ export default function Sidebar({
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           onClick={onNewChat}
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-slate-300 transition-all no-drag"
-          style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(0,212,255,0.08))', border: '1px solid rgba(124,58,237,0.25)' }}
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-white transition-all no-drag shadow-sm"
+          style={{ background: 'var(--primary)' }}
         >
-          <Plus size={15} className="text-violet-400" />
-          <span className="font-medium text-sm">New Conversation</span>
+          <Plus size={15} />
+          <span className="font-bold text-sm">New Session</span>
         </motion.button>
       </div>
 
       {/* ── Divider ───────────────────────────────── */}
-      <div className="mx-4 mb-2 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)' }} />
+      <div className="mx-4 mb-2 h-px bg-slate-100" />
 
       {/* ── Quick Actions ────────────────────────── */}
       <div className="px-4 mb-1">
@@ -107,14 +103,13 @@ export default function Sidebar({
       </div>
 
       {/* ── Divider ───────────────────────────────── */}
-      <div className="mx-4 my-2 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)' }} />
+      <div className="mx-4 my-2 h-px bg-slate-100" />
 
       {/* ── Agents ───────────────────────────────── */}
       <div className="flex items-center justify-between px-5 mb-1.5">
-        <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">AI Agents</p>
-        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-              style={{ background: 'rgba(124,58,237,0.15)', color: '#A78BFA', border: '1px solid rgba(124,58,237,0.2)' }}>
-          {agents.length} active
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AI Agents</p>
+        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+          {agents.length} Online
         </span>
       </div>
 
@@ -129,38 +124,27 @@ export default function Sidebar({
                 whileHover={{ x: 2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onAgentClick(agent.id)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group no-drag"
-                style={{ border: '1px solid transparent' }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'
-                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)'
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'transparent'
-                  ;(e.currentTarget as HTMLElement).style.borderColor = 'transparent'
-                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group no-drag border border-transparent hover:bg-slate-50 hover:border-slate-200"
               >
                 {/* Icon */}
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                     style={{ background: `${agent.color}14`, border: `1px solid ${agent.color}28` }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-100 border border-slate-200 shadow-sm">
                   {Icon
-                    ? <Icon size={14} style={{ color: agent.color }} />
-                    : <span className="text-[11px] font-bold" style={{ color: agent.color }}>{agent.tag.slice(1, 4)}</span>}
+                    ? <Icon size={14} className="text-slate-600" />
+                    : <span className="text-[11px] font-bold text-slate-600">{agent.tag.slice(1, 4)}</span>}
                 </div>
 
                 {/* Info */}
                 <div className="text-left flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-slate-200 group-hover:text-white transition-colors truncate">{agent.name}</p>
-                  <p className="text-[11px] text-slate-500 truncate leading-tight">{agent.title}</p>
+                  <p className="text-[13px] font-bold text-slate-900 truncate">{agent.name}</p>
+                  <p className="text-[10px] text-slate-500 font-medium truncate leading-tight">{agent.title}</p>
                 </div>
 
                 {/* Status */}
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded"
-                        style={{ background: `${agent.color}10`, color: `${agent.color}90` }}>
+                  <span className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-400">
                     {agent.tag}
                   </span>
-                  <div className={`status-dot ${agent.status || 'idle'} ${isWorking ? 'animate-pulse-glow' : ''}`} />
+                  <div className={`status-dot status-online`} />
                 </div>
               </motion.button>
             )
@@ -263,22 +247,12 @@ function QuickBtn({ onClick, icon: Icon, label, color }: {
       whileHover={{ x: 2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all group no-drag"
-      style={{ border: '1px solid transparent' }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.background = `${color}10`
-        ;(e.currentTarget as HTMLElement).style.borderColor = `${color}20`
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.background = 'transparent'
-        ;(e.currentTarget as HTMLElement).style.borderColor = 'transparent'
-      }}
+      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all group no-drag border border-transparent hover:bg-slate-50 hover:border-slate-200"
     >
-      <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
-           style={{ background: `${color}15`, border: `1px solid ${color}25` }}>
-        <Icon size={12} style={{ color }} />
+      <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-100 border border-slate-200">
+        <Icon size={12} className="text-slate-600" />
       </div>
-      <span className="font-medium text-[13px] text-slate-400 group-hover:text-slate-200 transition-colors">{label}</span>
+      <span className="font-bold text-[13px] text-slate-500 group-hover:text-slate-900 transition-colors">{label}</span>
     </motion.button>
   )
 }

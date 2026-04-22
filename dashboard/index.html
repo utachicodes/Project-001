@@ -11,298 +11,239 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     :root {
-      --bg:          #050810;
-      --surface:     rgba(255,255,255,0.03);
-      --surface-md:  rgba(255,255,255,0.06);
-      --border:      rgba(255,255,255,0.07);
-      --border-md:   rgba(255,255,255,0.12);
-      --violet:      #7C3AED;
-      --violet-glow: rgba(124,58,237,0.25);
-      --cyan:        #00D4FF;
-      --cyan-glow:   rgba(0,212,255,0.18);
-      --text:        #F1F5F9;
+      --primary:     #E63946;
+      --primary-soft: rgba(230, 57, 70, 0.1);
+      --bg:          #F8FAFC;
+      --surface:     #FFFFFF;
+      --border:      #E2E8F0;
+      --text:        #1E293B;
       --muted:       #64748B;
-      --faint:       #1E293B;
+      --success:     #10B981;
     }
     html, body { height: 100%; margin: 0; }
     body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
     .mono { font-family: 'JetBrains Mono', monospace; }
-    .glass { background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-    .glass-md { background: var(--surface-md); border: 1px solid var(--border-md); }
 
-    /* Gradient text */
-    .grad { background: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-    /* Top stripe */
-    .top-stripe { height: 1px; background: linear-gradient(90deg, transparent, var(--violet), var(--cyan), transparent); }
-
-    /* Ambient orbs */
-    .orb-a { position: fixed; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.08), transparent 70%); top: -200px; left: -150px; pointer-events: none; z-index: 0; animation: orbFloat 9s ease-in-out infinite; }
-    .orb-b { position: fixed; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(0,212,255,0.06), transparent 70%); bottom: -150px; right: -100px; pointer-events: none; z-index: 0; animation: orbFloat 11s ease-in-out infinite reverse; }
-    @keyframes orbFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-20px) scale(1.04)} }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .btn-primary { background: var(--primary); color: white; border-radius: 8px; font-weight: 600; transition: opacity 0.2s; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-outline { border: 1px solid var(--border); background: white; border-radius: 8px; font-weight: 500; transition: all 0.2s; }
+    .btn-outline:hover { background: var(--bg); }
 
     /* Animations */
     @keyframes slideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
-    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.45} }
-    @keyframes spin    { to{transform:rotate(360deg)} }
-    @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
-    @keyframes typing  { 0%,80%,100%{transform:scale(0);opacity:.4} 40%{transform:scale(1);opacity:1} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-    .slide-in { animation: slideIn 0.35s cubic-bezier(.22,1,.36,1) both; }
-    .fade-in  { animation: fadeIn  0.3s ease both; }
-    .pulse    { animation: pulse 2s ease-in-out infinite; }
-    .spin     { animation: spin  0.7s linear infinite; }
-
-    .shimmer-line { background: linear-gradient(90deg,transparent,rgba(255,255,255,0.07),transparent); background-size: 200% 100%; animation: shimmer 1.3s ease-in-out infinite; border-radius: 4px; }
-    .typing-dot { width:5px;height:5px;background:var(--cyan);border-radius:50%;display:inline-block;animation:typing 1.4s ease-in-out infinite; }
-    .typing-dot:nth-child(2){animation-delay:.2s} .typing-dot:nth-child(3){animation-delay:.4s}
+    .slide-in { animation: slideIn 0.3s ease-out both; }
+    .pulse { animation: pulse 2s ease-in-out infinite; }
+    .spin { animation: spin 0.7s linear infinite; }
 
     /* Agent card */
-    .agent-card { cursor:pointer; transition: all 0.22s cubic-bezier(.22,1,.36,1); }
-    .agent-card:hover { transform: translateY(-3px); }
-    .agent-card.selected { box-shadow: 0 0 0 1.5px var(--card-color, var(--violet)), 0 8px 32px rgba(0,0,0,0.4); }
-
-    /* Metric card left border */
-    .metric-card { border-left: 2px solid; }
+    .agent-card { cursor:pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+    .agent-card:hover { background: #F1F5F9; border-left-color: var(--border); }
+    .agent-card.selected { background: white; border-left-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 10; }
 
     /* Input focus */
-    input:focus, textarea:focus { outline: none; border-color: rgba(124,58,237,0.5) !important; box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary) !important; ring: 2px solid var(--primary-soft); }
 
-    /* Tab strip */
-    .tab-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--muted); transition: all 0.15s; cursor: pointer; }
-    .tab-btn.active { background: rgba(124,58,237,0.18); color: #C4B5FD; }
-    .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.04); color: var(--text); }
-
-    /* Scrollable panels */
-    .scroll-panel { overflow-y: auto; scrollbar-width: thin; }
-
-    /* Button base */
-    .btn-grad { background: linear-gradient(135deg, var(--violet), var(--cyan)); color: #fff; border: none; cursor: pointer; transition: opacity .15s; }
-    .btn-grad:hover { opacity: 0.88; }
-    .btn-ghost { background: var(--surface); border: 1px solid var(--border-md); cursor: pointer; transition: all .15s; color: var(--text); }
-    .btn-ghost:hover { background: var(--surface-md); }
-
-    /* Loading bar */
-    .loader { border: 2px solid rgba(255,255,255,0.07); border-top-color: var(--violet); border-radius: 50%; width: 18px; height: 18px; }
-
-    /* Code block */
-    .code-block { background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A78BFA; overflow-x: auto; white-space: pre-wrap; }
+    .loader { border: 2px solid #E2E8F0; border-top-color: var(--primary); border-radius: 50%; width: 18px; height: 18px; }
+    .code-block { background: #0F172A; border-radius: 8px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #E2E8F0; overflow-x: auto; }
   </style>
 </head>
 <body>
 
-  <!-- Ambient orbs -->
-  <div class="orb-a"></div>
-  <div class="orb-b"></div>
-
   <!-- ── TOP NAV ─────────────────────────────────────────────── -->
-  <nav class="sticky top-0 z-50 glass" style="border-bottom:1px solid var(--border);">
-    <div class="top-stripe"></div>
-    <div style="max-width:1400px;margin:0 auto;padding:0 24px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;height:56px;">
-        <!-- Logo -->
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,rgba(124,58,237,0.3),rgba(0,212,255,0.2));border:1px solid rgba(124,58,237,0.45);display:flex;align-items:center;justify-content:center;">
-            <span class="grad" style="font-size:18px;font-weight:700;">M</span>
-          </div>
-          <div>
-            <span style="font-size:15px;font-weight:600;color:#F1F5F9;">Mafalia <span class="grad">AI</span></span>
-            <div style="font-size:10px;color:var(--muted);margin-top:1px;">Business Intelligence Platform</div>
-          </div>
-          <span style="font-size:10px;padding:2px 10px;border-radius:999px;background:rgba(124,58,237,0.15);color:#C4B5FD;border:1px solid rgba(124,58,237,0.25);font-weight:600;">10 Agents</span>
+  <nav class="sticky top-0 z-50 bg-white border-b border-slate-200">
+    <div style="height: 4px; background: var(--primary);"></div>
+    <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-[#E63946] flex items-center justify-center shadow-sm">
+          <svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M12 2L2 22h4l6-12 6 12h4L12 2z"/></svg>
         </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-slate-900">Mafalia <span class="text-[#E63946]">AI</span></span>
+          <div class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Business Intelligence Platform</div>
+        </div>
+      </div>
 
-        <!-- Right controls -->
-        <div style="display:flex;align-items:center;gap:16px;">
-          <div style="display:flex;align-items:center;gap:8px;" id="apiStatusBlock">
-            <div id="statusDot" style="width:7px;height:7px;border-radius:50%;background:#475569;"></div>
-            <span id="statusText" style="font-size:12px;color:var(--muted);">Connecting…</span>
-          </div>
-          <span class="mono" style="font-size:11px;color:var(--muted);" id="clock">--:--:--</span>
-          <button onclick="refreshAll()" class="btn-ghost" style="font-size:12px;padding:6px 14px;border-radius:10px;">↺ Refresh</button>
+      <!-- Right controls -->
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2" id="apiStatusBlock">
+          <div id="statusDot" class="w-2 h-2 rounded-full bg-slate-300"></div>
+          <span id="statusText" class="text-xs font-medium text-slate-500">Connecting…</span>
         </div>
+        <span class="mono text-xs text-slate-400" id="clock">--:--:--</span>
+        <button onclick="refreshAll()" class="btn-outline px-4 py-2 text-xs">↺ Refresh</button>
       </div>
     </div>
   </nav>
 
   <!-- ── MAIN CONTENT ────────────────────────────────────────── -->
-  <div style="max-width:1400px;margin:0 auto;padding:24px;">
+  <div class="max-w-[1440px] mx-auto p-8">
 
     <!-- ── KPI ROW ─────────────────────────────────────────── -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px;" id="kpiRow">
+    <div class="grid grid-cols-5 gap-6 mb-8" id="kpiRow">
       <!-- Populated by JS -->
-      <div class="glass rounded-xl p-4 metric-card shimmer-line" style="height:80px;border-left-color:transparent;"></div>
-      <div class="glass rounded-xl p-4 metric-card shimmer-line" style="height:80px;border-left-color:transparent;"></div>
-      <div class="glass rounded-xl p-4 metric-card shimmer-line" style="height:80px;border-left-color:transparent;"></div>
-      <div class="glass rounded-xl p-4 metric-card shimmer-line" style="height:80px;border-left-color:transparent;"></div>
-      <div class="glass rounded-xl p-4 metric-card shimmer-line" style="height:80px;border-left-color:transparent;"></div>
     </div>
 
     <!-- ── 3-COL GRID ─────────────────────────────────────── -->
-    <div style="display:grid;grid-template-columns:260px 1fr 300px;gap:20px;align-items:start;">
+    <div class="grid grid-cols-[280px_1fr_320px] gap-8 items-start">
 
       <!-- LEFT: Agent roster -->
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <span style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">AI Agents</span>
-          <span style="font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(124,58,237,0.12);color:#A78BFA;border:1px solid rgba(124,58,237,0.2);">All Active</span>
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Available Agents</span>
+          <span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-bold border border-emerald-100">Live</span>
         </div>
-        <div id="agentGrid" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div id="agentGrid" class="flex flex-col gap-2"></div>
       </div>
 
       <!-- CENTER: Interaction panel -->
-      <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="flex flex-col gap-6">
 
         <!-- Agent info card -->
-        <div class="glass rounded-2xl" style="padding:20px;" id="agentPanel">
-          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-            <div id="agentEmoji" style="width:44px;height:44px;border-radius:12px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);display:flex;align-items:center;justify-content:center;font-size:22px;">🤖</div>
-            <div style="flex:1;">
-              <div id="agentName" style="font-size:16px;font-weight:700;color:#F1F5F9;">Select an Agent</div>
-              <div id="agentTitle" style="font-size:12px;color:var(--muted);margin-top:2px;">Click any agent card on the left</div>
+        <div class="card p-6" id="agentPanel">
+          <div class="flex items-center gap-4 mb-6">
+            <div id="agentEmoji" class="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-3xl shadow-sm border border-slate-100">🤖</div>
+            <div class="flex-1">
+              <div id="agentName" class="text-xl font-bold text-slate-900">Select an Agent</div>
+              <div id="agentTitle" class="text-sm text-slate-500 mt-0.5">Choose from the list on the left</div>
             </div>
-            <div id="agentBadge" style="display:none;font-size:10px;padding:3px 10px;border-radius:999px;border:1px solid;font-weight:600;"></div>
+            <div id="agentBadge" class="hidden text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider border"></div>
           </div>
-          <p id="agentDesc" style="font-size:13px;color:#94A3B8;line-height:1.6;margin-bottom:14px;">Choose an agent to see their profile and query them directly.</p>
-          <div id="superpowersWrap" style="display:none;margin-bottom:14px;">
-            <p style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Superpowers</p>
-            <div id="superpowersList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          <p id="agentDesc" class="text-sm text-slate-600 leading-relaxed mb-6">Explore the specialized capabilities of Mafalia AI agents. Select an agent to see their deep domain expertise and query them directly.</p>
+
+          <div id="superpowersWrap" class="hidden mb-6">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Core Capabilities</p>
+            <div id="superpowersList" class="flex flex-wrap gap-2"></div>
           </div>
-          <div id="askWrap" style="display:none;">
-            <div style="display:flex;gap:8px;">
+
+          <div id="askWrap" class="hidden">
+            <div class="flex gap-2">
               <input id="agentInput" type="text" placeholder="Ask this agent something…"
-                     style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:10px 16px;font-size:13px;color:#F1F5F9;font-family:'Space Grotesk',sans-serif;"
+                     class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white transition-all"
                      onkeydown="if(event.key==='Enter')queryAgent()" />
-              <button id="askBtn" onclick="queryAgent()" class="btn-grad" style="padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;">Ask</button>
+              <button id="askBtn" onclick="queryAgent()" class="btn-primary px-6 py-3 text-sm">Send Query</button>
             </div>
           </div>
         </div>
 
         <!-- Response panel -->
-        <div class="glass rounded-2xl" style="padding:20px;min-height:220px;flex:1;" id="responsePanel">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-            <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Response</span>
-            <div id="resLoader" class="loader spin" style="display:none;margin-left:auto;"></div>
+        <div class="card p-6 min-h-[300px] flex flex-col" id="responsePanel">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Agent Insights</span>
+            <div id="resLoader" class="loader spin hidden ml-auto"></div>
           </div>
-          <div id="responseContent" style="font-size:13px;color:var(--muted);line-height:1.7;">Response will appear here after asking a question.</div>
+          <div id="responseContent" class="text-sm text-slate-400 italic flex-1 flex items-center justify-center">
+            Insights will be generated here after you send a query.
+          </div>
         </div>
 
         <!-- Orchestration -->
-        <div class="glass rounded-2xl" style="padding:20px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-            <span style="font-size:15px;">🎯</span>
-            <span style="font-size:13px;font-weight:600;">Smart Orchestration</span>
-            <span style="font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(0,212,255,0.1);color:#67E8F9;border:1px solid rgba(0,212,255,0.2);margin-left:auto;">Auto-Routes</span>
+        <div class="card p-6 bg-slate-900 text-white border-none shadow-xl shadow-slate-200">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-lg">🎯</div>
+            <span class="font-bold">Smart Multi-Agent Routing</span>
+            <span class="ml-auto text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold border border-blue-500/30">Auto-Orchestration</span>
           </div>
-          <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <div class="flex gap-2 mb-4">
             <input id="orchInput" type="text" placeholder="Ask a complex business question…"
-                   style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:10px 16px;font-size:13px;color:#F1F5F9;font-family:'Space Grotesk',sans-serif;"
+                   class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:bg-white/10 transition-all placeholder:text-slate-500"
                    onkeydown="if(event.key==='Enter')runOrch()" />
-            <button onclick="runOrch()" class="btn-ghost" style="padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;color:#67E8F9;">Route</button>
+            <button onclick="runOrch()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl text-sm font-bold transition-colors">Route</button>
           </div>
-          <div id="orchResult" class="code-block" style="display:none;max-height:140px;overflow-y:auto;"></div>
+          <div id="orchResult" class="code-block border border-white/5 !bg-black/40 hidden max-height-[200px]"></div>
         </div>
       </div>
 
       <!-- RIGHT: Alerts + KB + MCP -->
-      <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="flex flex-col gap-6">
 
         <!-- Live Alerts -->
-        <div class="glass rounded-2xl" style="padding:18px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <span style="font-size:13px;font-weight:600;">🚨 Live Alerts</span>
-            <button onclick="loadAlerts()" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;" onmouseover="this.style.color='#F1F5F9'" onmouseout="this.style.color='var(--muted)'">Refresh</button>
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-red-500"></span> Live Alerts
+            </span>
+            <button onclick="loadAlerts()" class="text-[10px] font-bold text-slate-400 hover:text-slate-600 uppercase">Refresh</button>
           </div>
-          <div id="alertsList" style="display:flex;flex-direction:column;gap:6px;">
-            <div class="shimmer-line" style="height:48px;border-radius:10px;"></div>
-            <div class="shimmer-line" style="height:48px;border-radius:10px;"></div>
+          <div id="alertsList" class="flex flex-col gap-3">
+            <div class="h-12 bg-slate-50 rounded-lg animate-pulse"></div>
+            <div class="h-12 bg-slate-50 rounded-lg animate-pulse"></div>
           </div>
         </div>
 
         <!-- Knowledge Base -->
-        <div class="glass rounded-2xl" style="padding:18px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-            <span style="font-size:15px;">📚</span>
-            <span style="font-size:13px;font-weight:600;">Knowledge Base</span>
+        <div class="card p-5">
+          <div class="flex items-center gap-2 mb-4 text-slate-900 font-bold text-sm">
+            <span>📚</span> Knowledge Base
           </div>
-          <div style="display:flex;gap:8px;margin-bottom:10px;">
-            <input id="kbInput" type="text" placeholder="Search knowledge…"
-                   style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:10px 14px;font-size:12px;color:#F1F5F9;font-family:'Space Grotesk',sans-serif;"
+          <div class="flex gap-2 mb-4">
+            <input id="kbInput" type="text" placeholder="Search strategy…"
+                   class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:bg-white transition-all"
                    onkeydown="if(event.key==='Enter')searchKB()" />
-            <button onclick="searchKB()" style="padding:10px 14px;border-radius:12px;font-size:12px;font-weight:600;background:rgba(124,58,237,0.18);border:1px solid rgba(124,58,237,0.3);color:#A78BFA;cursor:pointer;">Search</button>
+            <button onclick="searchKB()" class="bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-bold">Search</button>
           </div>
-          <div id="kbResults" class="scroll-panel" style="max-height:160px;display:flex;flex-direction:column;gap:6px;"></div>
+          <div id="kbResults" class="max-h-[200px] overflow-y-auto flex flex-col gap-3"></div>
         </div>
 
         <!-- MCP Config -->
-        <div class="glass rounded-2xl" style="padding:18px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-            <span style="font-size:15px;">🔌</span>
-            <span style="font-size:13px;font-weight:600;">MCP Integration</span>
-            <span style="font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(245,158,11,0.1);color:#FCD34D;border:1px solid rgba(245,158,11,0.25);margin-left:auto;">Claude Desktop</span>
+        <div class="card p-5 border-slate-200 bg-slate-50/50">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
+               🔌 MCP Integration
+            </span>
+            <span class="ml-auto text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">Claude Desktop</span>
           </div>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Add Mafalia agents to Claude via Model Context Protocol:</p>
-          <div class="code-block" id="mcpBlock" style="margin-bottom:12px;">Loading…</div>
-          <button onclick="copyMCP()" style="width:100%;padding:8px;border-radius:10px;font-size:12px;font-weight:600;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.28);color:#A78BFA;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">Copy Config</button>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;">
-            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:17px;font-weight:700;color:#A78BFA;" id="sysTools">17</div>
-              <div style="font-size:10px;color:var(--muted);">MCP Tools</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:17px;font-weight:700;color:#67E8F9;">5</div>
-              <div style="font-size:10px;color:var(--muted);">Resources</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:17px;font-weight:700;color:#34D399;">5</div>
-              <div style="font-size:10px;color:var(--muted);">Prompts</div>
-            </div>
-          </div>
+          <p class="text-xs text-slate-500 mb-3 leading-relaxed">Power Claude with Mafalia intelligence via Model Context Protocol:</p>
+          <div class="text-[10px] font-mono bg-slate-200 text-slate-700 p-3 rounded-lg mb-3 break-all overflow-hidden" id="mcpBlock">Loading…</div>
+          <button onclick="copyMCP()" class="w-full py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">Copy Config</button>
         </div>
       </div>
     </div>
 
     <!-- ── BOTTOM: Skills table ────────────────────────────── -->
-    <div style="margin-top:24px;" class="glass rounded-2xl" style="padding:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 14px;">
-        <span style="font-size:13px;font-weight:600;">⚡ Skill Catalog</span>
-        <span id="skillCount" style="font-size:11px;padding:3px 10px;border-radius:999px;background:rgba(124,58,237,0.12);color:#A78BFA;border:1px solid rgba(124,58,237,0.2);">…</span>
+    <div class="mt-8 card p-6">
+      <div class="flex items-center justify-between mb-6">
+        <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          ⚡ Skill Catalog
+        </span>
+        <span id="skillCount" class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-md tracking-wider">…</span>
       </div>
-      <div id="skillsTable" class="scroll-panel" style="max-height:240px;padding:0 20px 20px;display:flex;flex-direction:column;gap:4px;">
-        <div class="shimmer-line" style="height:32px;border-radius:8px;"></div>
-        <div class="shimmer-line" style="height:32px;border-radius:8px;"></div>
-        <div class="shimmer-line" style="height:32px;border-radius:8px;"></div>
+      <div id="skillsTable" class="grid grid-cols-5 gap-4">
+        <!-- Populated by JS -->
       </div>
     </div>
 
   </div><!-- /main -->
 
   <script>
-    const API = 'http://localhost:9777';
+    const API = 'http://localhost:8000';
     let mcpConfigText = '';
     let selectedAgent = null;
 
     const AGENTS = [
-      { name:'zara',  title:'Revenue Strategist',    emoji:'💰', color:'#FF6B35', tags:['revenue','pricing','profit'] },
-      { name:'kofi',  title:'Operations Commander',  emoji:'⚡', color:'#2E86AB', tags:['ops','efficiency'] },
-      { name:'amara', title:'Customer Champion',     emoji:'💜', color:'#A23B72', tags:['customers','loyalty'] },
-      { name:'idris', title:'Inventory Guardian',    emoji:'📦', color:'#1B998B', tags:['inventory','stock'] },
-      { name:'nala',  title:'Marketing Maven',       emoji:'🎯', color:'#F77F00', tags:['marketing','campaigns'] },
-      { name:'tariq', title:'Finance Wizard',        emoji:'🧙', color:'#6C5B7B', tags:['finance','cashflow'] },
-      { name:'sana',  title:'Data Scientist',        emoji:'🔬', color:'#2D6A4F', tags:['data','forecast'] },
-      { name:'ravi',  title:'Tech Architect',        emoji:'🏗️', color:'#E63946', tags:['tech','security'] },
-      { name:'luna',  title:'Growth Hacker',         emoji:'🚀', color:'#9B5DE5', tags:['growth','funnels'] },
-      { name:'omar',  title:'Partnership Connector', emoji:'🤝', color:'#06D6A0', tags:['partners','deals'] },
+      { name:'zara',  title:'Revenue Strategist',    emoji:'💰', color:'#E63946', tags:['revenue','pricing','profit'] },
+      { name:'kofi',  title:'Operations Commander',  emoji:'⚡', color:'#0F172A', tags:['ops','efficiency'] },
+      { name:'amara', title:'Customer Champion',     emoji:'💜', color:'#8B5CF6', tags:['customers','loyalty'] },
+      { name:'idris', title:'Inventory Guardian',    emoji:'📦', color:'#10B981', tags:['inventory','stock'] },
+      { name:'nala',  title:'Marketing Maven',       emoji:'🎯', color:'#F59E0B', tags:['marketing','campaigns'] },
+      { name:'tariq', title:'Finance Wizard',        emoji:'🧙', color:'#3B82F6', tags:['finance','cashflow'] },
+      { name:'sana',  title:'Data Scientist',        emoji:'🔬', color:'#06B6D4', tags:['data','forecast'] },
+      { name:'ravi',  title:'Tech Architect',        emoji:'🏗️', color:'#475569', tags:['tech','security'] },
+      { name:'luna',  title:'Growth Hacker',         emoji:'🚀', color:'#D946EF', tags:['growth','funnels'] },
+      { name:'omar',  title:'Partnership Connector', emoji:'🤝', color:'#14B8A6', tags:['partners','deals'] },
     ];
 
     const KPI_META = [
-      { id:'metRevenue',  label:'Total Revenue',    idSub:'metTxn',      color:'#A78BFA', borderColor:'rgba(124,58,237,0.7)' },
-      { id:'metCustomers',label:'Customers',         idSub:'metActive',   color:'#67E8F9', borderColor:'rgba(0,212,255,0.7)' },
-      { id:'metOrders',   label:'Total Orders',      idSub:'metOrdersSub',color:'#34D399', borderColor:'rgba(52,211,153,0.7)' },
-      { id:'metInventory',label:'Inventory',         idSub:'metCritical', color:'#FCD34D', borderColor:'rgba(245,204,77,0.7)' },
-      { id:'metHealth',   label:'Financial Health',  idSub:'metRating',   color:'#F87171', borderColor:'rgba(248,113,113,0.7)' },
+      { id:'metRevenue',  label:'Total Revenue',    idSub:'metTxn',      icon:'💰' },
+      { id:'metCustomers',label:'Customers',         idSub:'metActive',   icon:'👥' },
+      { id:'metOrders',   label:'Total Orders',      idSub:'metOrdersSub',icon:'📦' },
+      { id:'metInventory',label:'Inventory',         idSub:'metCritical', icon:'⚠️' },
+      { id:'metHealth',   label:'Business Health',   idSub:'metRating',   icon:'📈' },
     ];
 
     // ── INIT ─────────────────────────────────────────────────────
@@ -312,7 +253,7 @@
       updateClock();
       setInterval(updateClock, 1000);
       checkAPI().then(() => refreshAll());
-      setInterval(checkAPI, 12000);
+      setInterval(checkAPI, 10000);
     });
 
     function updateClock() {
@@ -330,17 +271,17 @@
       try {
         const r = await fetch(`${API}/health`, { signal: AbortSignal.timeout(3000) });
         if (r.ok) {
-          dot.style.background = '#34D399';
+          dot.style.background = '#10B981';
           dot.classList.add('pulse');
           txt.textContent = 'API Online';
-          txt.style.color = '#34D399';
+          txt.style.color = '#10B981';
           return true;
         }
       } catch {}
-      dot.style.background = '#F87171';
+      dot.style.background = '#F43F5E';
       dot.classList.remove('pulse');
       txt.textContent = 'API Offline';
-      txt.style.color = '#F87171';
+      txt.style.color = '#F43F5E';
       return false;
     }
 
@@ -348,10 +289,12 @@
     function renderKPISkeletons() {
       const row = document.getElementById('kpiRow');
       row.innerHTML = KPI_META.map(k => `
-        <div class="glass rounded-xl metric-card" style="padding:16px;border-left-color:${k.borderColor};">
-          <div style="font-size:11px;color:var(--muted);font-weight:500;margin-bottom:6px;">${k.label}</div>
-          <div id="${k.id}" style="font-size:22px;font-weight:700;color:${k.color};">—</div>
-          <div id="${k.idSub}" style="font-size:11px;color:var(--muted);margin-top:4px;">—</div>
+        <div class="card p-5">
+          <div class="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-wider mb-2">
+            <span>${k.icon}</span> ${k.label}
+          </div>
+          <div id="${k.id}" class="text-2xl font-bold text-slate-900">—</div>
+          <div id="${k.idSub}" class="text-[10px] text-slate-500 font-medium mt-1">—</div>
         </div>
       `).join('');
     }
@@ -363,25 +306,25 @@
         const m = await r.json();
         if (m.revenue) {
           set('metRevenue', m.revenue.total || '—');
-          set('metTxn', (m.revenue.transactions || 0) + ' transactions');
+          set('metTxn', (m.revenue.transactions || 0) + ' processed transactions');
         }
         if (m.customers) {
           set('metCustomers', m.customers.total || '—');
-          set('metActive', (m.customers.active || 0) + ' active');
+          set('metActive', (m.customers.active || 0) + ' active members');
         }
         if (m.operations) {
           set('metOrders', m.operations.total_orders || '—');
-          set('metOrdersSub', 'All channels');
+          set('metOrdersSub', 'Orders from all channels');
         }
         if (m.inventory) {
-          set('metInventory', (m.inventory.total_items || 0) + ' items');
+          set('metInventory', (m.inventory.total_items || 0) + ' SKUs tracked');
           const crit = m.inventory.critical || 0;
-          set('metCritical', crit + ' critical');
-          document.getElementById('metCritical').style.color = crit > 0 ? '#F87171' : '#34D399';
+          set('metCritical', crit + ' items critical stock');
+          document.getElementById('metCritical').style.color = crit > 0 ? '#E63946' : '#10B981';
         }
         if (m.finance) {
           set('metHealth', m.finance.health_score || '—');
-          set('metRating', m.finance.rating || '—');
+          set('metRating', 'Rating: ' + (m.finance.rating || '—'));
         }
       } catch {}
     }
@@ -389,14 +332,13 @@
     // ── AGENT GRID ────────────────────────────────────────────────
     function renderAgentGrid() {
       document.getElementById('agentGrid').innerHTML = AGENTS.map(a => `
-        <div class="agent-card glass rounded-xl" id="card-${a.name}" onclick="selectAgent('${a.name}')"
-             style="padding:12px 14px;display:flex;align-items:center;gap:12px;--card-color:${a.color};">
-          <div style="width:36px;height:36px;border-radius:10px;background:${a.color}18;border:1px solid ${a.color}30;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${a.emoji}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:600;color:${a.color};">${cap(a.name)}</div>
-            <div style="font-size:11px;color:var(--muted);truncate;">${a.title}</div>
+        <div class="agent-card bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3" id="card-${a.name}" onclick="selectAgent('${a.name}')">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-slate-50 border border-slate-100 shadow-sm">${a.emoji}</div>
+          <div class="flex-1 min-width-0">
+            <div class="text-sm font-bold text-slate-900">${cap(a.name)}</div>
+            <div class="text-[10px] text-slate-500 truncate">${a.title}</div>
           </div>
-          <div style="width:7px;height:7px;border-radius:50%;background:#34D399;box-shadow:0 0 6px rgba(52,211,153,0.5);flex-shrink:0;"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981]"></div>
         </div>
       `).join('');
     }
@@ -406,23 +348,16 @@
       if (!selectedAgent) return;
       // Highlight
       AGENTS.forEach(a => {
-        const c = document.getElementById(`card-${a.name}`);
-        c.classList.remove('selected');
-        c.style.background = 'var(--surface)';
+        document.getElementById(`card-${a.name}`).classList.remove('selected');
       });
-      const card = document.getElementById(`card-${name}`);
-      card.classList.add('selected');
-      card.style.background = `${selectedAgent.color}0D`;
+      document.getElementById(`card-${name}`).classList.add('selected');
       // Update panel
       document.getElementById('agentEmoji').textContent = selectedAgent.emoji;
-      document.getElementById('agentEmoji').style.background = `${selectedAgent.color}18`;
-      document.getElementById('agentEmoji').style.borderColor = `${selectedAgent.color}35`;
-      document.getElementById('agentName').textContent = `${selectedAgent.emoji} ${cap(name)}`;
-      document.getElementById('agentName').style.color = selectedAgent.color;
+      document.getElementById('agentName').textContent = cap(name);
       document.getElementById('agentTitle').textContent = selectedAgent.title;
-      document.getElementById('agentDesc').textContent = 'Loading profile…';
-      document.getElementById('superpowersWrap').style.display = 'none';
-      document.getElementById('askWrap').style.display = 'block';
+      document.getElementById('agentDesc').textContent = 'Loading agent intelligence profile…';
+      document.getElementById('superpowersWrap').classList.add('hidden');
+      document.getElementById('askWrap').classList.remove('hidden');
       // Fetch profile
       fetchProfile(name);
     }
@@ -435,18 +370,18 @@
         set('agentDesc', d.description || '');
         const badge = document.getElementById('agentBadge');
         badge.textContent = d.personality || '';
-        badge.style.display = 'inline-block';
-        badge.style.color = selectedAgent.color;
-        badge.style.borderColor = `${selectedAgent.color}40`;
-        badge.style.background = `${selectedAgent.color}10`;
+        badge.classList.remove('hidden');
+        badge.style.color = '#E63946';
+        badge.style.borderColor = '#FEE2E2';
+        badge.style.background = '#FEF2F2';
 
         const spList = document.getElementById('superpowersList');
         spList.innerHTML = (d.superpowers || []).map(sp =>
-          `<span style="font-size:11px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:#94A3B8;">${sp}</span>`
+          `<span class="text-[10px] px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-bold border border-slate-200">${sp.split(' -- ')[0]}</span>`
         ).join('');
-        document.getElementById('superpowersWrap').style.display = 'block';
+        document.getElementById('superpowersWrap').classList.remove('hidden');
       } catch {
-        set('agentDesc', selectedAgent ? selectedAgent.title : 'Profile unavailable (API offline)');
+        set('agentDesc', selectedAgent ? selectedAgent.title : 'Agent metadata unreachable.');
       }
     }
 
@@ -458,12 +393,14 @@
       const btn  = document.getElementById('askBtn');
       const loader = document.getElementById('resLoader');
       const content = document.getElementById('responseContent');
-      btn.disabled = true; btn.textContent = '…';
-      loader.style.display = 'block';
-      content.innerHTML = `<div style="display:flex;gap:6px;align-items:center;color:var(--muted);font-size:13px;">
-        <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
-        <span style="margin-left:6px;">Asking ${selectedAgent.emoji} ${cap(selectedAgent.name)}…</span>
+
+      btn.disabled = true;
+      loader.classList.remove('hidden');
+      content.innerHTML = `<div class="flex flex-col items-center gap-3 py-8">
+        <div class="loader spin w-8 h-8"></div>
+        <span class="text-xs text-slate-500 font-medium animate-pulse">Zara is analyzing your business data…</span>
       </div>`;
+
       try {
         const r = await fetch(`${API}/agents/message`, {
           method:'POST', headers:{'Content-Type':'application/json'},
@@ -471,19 +408,28 @@
         });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const d = await r.json();
-        content.innerHTML = `<div class="slide-in">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <span style="font-size:18px;">${d.emoji || selectedAgent.emoji}</span>
-            <span style="font-weight:600;font-size:13px;color:${selectedAgent.color};">${(d.agent||'').toUpperCase()} — ${d.title||''}</span>
-            <span style="font-size:11px;color:var(--muted);margin-left:auto;">${(d.timestamp||'').slice(11,19)}</span>
+
+        content.classList.remove('italic', 'text-slate-400', 'justify-center', 'items-center');
+        content.classList.add('slide-in', 'block');
+
+        content.innerHTML = `
+          <div class="flex items-center gap-3 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div class="text-2xl">${d.emoji || selectedAgent.emoji}</div>
+            <div>
+               <div class="text-xs font-black uppercase text-slate-400 tracking-tighter">${d.agent} Agent Intelligence</div>
+               <div class="text-sm font-bold text-slate-900">${d.title}</div>
+            </div>
+            <div class="ml-auto mono text-[10px] text-slate-400 bg-white px-2 py-1 rounded border border-slate-200">
+               ${(d.timestamp||'').slice(11,19)}
+            </div>
           </div>
-          <div class="mono" style="font-size:12px;color:#CBD5E1;white-space:pre-wrap;line-height:1.7;">${fmtResp(d.response)}</div>
-        </div>`;
+          <div class="mono text-xs text-slate-700 whitespace-pre-wrap leading-relaxed bg-white border border-slate-100 p-5 rounded-xl shadow-inner">${fmtResp(d.response)}</div>
+        `;
       } catch(e) {
-        content.innerHTML = `<span style="color:#F87171;font-size:12px;">Error: ${e.message}. Make sure API is running.</span>`;
+        content.innerHTML = `<div class="p-4 bg-red-50 text-red-600 rounded-lg text-xs font-bold border border-red-100">Execution Error: ${e.message}</div>`;
       } finally {
-        btn.disabled = false; btn.textContent = 'Ask';
-        loader.style.display = 'none';
+        btn.disabled = false;
+        loader.classList.add('hidden');
       }
     }
 
@@ -492,12 +438,11 @@
       const pad = '  '.repeat(d);
       if (Array.isArray(obj)) {
         if (!obj.length) return '(none)';
-        return obj.slice(0,6).map(i => typeof i === 'object' ? `\n${pad}• ${fmtResp(i,d+1)}` : `\n${pad}• ${i}`).join('') +
-               (obj.length > 6 ? `\n${pad}…+${obj.length-6} more` : '');
+        return obj.slice(0,10).map(i => typeof i === 'object' ? `\n${pad}• ${fmtResp(i,d+1)}` : `\n${pad}• ${i}`).join('');
       }
       return Object.entries(obj).map(([k,v]) => {
         const val = typeof v === 'object' ? fmtResp(v,d+1) : v;
-        return `${pad}<span style="color:var(--muted);">${k}:</span> <span style="color:#A78BFA;">${val}</span>`;
+        return `${pad}<span class="text-slate-400 font-bold uppercase" style="font-size:10px">${k.replace(/_/g,' ')}:</span> <span class="text-slate-900">${val}</span>`;
       }).join('\n');
     }
 
@@ -506,8 +451,8 @@
       const msg = document.getElementById('orchInput').value.trim();
       if (!msg) return;
       const box = document.getElementById('orchResult');
-      box.style.display = 'block';
-      box.innerHTML = 'Routing to best agents…';
+      box.classList.remove('hidden');
+      box.innerHTML = '<span class="animate-pulse">Orchestrating agents...</span>';
       try {
         const r = await fetch(`${API}/orchestrate`, {
           method:'POST', headers:{'Content-Type':'application/json'},
@@ -515,13 +460,14 @@
         });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const d = await r.json();
-        const agents = (d.results||[]).map(a => `${a.emoji||'🤖'} ${a.agent}`).join(', ');
+        const agents = (d.results||[]).map(a => `${a.agent}`).join(', ');
         box.innerHTML =
-          `<span style="color:#67E8F9;">Agents: ${agents}</span>\n<span style="color:var(--muted);">Time: ${d.execution_time}</span>\n\n` +
+          `<span class="text-blue-400 font-bold">Agents Active:</span> <span class="text-white">${agents}</span>\n` +
+          `<span class="text-slate-500">Latency: ${d.execution_time}</span>\n\n` +
           (d.results||[]).map(rr =>
-            `<span style="color:#A78BFA;">${(rr.agent||'').toUpperCase()}</span>\n${JSON.stringify(rr.response,null,2).slice(0,300)}…`
-          ).join('\n\n---\n');
-      } catch(e) { box.innerHTML = `<span style="color:#F87171;">Error: ${e.message}</span>`; }
+            `<span class="text-blue-300 font-bold">[${(rr.agent||'').toUpperCase()}]</span>\n${JSON.stringify(rr.response,null,2).slice(0,300)}…`
+          ).join('\n\n');
+      } catch(e) { box.innerHTML = `<span class="text-red-400">Error: ${e.message}</span>`; }
     }
 
     // ── ALERTS ────────────────────────────────────────────────────
@@ -532,20 +478,22 @@
         if (!r.ok) throw new Error();
         const d = await r.json();
         const alerts = d.cross_agent_alerts || [];
-        if (!alerts.length) { list.innerHTML = '<div style="font-size:12px;color:var(--muted);">No alerts — all systems nominal ✓</div>'; return; }
+        if (!alerts.length) { list.innerHTML = '<div class="text-xs text-slate-400 font-medium py-4 text-center border-2 border-dashed border-slate-100 rounded-xl">All systems operational</div>'; return; }
+
         const styles = {
-          high:   'background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#F87171;',
-          medium: 'background:rgba(252,211,77,0.08);border:1px solid rgba(252,211,77,0.25);color:#FCD34D;',
-          low:    'background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.25);color:#34D399;',
+          high:   'bg-red-50 text-red-700 border-red-100',
+          medium: 'bg-amber-50 text-amber-700 border-amber-100',
+          low:    'bg-emerald-50 text-emerald-700 border-emerald-100',
         };
+
         list.innerHTML = alerts.map(a => `
-          <div class="slide-in" style="border-radius:10px;padding:10px 12px;${styles[a.severity]||''}">
-            <div style="font-size:12px;font-weight:600;margin-bottom:3px;">${a.message}</div>
-            <div style="font-size:11px;opacity:.7;">→ ${a.action}</div>
+          <div class="slide-in rounded-xl p-3 border ${styles[a.severity]||'bg-slate-50 border-slate-100'}">
+            <div class="text-xs font-bold mb-1">${a.message}</div>
+            <div class="text-[10px] opacity-70">Action: ${a.action}</div>
           </div>
         `).join('');
       } catch {
-        list.innerHTML = '<div style="font-size:12px;color:var(--muted);">Start the API server to see live alerts.</div>';
+        list.innerHTML = '<div class="text-xs text-red-400 py-4 text-center">Failed to fetch alerts.</div>';
       }
     }
 
@@ -554,7 +502,7 @@
       const q = document.getElementById('kbInput').value.trim();
       if (!q) return;
       const cont = document.getElementById('kbResults');
-      cont.innerHTML = '<div style="font-size:12px;color:var(--muted);">Searching…</div>';
+      cont.innerHTML = '<div class="text-xs text-slate-400 p-4 animate-pulse">Searching...</div>';
       try {
         const r = await fetch(`${API}/knowledge/search`, {
           method:'POST', headers:{'Content-Type':'application/json'},
@@ -562,19 +510,15 @@
         });
         if (!r.ok) throw new Error();
         const d = await r.json();
-        if (!d.results?.length) { cont.innerHTML = '<div style="font-size:12px;color:var(--muted);">No results found.</div>'; return; }
+        if (!d.results?.length) { cont.innerHTML = '<div class="text-xs text-slate-400 p-4">No results.</div>'; return; }
         cont.innerHTML = d.results.map(res => `
-          <div class="slide-in glass rounded-xl" style="padding:10px 12px;">
-            <div style="font-size:12px;font-weight:600;color:#A78BFA;margin-bottom:3px;">${res.title}</div>
-            <div style="font-size:11px;color:#64748B;line-height:1.5;">${(res.content||'').slice(0,110)}…</div>
-            <div style="display:flex;gap:6px;margin-top:6px;">
-              <span style="font-size:10px;padding:1px 8px;border-radius:999px;background:rgba(124,58,237,0.12);color:#A78BFA;border:1px solid rgba(124,58,237,0.2);">${res.category}</span>
-              <span style="font-size:10px;color:var(--muted);">score: ${res.relevance}</span>
-            </div>
+          <div class="slide-in bg-white border border-slate-100 p-3 rounded-lg shadow-sm">
+            <div class="text-xs font-bold text-slate-900 mb-1">${res.title}</div>
+            <div class="text-[10px] text-slate-500 leading-relaxed">${(res.content||'').slice(0,100)}…</div>
           </div>
         `).join('');
       } catch {
-        cont.innerHTML = '<div style="font-size:12px;color:var(--muted);">API unavailable.</div>';
+        cont.innerHTML = '<div class="text-xs text-red-400">Search failed.</div>';
       }
     }
 
@@ -585,27 +529,23 @@
         const r = await fetch(`${API}/skills/summary`);
         if (!r.ok) throw new Error();
         const d = await r.json();
-        set('skillCount', `${d.total_skills} skills`);
+        set('skillCount', `${d.total_skills} Active Skills`);
         cont.innerHTML = Object.entries(d.skills_per_agent).map(([agent, count]) => {
-          const a = AGENTS.find(x => x.name === agent) || { emoji:'🤖', color:'#94A3B8', title:'' };
-          const pct = Math.round((count / d.total_skills) * 100);
+          const a = AGENTS.find(x => x.name === agent) || { emoji:'🤖', color:'#64748B' };
           return `
-            <div onclick="selectAgent('${agent}')" style="display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:background .15s;"
-                 onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
-              <span style="font-size:16px;">${a.emoji}</span>
-              <div style="flex:1;">
-                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                  <span style="font-size:12px;font-weight:600;color:${a.color};">${cap(agent)}</span>
-                  <span style="font-size:11px;color:var(--muted);">${count} skills</span>
-                </div>
-                <div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.06);">
-                  <div style="height:100%;border-radius:2px;background:${a.color}70;width:${pct}%;transition:width .8s ease;"></div>
-                </div>
+            <div onclick="selectAgent('${agent}')" class="group flex flex-col gap-3 p-4 rounded-xl border border-slate-100 bg-white hover:border-slate-300 transition-all cursor-pointer">
+              <div class="flex items-center justify-between">
+                <span class="text-lg">${a.emoji}</span>
+                <span class="text-[10px] font-black text-slate-400 group-hover:text-slate-900 transition-colors">${count}</span>
+              </div>
+              <div class="text-[11px] font-bold text-slate-700 truncate uppercase tracking-tighter">${agent}</div>
+              <div class="h-1 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-slate-900" style="width: ${Math.min(100, (count/10)*100)}%"></div>
               </div>
             </div>`;
         }).join('');
       } catch {
-        cont.innerHTML = '<div style="font-size:12px;color:var(--muted);">Skills data unavailable.</div>';
+        cont.innerHTML = '<div class="col-span-5 text-center text-xs text-slate-400">Skill data temporarily unavailable.</div>';
       }
     }
 
@@ -617,10 +557,8 @@
         const d = await r.json();
         mcpConfigText = JSON.stringify(d.claude_desktop_config, null, 2);
         document.getElementById('mcpBlock').textContent = mcpConfigText;
-        const tr = await fetch(`${API}/mcp/tools`);
-        if (tr.ok) { const td = await tr.json(); set('sysTools', td.count || '17'); }
       } catch {
-        mcpConfigText = `{\n  "mcpServers": {\n    "mafalia": {\n      "command": "python",\n      "args": ["run_mcp.py"]\n    }\n  }\n}`;
+        mcpConfigText = `{"mcpServers": {"mafalia": {"command": "python", "args": ["run_mcp.py"]}}}`;
         document.getElementById('mcpBlock').textContent = mcpConfigText;
       }
     }
@@ -628,12 +566,10 @@
     async function copyMCP() {
       try { await navigator.clipboard.writeText(mcpConfigText); } catch {}
       const btn = event.target;
-      btn.textContent = '✓ Copied!';
-      btn.style.color = '#34D399';
-      setTimeout(() => { btn.textContent = 'Copy Config'; btn.style.color = '#A78BFA'; }, 1800);
+      btn.textContent = '✓ Config Copied';
+      setTimeout(() => { btn.textContent = 'Copy Config'; }, 1800);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────
     function set(id, val) {
       const el = document.getElementById(id);
       if (el) el.textContent = val;

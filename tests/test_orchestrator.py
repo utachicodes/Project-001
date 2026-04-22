@@ -107,8 +107,8 @@ class TestOrchestrator:
     def test_orchestration_stats(self, orch):
         orch.orchestrate("test query")
         stats = orch.get_orchestration_stats()
-        assert "total_requests" in stats
-        assert stats["total_requests"] >= 1
+        assert "total_orchestrations" in stats
+        assert stats["total_orchestrations"] >= 1
 
 
 class TestOrchestratorEdgeCases:

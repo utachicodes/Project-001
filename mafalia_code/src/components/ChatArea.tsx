@@ -174,7 +174,7 @@ export default function ChatArea({
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full relative overflow-hidden" style={{ background: '#060A10' }}>
+    <div className="flex-1 flex flex-col h-full relative overflow-hidden" style={{ background: 'var(--bg-app)' }}>
 
       {/* Active model badge */}
       <AnimatePresence>
@@ -183,12 +183,11 @@ export default function ChatArea({
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-20"
+            className="absolute top-6 left-1/2 -translate-x-1/2 z-20"
           >
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full"
-                 style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', backdropFilter: 'blur(12px)' }}>
-              <Cpu size={12} style={{ color: '#A78BFA' }} />
-              <span className="text-[11px] font-medium" style={{ color: '#A78BFA' }}>
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-700 shadow-xl">
+              <Cpu size={12} className="text-blue-400" />
+              <span className="text-[11px] font-bold text-white uppercase tracking-wider">
                 {currentModel.split('/').pop()}
               </span>
             </div>
@@ -215,11 +214,8 @@ export default function ChatArea({
                 transition={{ delay: 0.1, type: 'spring', damping: 22 }}
                 className="relative mb-6"
               >
-                <div className="absolute inset-0 rounded-full"
-                     style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 70%)', transform: 'scale(2.5)', filter: 'blur(20px)' }} />
-                <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center"
-                     style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.2))', border: '1px solid rgba(124,58,237,0.5)' }}>
-                  <span className="text-2xl font-bold gradient-text">M</span>
+                <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center bg-[#E63946] shadow-xl shadow-red-100">
+                  <svg viewBox="0 0 24 24" fill="white" className="w-10 h-10"><path d="M12 2L2 22h4l6-12 6 12h4L12 2z"/></svg>
                 </div>
               </motion.div>
 
@@ -227,9 +223,9 @@ export default function ChatArea({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-[28px] font-bold text-slate-100 mb-2 tracking-tight text-center"
+                className="text-[32px] font-black text-slate-900 mb-2 tracking-tight text-center"
               >
-                Your AI Business <span className="gradient-text">Command Center</span>
+                Mafalia <span className="text-[#E63946]">Intelligence</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
@@ -243,11 +239,10 @@ export default function ChatArea({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.35 }}
-                className="text-slate-600 text-[12px] mb-8 text-center"
+                className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-8 text-center"
               >
-                Type a message, click an action, or press{' '}
-                <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400"
-                     style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                Type a message or press{' '}
+                <kbd className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-900 font-mono">
                   /
                 </kbd>{' '}
                 for commands
@@ -325,9 +320,8 @@ export default function ChatArea({
                           </span>
                           <span className="text-[12px] font-semibold text-slate-500">You</span>
                         </div>
-                        <div className="px-5 py-3.5 rounded-2xl rounded-tr-sm max-w-[84%]"
-                             style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.15))', border: '1px solid rgba(124,58,237,0.3)' }}>
-                          <p className="text-[13.5px] text-slate-100 leading-relaxed">{msg.content}</p>
+                        <div className="px-5 py-3.5 rounded-2xl rounded-tr-sm max-w-[84%] bg-white border border-slate-200 shadow-sm">
+                          <p className="text-[13.5px] text-slate-900 font-medium leading-relaxed">{msg.content}</p>
                         </div>
                       </div>
                     )}
@@ -348,9 +342,9 @@ export default function ChatArea({
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <div className="px-5 py-4 rounded-2xl rounded-tl-sm max-w-[92%]"
-                             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderLeft: `2px solid ${color}50` }}>
-                          <div className="text-[13.5px] leading-relaxed">
+                        <div className="px-5 py-4 rounded-2xl rounded-tl-sm max-w-[92%] bg-white border border-slate-200 border-l-[3px] shadow-sm"
+                             style={{ borderLeftColor: color }}>
+                          <div className="text-[13.5px] text-slate-700 leading-relaxed font-medium">
                             {formatContent(msg.content)}
                           </div>
                         </div>
@@ -392,36 +386,33 @@ export default function ChatArea({
       </div>
 
       {/* ── Input Bar ─────────────────────────── */}
-      <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(5,8,16,0.8)', backdropFilter: 'blur(16px)' }}>
+      <div className="px-6 py-6 bg-white border-t border-slate-200">
         <div className="max-w-3xl mx-auto">
-          <div className="rounded-2xl overflow-hidden input-focus-ring transition-all"
-               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 focus-within:bg-white focus-within:border-slate-400 transition-all shadow-sm">
             <div className="flex items-end">
               <textarea
                 ref={inputRef}
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about your business… (/ for commands)"
-                className="flex-1 bg-transparent text-slate-100 placeholder-slate-600 text-[13.5px] px-5 py-4 resize-none outline-none leading-relaxed"
-                style={{ minHeight: '52px', maxHeight: '140px', fontFamily: 'Space Grotesk, sans-serif' }}
+                placeholder="Ask Mafalia intelligence…"
+                className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 text-[14px] font-medium px-5 py-4 resize-none outline-none leading-relaxed"
+                style={{ minHeight: '52px', maxHeight: '140px' }}
                 rows={1}
               />
               <motion.button
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.92 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleSubmit}
                 disabled={!input.trim() || isLoading}
-                className="mr-3 mb-3 p-2.5 rounded-xl transition-all disabled:opacity-25 disabled:cursor-not-allowed"
-                style={{ background: 'linear-gradient(135deg, #7C3AED, #00D4FF)' }}
+                className="mr-3 mb-3 p-3 rounded-xl transition-all disabled:opacity-25 bg-slate-900 shadow-lg"
               >
-                <Send size={15} className="text-white" />
+                <Send size={16} className="text-white" />
               </motion.button>
             </div>
 
             {/* Action chips */}
-            <div className="flex items-center gap-0.5 px-3 pb-2.5 pt-0 border-t"
-                 style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+            <div className="flex items-center gap-0.5 px-3 pb-2.5 pt-0 border-t border-slate-100">
               <Chip icon={Paperclip} label="Attach"   onClick={() => { setInput('/browse '); inputRef.current?.focus() }} />
               <Chip icon={Slash}     label="Commands" onClick={onCommandPaletteOpen} />
               <Chip icon={FolderOpen} label="Find CSVs" onClick={() => { setInput('/csvs '); inputRef.current?.focus() }} />

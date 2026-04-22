@@ -33,8 +33,9 @@ class TestKnowledgeBase:
         assert "total_entries" in stats
 
     def test_overview(self, kb):
-        ov = kb.overview()
+        ov = kb.get_all_categories()
         assert isinstance(ov, dict)
+        assert "total_entries" in ov
 
     def test_add_entry(self, kb):
         entry = kb.add_entry(

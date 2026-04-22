@@ -24,7 +24,7 @@ class TestHealthAndRoot:
         r = client.get("/health")
         assert r.status_code == 200
         data = r.json()
-        assert data["status"] == "healthy"
+        assert data["status"] == "ok"
         assert data["agents"] == 10
 
     def test_root_returns_html(self):
@@ -38,7 +38,8 @@ class TestAgentEndpoints:
         r = client.get("/agents")
         assert r.status_code == 200
         data = r.json()
-        assert len(data) == 10
+        assert data["count"] == 10
+        assert len(data["agents"]) == 10
 
     @pytest.mark.parametrize("name", AGENT_NAMES)
     def test_agent_profile(self, name):
@@ -76,7 +77,7 @@ class TestAgentEndpoints:
         r = client.get(f"/agents/{name}/skills")
         assert r.status_code == 200
         data = r.json()
-        assert isinstance(data, list)
+        assert isinstance(data["skills"], list)
 
 
 class TestOrchestrateEndpoint:
@@ -98,7 +99,7 @@ class TestOrchestrateEndpoint:
 
 class TestSummaryEndpoint:
     def test_full_summary(self):
-        r = client.get("/summary")
+        r = client.get("/orchestrate/summary")
         assert r.status_code == 200
         data = r.json()
         assert "agents_active" in data
@@ -113,13 +114,13 @@ class TestKnowledgeEndpoints:
         assert r.status_code == 200
 
     def test_knowledge_stats(self):
-        r = client.get("/knowledge/stats")
+        r = client.get("/knowledge/stats/summary")
         assert r.status_code == 200
 
 
 class TestMetricsEndpoint:
     def test_metrics(self):
-        r = client.get("/metrics")
+        r = client.get("/orchestrate/metrics")
         assert r.status_code == 200
         data = r.json()
         assert isinstance(data, dict)

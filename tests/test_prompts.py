@@ -12,7 +12,7 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mafalia_agents.prompts import (
-    SYSTEM_PROMPTS, FEW_SHOT_EXAMPLES, ORCHESTRATOR_PROMPT, get_system_prompt,
+    AGENT_SYSTEM_PROMPTS as SYSTEM_PROMPTS, FEW_SHOT_EXAMPLES, ORCHESTRATOR_PROMPT, get_system_prompt,
 )
 
 AGENT_NAMES = ["zara", "kofi", "amara", "idris", "nala", "tariq", "sana", "ravi", "luna", "omar"]

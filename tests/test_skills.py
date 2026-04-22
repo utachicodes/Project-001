@@ -18,7 +18,7 @@ AGENT_NAMES = ["zara", "kofi", "amara", "idris", "nala", "tariq", "sana", "ravi"
 class TestSkills:
     def test_get_all_skills(self):
         skills = get_all_skills()
-        assert isinstance(skills, list)
+        assert isinstance(skills, dict)
         assert len(skills) > 0
 
     @pytest.mark.parametrize("name", AGENT_NAMES)
@@ -35,13 +35,13 @@ class TestSkills:
         assert summary["agents"] == 10
 
     def test_skill_has_required_fields(self):
-        skills = get_all_skills()
-        for s in skills[:5]:
-            assert hasattr(s, "id")
-            assert hasattr(s, "name")
-            assert hasattr(s, "agent")
-            assert hasattr(s, "category")
-            assert hasattr(s, "difficulty")
+        all_skills_dict = get_all_skills()
+        for agent, skills in all_skills_dict.items():
+            for s in skills:
+                assert "id" in s
+                assert "name" in s
+                assert "category" in s
+                assert "difficulty" in s
 
     def test_invalid_agent_returns_empty(self):
         skills = get_skills_for_agent("nonexistent")

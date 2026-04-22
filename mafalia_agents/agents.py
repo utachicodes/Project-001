@@ -89,6 +89,20 @@ class BaseMafaliaAgent(ABC):
             df[col] = pd.to_datetime(df[col], errors="coerce")
         return df
 
+    def _sanitize(self, val: Any) -> Any:
+        """Deeply sanitize values to be JSON-compliant (replace NaN/Inf)"""
+        if isinstance(val, dict):
+            return {k: self._sanitize(v) for k, v in val.items()}
+        elif isinstance(val, list):
+            return [self._sanitize(v) for v in val]
+        elif isinstance(val, (float, np.floating)):
+            if np.isnan(val) or np.isinf(val):
+                return 0.0
+            return float(val)
+        elif isinstance(val, (int, np.integer)):
+            return int(val)
+        return val
+
     def remember(self, key: str, value: Any):
         self.memory[key] = value
 
@@ -105,8 +119,13 @@ class BaseMafaliaAgent(ABC):
         )
 
     @abstractmethod
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         pass
+
+    def process(self, request: str, context: Dict = None) -> Dict:
+        """Process request and ensure JSON-compliant output"""
+        result = self.process_logic(request, context)
+        return self._sanitize(result)
 
     def chat(self, message: str) -> str:
         self.conversation_history.append({"role": "user", "content": message})
@@ -175,7 +194,7 @@ class Zara(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["revenue", "chiffre", "revenu"]):
             return self._analyze_revenue()
@@ -437,7 +456,7 @@ class Kofi(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["order", "commande", "process"]):
             return self._analyze_order_flow()
@@ -717,7 +736,7 @@ class Amara(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["customer", "client", "fidele"]):
             return self._analyze_customers()
@@ -915,7 +934,7 @@ class Idris(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["stock", "inventaire", "inventory"]):
             return self._current_stock()
@@ -1129,7 +1148,7 @@ class Nala(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["campaign", "campagne", "marketing"]):
             return self._campaign_ideas()
@@ -1324,7 +1343,7 @@ class Tariq(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["cash", "tresorerie", "cashflow"]):
             return self._cash_flow()
@@ -1678,7 +1697,7 @@ class Sana(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["code review", "review code", "data quality", "pipeline audit", "revue"]):
             return self._code_review()
@@ -1958,7 +1977,7 @@ class Ravi(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["code review", "review code", "audit code", "revue de code"]):
             return self._code_review()
@@ -2492,7 +2511,7 @@ class Luna(BaseMafaliaAgent):
             expertise_areas=["growth", "conversion", "funnels", "experiments", "viral"],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["growth", "croissance", "scale"]):
             return self._growth_strategies()
@@ -2709,7 +2728,7 @@ class Omar(BaseMafaliaAgent):
             ],
         )
 
-    def process(self, request: str, context: Dict = None) -> Dict:
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
         req = request.lower()
         if any(kw in req for kw in ["partner", "partenaire", "partnership"]):
             return self._partnership_opportunities()

@@ -55,23 +55,22 @@ export default function SetupWizard({ config, onSave, onClose }: SetupWizardProp
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: 'spring', damping: 26, stiffness: 360 }}
         className="w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-3xl shadow-2xl"
-        style={{ background: 'rgba(8,12,20,0.98)', border: '1px solid rgba(124,58,237,0.25)' }}
+        style={{ background: 'white', border: '1px solid #E2E8F0' }}
       >
         {/* Top gradient */}
-        <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.7), rgba(0,212,255,0.5), transparent)' }} />
+        <div className="h-1" style={{ background: 'var(--primary)' }} />
 
         {/* Header */}
-        <div className="px-8 pt-7 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="px-8 pt-7 pb-5 border-b border-slate-100">
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                     style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.2))', border: '1px solid rgba(124,58,237,0.4)' }}>
-                  <span className="text-lg font-bold gradient-text">M</span>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#E63946] shadow-sm">
+                  <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6"><path d="M12 2L2 22h4l6-12 6 12h4L12 2z"/></svg>
                 </div>
-                <h2 className="text-xl font-bold text-slate-100">Setup <span className="gradient-text">Mafalia Code</span></h2>
+                <h2 className="text-xl font-bold text-slate-900">Setup <span className="text-[#E63946]">Mafalia Code</span></h2>
               </div>
-              <p className="text-[13px] text-slate-500 ml-12">AI-powered business intelligence in minutes</p>
+              <p className="text-[13px] text-slate-500 ml-12 font-medium">Power your business with intelligence</p>
             </div>
             <button onClick={onClose}
               className="p-2 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-white/[0.06] transition-all">
@@ -87,24 +86,23 @@ export default function SetupWizard({ config, onSave, onClose }: SetupWizardProp
               return (
                 <div key={s.num} className="flex items-center gap-2">
                   <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => done && setStep(s.num)}>
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all"
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold transition-all"
                          style={{
-                           background: done    ? 'linear-gradient(135deg, #7C3AED, #00D4FF)'
-                                       : active ? 'rgba(124,58,237,0.25)'
-                                       : 'rgba(255,255,255,0.05)',
-                           border: active ? '1px solid rgba(124,58,237,0.6)' : done ? 'none' : '1px solid rgba(255,255,255,0.08)',
-                           color: done ? '#fff' : active ? '#A78BFA' : '#475569',
+                           background: done    ? 'var(--primary)'
+                                       : active ? 'var(--primary-soft)'
+                                       : '#F1F5F9',
+                           border: active ? '1px solid var(--primary)' : 'none',
+                           color: done ? '#fff' : active ? 'var(--primary)' : '#94A3B8',
                          }}>
                       {done ? <CheckCircle2 size={14} /> : s.num}
                     </div>
                     <div className="hidden sm:block">
-                      <p className="text-[12px] font-semibold" style={{ color: active ? '#C4B5FD' : done ? '#94A3B8' : '#475569' }}>{s.title}</p>
-                      <p className="text-[10px] text-slate-600">{s.desc}</p>
+                      <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: active ? 'var(--primary)' : '#64748B' }}>{s.title}</p>
                     </div>
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div className="w-8 h-px mx-1 transition-all"
-                         style={{ background: step > s.num ? 'rgba(124,58,237,0.5)' : 'rgba(255,255,255,0.06)' }} />
+                    <div className="w-12 h-px mx-2"
+                         style={{ background: step > s.num ? 'var(--primary)' : '#E2E8F0' }} />
                   )}
                 </div>
               )
@@ -268,35 +266,32 @@ export default function SetupWizard({ config, onSave, onClose }: SetupWizardProp
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-5 flex justify-between items-center"
-             style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
+        <div className="px-8 py-5 flex justify-between items-center bg-slate-50 border-t border-slate-100">
           <button onClick={() => setStep(Math.max(1, step - 1))} disabled={step === 1}
-            className="px-4 py-2 rounded-xl text-[13px] font-medium text-slate-500 hover:text-slate-200 hover:bg-white/[0.05] disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+            className="px-4 py-2 rounded-xl text-[13px] font-bold text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all">
             Back
           </button>
           <div className="flex items-center gap-3">
             <button onClick={onClose}
-              className="px-4 py-2 rounded-xl text-[13px] font-medium text-slate-500 hover:text-slate-200 hover:bg-white/[0.05] transition-all">
+              className="px-4 py-2 rounded-xl text-[13px] font-bold text-slate-400 hover:text-slate-900 transition-all">
               Cancel
             </button>
             {step < 3 ? (
               <motion.button
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 onClick={() => setStep(step + 1)}
-                className="px-6 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all"
-                style={{ background: 'linear-gradient(135deg, #7C3AED, #00D4FF)' }}
+                className="px-8 py-3 rounded-xl text-[13px] font-black text-white transition-all bg-slate-900 shadow-lg"
               >
-                Continue →
+                Next Step
               </motion.button>
             ) : (
               <motion.button
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 onClick={handleSave}
                 disabled={(needsApiKey && !apiKey.trim()) || isSaving}
-                className="px-6 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                style={{ background: 'linear-gradient(135deg, #059669, #10B981)' }}
+                className="px-8 py-3 rounded-xl text-[13px] font-black text-white flex items-center gap-2 disabled:opacity-40 transition-all bg-[#E63946] shadow-lg shadow-red-100"
               >
-                {isSaving ? <><Sparkles size={13} className="animate-spin" /> Starting…</> : <><Rocket size={13} /> Launch Mafalia</>}
+                {isSaving ? <><Sparkles size={13} className="animate-spin" /> Finalizing…</> : <><Rocket size={13} /> Finish Setup</>}
               </motion.button>
             )}
           </div>
