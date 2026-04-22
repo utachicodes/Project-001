@@ -17,16 +17,16 @@ interface ChatSession {
 }
 
 const DEFAULT_AGENTS: Agent[] = [
-  { id: 'zara',  name: 'Zara',  tag: '[REV]', title: 'Revenue Strategist',    color: '#FF6B35', status: 'idle', room: 'Sales Floor',   description: 'Analyzes revenue streams, predicts growth, detects pricing anomalies.', quickActions: ['/analyze revenue', '/predict revenue', '/ask zara top products'] },
-  { id: 'kofi',  name: 'Kofi',  tag: '[OPS]', title: 'Operations Commander',  color: '#2E86AB', status: 'idle', room: 'Ops Center',    description: 'Monitors workflows, supply chain, logistics. Automates routine operational tasks.', quickActions: ['/analyze operations', '/automate operations', '/ask kofi bottlenecks'] },
-  { id: 'amara', name: 'Amara', tag: '[CUS]', title: 'Customer Champion',     color: '#A23B72', status: 'idle', room: 'CX Lounge',     description: 'Tracks customer behavior, segments audiences, predicts churn.', quickActions: ['/analyze customers', '/predict churn', '/ask amara top customers'] },
-  { id: 'idris', name: 'Idris', tag: '[INV]', title: 'Inventory Guardian',    color: '#1B998B', status: 'idle', room: 'Warehouse',     description: 'Tracks stock levels, predicts shortages, suggests restocking, flags waste.', quickActions: ['/analyze inventory', '/predict inventory', '/ask idris reorder'] },
-  { id: 'nala',  name: 'Nala',  tag: '[MKT]', title: 'Marketing & Creative',  color: '#F77F00', status: 'idle', room: 'Creative Lab',  description: 'Creates campaigns, social content, ads. Tracks ROI.', quickActions: ['/create campaign', '/design social post', '/analyze marketing'] },
-  { id: 'tariq', name: 'Tariq', tag: '[FIN]', title: 'Finance Wizard',        color: '#6C5B7B', status: 'idle', room: 'Finance Vault', description: 'Prepares financial reports, forecasts cash flow, budgets, detects risks.', quickActions: ['/analyze finance', '/predict cashflow', '/ask tariq tax report'] },
-  { id: 'sana',  name: 'Sana',  tag: '[DAT]', title: 'Market Intelligence',   color: '#2D6A4F', status: 'idle', room: 'Analytics Bay', description: 'Tracks competitors, market trends, gaps. Produces data-driven insights.', quickActions: ['/research trends', '/research competitors', '/analyze data'] },
-  { id: 'ravi',  name: 'Ravi',  tag: '[TEC]', title: 'Tech & Automation',     color: '#E63946', status: 'idle', room: 'Server Room',   description: 'Writes code, builds automations, connects APIs, manages infrastructure.', quickActions: ['/create code', '/automate api', '/analyze system'] },
-  { id: 'luna',  name: 'Luna',  tag: '[GRO]', title: 'Growth Hacker',         color: '#9B5DE5', status: 'idle', room: 'Growth Lab',   description: 'Designs growth experiments, optimizes funnels, finds viral strategies.', quickActions: ['/analyze growth', '/create experiment', '/predict growth'] },
-  { id: 'omar',  name: 'Omar',  tag: '[PAR]', title: 'Partnerships & Docs',   color: '#06D6A0', status: 'idle', room: 'Deal Room',    description: 'Manages partnerships, generates business docs, contracts, pitch decks.', quickActions: ['/create business-plan', '/create pitch-deck', '/research partners'] },
+  { id: 'zara',  name: 'Zara',  tag: '[REV]', title: 'Revenue Strategist',    color: 'var(--primary)', status: 'idle', room: 'Sales Floor',   description: 'Analyzes revenue streams, predicts growth, detects pricing anomalies. Superpowers: X-Ray Revenue, Price Pulse, Upsell Sniper, Margin Sentinel.', quickActions: ['/analyze revenue', '/predict revenue', '/ask zara top products'] },
+  { id: 'kofi',  name: 'Kofi',  tag: '[OPS]', title: 'Operations Commander',  color: 'var(--accent-cyan)', status: 'idle', room: 'Ops Center',    description: 'Monitors workflows, supply chain, logistics. Superpowers: Bottleneck Radar, Clock Commander, Hotel Nerve Center, Housekeeping Pulse.', quickActions: ['/analyze operations', '/automate operations', '/ask kofi bottlenecks'] },
+  { id: 'amara', name: 'Amara', tag: '[CUS]', title: 'Customer Champion',     color: 'var(--accent-violet)', status: 'idle', room: 'CX Lounge',     description: 'Tracks customer behavior, segments audiences, predicts churn. Superpowers: Churn Radar, Loyalty Architect, Sentiment Sonar, Lifetime Value Engine.', quickActions: ['/analyze customers', '/predict churn', '/ask amara top customers'] },
+  { id: 'idris', name: 'Idris', tag: '[INV]', title: 'Inventory Guardian',    color: 'var(--accent-emerald)', status: 'idle', room: 'Warehouse',     description: 'Tracks stock levels, predicts shortages, suggests restocking, flags waste. Superpowers: Stockout Prophet, Waste Terminator, Auto-Reorder Brain, Supplier Scorecard.', quickActions: ['/analyze inventory', '/predict inventory', '/ask idris reorder'] },
+  { id: 'nala',  name: 'Nala',  tag: '[MKT]', title: 'Marketing Maven',  color: 'var(--primary)', status: 'idle', room: 'Creative Lab',  description: 'Creates campaigns, social content, ads. Tracks ROI. Superpowers: Campaign Forge, A/B Lab, Content Clockwork, ROI Spotlight.', quickActions: ['/create campaign', '/design social post', '/analyze marketing'] },
+  { id: 'tariq', name: 'Tariq', tag: '[FIN]', title: 'Finance Wizard',        color: 'hsl(265, 80%, 60%)', status: 'idle', room: 'Finance Vault', description: 'Prepares financial reports, forecasts cash flow, budgets, detects risks. Superpowers: Cash Flow Oracle, Credit Score Engine, Payment Nexus, Salary Card Ops.', quickActions: ['/analyze finance', '/predict cashflow', '/ask tariq tax report'] },
+  { id: 'sana',  name: 'Sana',  tag: '[DAT]', title: 'Data Scientist',   color: 'var(--accent-emerald)', status: 'idle', room: 'Analytics Bay', description: 'Tracks competitors, market trends, gaps. Produces data-driven insights. Superpowers: Trend Seer, Anomaly Hunter, Code Review, Carbon Gauge.', quickActions: ['/research trends', '/research competitors', '/analyze data'] },
+  { id: 'ravi',  name: 'Ravi',  tag: '[TEC]', title: 'Tech Architect',     color: 'var(--primary)', status: 'idle', room: 'Server Room',   description: 'Writes code, builds automations, connects APIs, manages infrastructure. Superpowers: Security Review, Code Review, API Weaver, Hardware Quartermaster.', quickActions: ['/create code', '/automate api', '/analyze system'] },
+  { id: 'luna',  name: 'Luna',  tag: '[GRO]', title: 'Growth Hacker',         color: 'var(--accent-violet)', status: 'idle', room: 'Growth Lab',   description: 'Designs growth experiments, optimizes funnels, finds viral strategies. Superpowers: Growth Loop Architect, Funnel Surgeon, Experiment Engine, Referral Igniter.', quickActions: ['/analyze growth', '/create experiment', '/predict growth'] },
+  { id: 'omar',  name: 'Omar',  tag: '[PAR]', title: 'Partnership Connector',   color: 'var(--accent-cyan)', status: 'idle', room: 'Deal Room',    description: 'Manages partnerships, generates business docs, contracts, pitch decks. Superpowers: Deal Architect, Network Mapper, Supplier Scout, Negotiation Engine.', quickActions: ['/create business-plan', '/create pitch-deck', '/research partners'] },
 ]
 
 const ANALYZE_MAP: Record<string, string> = { revenue: 'zara', operations: 'kofi', customers: 'amara', inventory: 'idris', marketing: 'nala', finance: 'tariq', data: 'sana', system: 'ravi', growth: 'luna' }
@@ -46,6 +46,9 @@ const welcomeMsg = (hasKey: boolean): Message => mkMsg(
     ? ''
     : `**API Key Required**\n\nConfigure an AI provider to get started. Click **Settings** or type /config.\n\n• **OpenRouter** — Free tier at openrouter.ai\n• **Google Gemini** — Free API at aistudio.google.com`,
 )
+
+// Detect if running inside Electron
+const IS_ELECTRON = typeof window !== 'undefined' && !!(window as any).electronAPI
 
 function App() {
   const [config, setConfig]               = useState<Config | null>(null)
@@ -101,15 +104,22 @@ function App() {
   }
 
   const loadConfig = async () => {
+    // Browser preview mode — skip Electron config, go straight to welcome
+    if (!IS_ELECTRON) {
+      setStatus('Preview Mode (browser)')
+      return
+    }
     try {
-      const saved = await window.electronAPI.config.load()
+      const saved = await (window as any).electronAPI.config.load()
       if (saved?.apiKey) { setConfig(saved); llmClient.setConfig(saved); setStatus(`Connected: ${saved.provider}`) }
       else setShowSetup(true)
     } catch { setShowSetup(true) }
   }
 
   const saveConfig = async (cfg: Config) => {
-    await window.electronAPI.config.save(cfg)
+    if (IS_ELECTRON) {
+      try { await (window as any).electronAPI.config.save(cfg) } catch {}
+    }
     setConfig(cfg); llmClient.setConfig(cfg); setStatus(`Connected: ${cfg.provider}`); setShowSetup(false)
     addMsg(mkMsg(`**Configuration saved.**\n\nProvider: **${cfg.provider}**\nModel: **${cfg.model}**`))
   }

@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url'
 import fs from 'fs'
 import os from 'os'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const _filename = __filename
+const _dirname = __dirname
 
 let mainWindow: BrowserWindow | null = null
 
@@ -16,9 +16,9 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     titleBarStyle: 'hiddenInset',
-    icon: path.join(__dirname, '../public/mafalia-logo.png'),
+    icon: path.join(_dirname, '../public/mafalia-logo.png'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(_dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
@@ -30,7 +30,7 @@ function createWindow() {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
     mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+    mainWindow.loadFile(path.join(_dirname, '../dist/index.html'))
   }
 
   mainWindow.once('ready-to-show', () => {

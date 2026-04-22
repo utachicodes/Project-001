@@ -94,5 +94,29 @@
     "source": "User",
     "created_at": "2026-04-22T09:29:34.555199",
     "relevance_score": 1.0
+  },
+  {
+    "id": "custom_0037",
+    "title": "Test Entry",
+    "content": "This is a test knowledge entry.",
+    "category": "technology",
+    "tags": [
+      "test"
+    ],
+    "source": "User",
+    "created_at": "2026-04-22T21:24:32.354002",
+    "relevance_score": 1.0
+  },
+  {
+    "id": "custom_0038",
+    "title": "Test Entry",
+    "content": "This is a test knowledge entry.",
+    "category": "technology",
+    "tags": [
+      "test"
+    ],
+    "source": "User",
+    "created_at": "2026-04-22T21:29:57.331945",
+    "relevance_score": 1.0
   }
 ]
