@@ -486,10 +486,7 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden" style={{ background: '#050810' }}>
-      {/* Ambient background orbs */}
-      <div className="orb-bg" />
-
+    <div className="flex h-screen w-full overflow-hidden" style={{ background: 'var(--bg-app)' }}>
       <Sidebar
         agents={DEFAULT_AGENTS}
         status={status}
