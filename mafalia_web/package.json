@@ -1,0 +1,41 @@
+{
+  "name": "mafalia-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mafalia Intelligence — web port of the desktop AI agent platform. Sibling of mafalia-ui.",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-label": "^2.1.6",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.52.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
+    "geist": "^1.4.2",
+    "lucide-react": "^0.511.0",
+    "next": "^15.2.6",
+    "next-themes": "^0.4.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5"
+  }
+}
