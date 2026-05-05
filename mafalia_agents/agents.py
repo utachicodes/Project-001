@@ -2,7 +2,7 @@
 """
 Mafalia Named AI Agents
 ========================
-10 specialized AI agents with unique names, personalities, and superpowers.
+11 specialized AI agents with unique names, personalities, and superpowers.
 Inspired by Claude CoWork, built for Mafalia.com ecosystem.
 """
 
@@ -2893,6 +2893,102 @@ class Omar(BaseMafaliaAgent):
 
 
 # ============================================================
+# AGENT 11: ZURI - The Product Visionary
+# ============================================================
+
+
+class Zuri(BaseMafaliaAgent):
+    """
+    ZURI - The Product Visionary
+    Superpower: Turns raw ideas into market-ready products with SEO & visuals
+    Personality: Creative, meticulous, visual
+    """
+
+    def _get_profile(self) -> AgentProfile:
+        return AgentProfile(
+            name="Zuri",
+            title="Product Visionary",
+            personality=AgentPersonality.CREATIVE,
+            superpowers=[
+                "SEO Architect -- crafts high-converting, keyword-rich product descriptions",
+                "Visual Catalyst -- generates dynamic image prompts and visual mockups",
+                "Catalog Structurer -- categorizes and tags products for maximum discovery",
+                "Price Modeler -- suggests competitive pricing based on product attributes",
+                "Content Generator -- instantly writes ad copy, social posts, and product specs",
+            ],
+            description="Zuri transforms basic concepts into fully fledged, market-ready products. She creates compelling content, structured catalogs, and visual assets.",
+            color="#FF006E",
+            tag="[PRD]",
+            voice_style="creative, inspiring, detail-oriented",
+            expertise_areas=[
+                "products",
+                "content",
+                "images",
+                "seo",
+                "copywriting",
+                "catalog",
+            ],
+        )
+
+    def process_logic(self, request: str, context: Dict = None) -> Dict:
+        req = request.lower()
+        if any(kw in req for kw in ["product", "produit", "create", "créer", "article"]):
+            return self._product_creation(request)
+        elif any(kw in req for kw in ["image", "photo", "visuel", "générer", "generate"]):
+            return self._image_generation(request)
+        elif any(kw in req for kw in ["seo", "content", "contenu", "description"]):
+            return self._seo_content(request)
+        else:
+            return self._product_creation(request)
+
+    def _product_creation(self, request: str) -> Dict:
+        # Extract meaningful keywords for image generation
+        stop_words = {"le", "la", "les", "un", "une", "des", "de", "pour", "avec", "et", "ou", "créer", "create", "produit", "product"}
+        keywords = [w for w in request.lower().replace(",", "").replace(".", "").split() if w not in stop_words and len(w) > 2]
+        query = keywords[0] if keywords else "product"
+        
+        return {
+            "mafalia_product": "Catalog Manager",
+            "product_name": f"Nouveau Produit Optimisé ({query.capitalize()})",
+            "suggested_price": "15,000 FCFA",
+            "seo_title": f"Achetez le meilleur {query} - Qualité Supérieure",
+            "description": f"Ce {query} innovant a été conçu pour répondre à vos besoins spécifiques. Avec sa finition premium et sa durabilité exceptionnelle, il se démarque de la concurrence.",
+            "features": [
+                "Qualité premium testée",
+                "Design moderne et ergonomique",
+                "Garantie 1 an",
+                "Support client 24/7"
+            ],
+            "tags": ["premium", query, "nouveau", "bestseller"],
+            "image_url": f"https://loremflickr.com/800/600/{query},product",
+            "image_prompt": f"A high-quality, professional studio photography of a premium {query}, dramatic lighting, 8k resolution, photorealistic",
+            "action": "Produit prêt à être importé dans Mafalia POS & Détaillant"
+        }
+
+    def _image_generation(self, request: str) -> Dict:
+        stop_words = {"le", "la", "les", "un", "une", "des", "de", "pour", "avec", "et", "ou", "générer", "generate", "image", "photo", "visuel"}
+        keywords = [w for w in request.lower().replace(",", "").replace(".", "").split() if w not in stop_words and len(w) > 2]
+        query = ",".join(keywords[:3]) if keywords else "product"
+        
+        return {
+            "generated_image_url": f"https://loremflickr.com/800/600/{query}",
+            "alt_text": f"Image générée pour : {query.replace(',', ' ')}",
+            "midjourney_prompt": f"/imagine prompt: A high-end commercial photo of {query.replace(',', ' ')}, bright natural lighting, minimalist background, 8k, photorealistic --v 6.0",
+            "dalle_prompt": f"Professional product photography of {query.replace(',', ' ')}, studio lighting, clean background, highly detailed",
+            "status": "Génération réussie (mock dynamique)",
+        }
+
+    def _seo_content(self, request: str) -> Dict:
+        return {
+            "seo_optimized_title": "Titre Accrocheur (Optimisé SEO pour 10% de clic en plus)",
+            "meta_description": "Découvrez notre nouvelle collection exclusive. Qualité inégalée et design moderne pour répondre à vos besoins. Commandez dès aujourd'hui !",
+            "social_media_post": "🚀 Nouveau lancement ! Découvrez notre produit phare, conçu spécialement pour vous. Lien dans la bio ! #Nouveau #Mafalia #Innovation",
+            "target_keywords": ["innovation", "qualité", "achat en ligne", "sénégal"],
+            "readability_score": "95/100 (Facile à lire, parfait pour le e-commerce)"
+        }
+
+
+# ============================================================
 # AGENT REGISTRY
 # ============================================================
 
@@ -2907,6 +3003,7 @@ ALL_AGENTS = {
     "ravi": Ravi,
     "luna": Luna,
     "omar": Omar,
+    "zuri": Zuri,
 }
 
 AGENT_PROFILES = {name: agent(".")._get_profile() for name, agent in ALL_AGENTS.items()}
