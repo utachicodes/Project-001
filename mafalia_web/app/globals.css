@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 33% 99%;          /* #FEFCFC */
+    --background: 0 0% 100%;          /* #FFFFFF pure white */
     --foreground: 222 47% 11%;        /* #0F172A */
 
     --card: 0 0% 100%;                /* #FFFFFF */
@@ -13,16 +13,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 0 100% 50%;            /* #FE0000 — Mafalia Red */
+    --primary: 348 83% 47%;           /* #E11D48 — Mafalia Red */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 98%;         /* #F8FAFC */
+    --secondary: 210 40% 96.5%;       /* #F1F5F9 light gray */
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 98%;
+    --muted: 210 40% 96.5%;
     --muted-foreground: 215 16% 47%;  /* #64748B */
 
-    --accent: 210 40% 98%;
+    --accent: 210 40% 94%;            /* slightly deeper hover */
     --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84% 60%;         /* #EF4444 */
@@ -30,39 +30,39 @@
 
     --border: 214 32% 91%;            /* #E2E8F0 */
     --input: 214 32% 91%;
-    --ring: 0 100% 50%;
+    --ring: 348 83% 47%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
   }
 
   .dark {
-    --background: 229 84% 5%;         /* #020617 */
+    --background: 222 47% 6%;         /* very dark navy */
     --foreground: 210 40% 98%;
 
-    --card: 222 47% 11%;              /* #0F172A */
+    --card: 222 47% 9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 47% 11%;
+    --popover: 222 47% 9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 0 100% 50%;
+    --primary: 348 83% 47%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 17%;         /* #1E293B */
+    --secondary: 217 33% 15%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217 33% 17%;
+    --muted: 217 33% 15%;
     --muted-foreground: 215 20% 65%;  /* #94A3B8 */
 
-    --accent: 217 33% 17%;
+    --accent: 217 33% 18%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 25% 27%;            /* #334155 */
-    --input: 215 25% 27%;
-    --ring: 0 100% 50%;
+    --border: 215 25% 22%;
+    --input: 215 25% 22%;
+    --ring: 348 83% 47%;
   }
 
   * {

@@ -16,6 +16,8 @@ import {
   DEFAULT_CONFIG,
 } from "@/lib/config-store";
 import type { Config, Message, ChatSession } from "@/lib/types";
+import type { KpiData, AlertItem } from "@/lib/metrics-fetch";
+import { fetchLiveMetrics } from "@/lib/metrics-fetch";
 import { llmClient } from "@/lib/llm-api";
 import { createClient } from "@/lib/supabase/client";
 import { addConnection, getConnections } from "@/lib/supabase/data";
@@ -54,7 +56,27 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
   const [currentModel, setCurrentModel] = React.useState("");
   const [chatHistory, setChatHistory] = React.useState<ChatSession[]>([]);
   const [currentChatId, setCurrentChatId] = React.useState("");
+
+  // Live sidebar metrics state
+  const [kpiData, setKpiData] = React.useState<KpiData | null>(null);
+  const [sidebarAlerts, setSidebarAlerts] = React.useState<AlertItem[]>([]);
+  const [loadingMetrics, setLoadingMetrics] = React.useState(false);
+
   const initRef = React.useRef(false);
+
+  const refreshMetrics = React.useCallback(async () => {
+    if (!llmClient.hasValidConfig()) return;
+    setLoadingMetrics(true);
+    try {
+      const { kpi, alerts } = await fetchLiveMetrics((msg) => llmClient.chat(msg));
+      setKpiData(kpi);
+      setSidebarAlerts(alerts);
+    } catch {
+      // LLM returned non-parseable JSON — silently keep previous state
+    } finally {
+      setLoadingMetrics(false);
+    }
+  }, []);
 
   React.useEffect(() => {
     if (initRef.current) return;
@@ -64,18 +86,19 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       setConfig(saved);
       llmClient.setConfig(saved);
       setStatus(`Connected: ${saved.provider}`);
+      refreshMetrics();
     } else {
       setShowSetup(true);
     }
     setChatHistory(loadChatHistory());
-  }, []);
+  }, [refreshMetrics]);
 
   React.useEffect(() => {
     if (!currentChatId) setMessages([welcomeMsg(!!config?.apiKey || config?.provider === "ollama")]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config]);
 
-  // Cmd+K / Ctrl+K to open command palette
+  // Cmd+K / Ctrl+K
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -135,6 +158,8 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       ),
     );
     toast.success(`Connected to ${cfg.provider}`);
+    // Fetch live metrics now that we have a working connection
+    refreshMetrics();
   };
 
   const addMsg = (msg: Message) => setMessages((prev) => [...prev, msg]);
@@ -150,7 +175,8 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
         date: new Date().toISOString(),
         messages: msgs,
       };
-      const updated = idx >= 0 ? prev.map((c) => (c.id === id ? session : c)) : [session, ...prev];
+      const updated =
+        idx >= 0 ? prev.map((c) => (c.id === id ? session : c)) : [session, ...prev];
       saveChatHistory(updated);
       return updated;
     });
@@ -263,7 +289,8 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
 
       case "/rooms":
         response =
-          "**Agent Rooms:**\n\n" + DEFAULT_AGENTS.map((a) => `• **${a.name}** ${a.tag} — ${a.room}`).join("\n");
+          "**Agent Rooms:**\n\n" +
+          DEFAULT_AGENTS.map((a) => `• **${a.name}** ${a.tag} — ${a.room}`).join("\n");
         break;
 
       case "/boss":
@@ -288,13 +315,18 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
         );
         response = r.content;
         tag = r.tag;
+        // Also refresh sidebar KPI cards after a /metrics command
+        refreshMetrics();
         break;
       }
 
       case "/analyze": {
         const target = parts.slice(1).join(" ") || "business";
         const agentId = ANALYZE_MAP[target.toLowerCase()] || "sana";
-        const r = await askLLM(`Analyze ${target} in detail with metrics, risks, and recommendations.`, agentId);
+        const r = await askLLM(
+          `Analyze ${target} in detail with metrics, risks, and recommendations.`,
+          agentId,
+        );
         response = r.content;
         tag = r.tag;
         break;
@@ -303,7 +335,10 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       case "/predict": {
         const target = parts.slice(1).join(" ") || "revenue";
         const agentId = PREDICT_MAP[target.toLowerCase()] || "sana";
-        const r = await askLLM(`Forecast future ${target} for the next 30/90 days. Be specific about assumptions and confidence.`, agentId);
+        const r = await askLLM(
+          `Forecast future ${target} for the next 30/90 days. Be specific about assumptions and confidence.`,
+          agentId,
+        );
         response = r.content;
         tag = r.tag;
         break;
@@ -312,10 +347,13 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       case "/create": {
         const target = parts.slice(1).join(" ");
         if (!target) {
-          response = "Usage: `/create <type>`\n\nTypes: campaign, code, experiment, business-plan, pitch-deck, report, sop";
+          response =
+            "Usage: `/create <type>`\n\nTypes: campaign, code, experiment, business-plan, pitch-deck, report, sop";
           break;
         }
-        const agentKey = Object.keys(CREATE_MAP).find((k) => target.toLowerCase().startsWith(k));
+        const agentKey = Object.keys(CREATE_MAP).find((k) =>
+          target.toLowerCase().startsWith(k),
+        );
         const r = await askLLM(`Create a detailed ${target}.`, agentKey ? CREATE_MAP[agentKey] : "omar");
         response = r.content;
         tag = r.tag;
@@ -340,7 +378,10 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
           response = "Usage: `/automate <workflow>`";
           break;
         }
-        const r = await askLLM(`Design an automation workflow for ${target}. Include triggers, steps, and rollback.`, "ravi");
+        const r = await askLLM(
+          `Design an automation workflow for ${target}. Include triggers, steps, and rollback.`,
+          "ravi",
+        );
         response = r.content;
         tag = r.tag;
         break;
@@ -352,7 +393,10 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
           response = "Usage: `/research <topic>`";
           break;
         }
-        const r = await askLLM(`Research ${target} with data-driven insights, trends, and competitor signals.`, "sana");
+        const r = await askLLM(
+          `Research ${target} with data-driven insights, trends, and competitor signals.`,
+          "sana",
+        );
         response = r.content;
         tag = r.tag;
         break;
@@ -376,7 +420,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
           response = "Usage: `/scrape <url>`";
           break;
         }
-        response = `**Scraping is not available in the web version yet.**\n\nThe desktop edition can scrape pages directly. For the web app, paste the URL contents into chat or upload a file via the paperclip.`;
+        response = `**Scraping is not available in the web version.**\n\nThe desktop edition can scrape pages directly. For the web app, paste the URL contents into chat or upload a file via the paperclip.`;
         tag = "[TEC]";
         break;
       }
@@ -387,14 +431,21 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
           response = "Usage: `/search <query>`";
           break;
         }
-        const r = await askLLM(`Summarize what is publicly known about: ${q}. Note that real-time web search is not connected — be explicit about what you know up to your training cutoff.`, "sana");
+        const r = await askLLM(
+          `Summarize what is publicly known about: ${q}. Note that real-time web search is not connected — be explicit about what you know up to your training cutoff.`,
+          "sana",
+        );
         response = r.content;
         tag = r.tag;
         break;
       }
 
       case "/connect": {
-        const args = parts.slice(1).join(" ").split("|").map((s) => s.trim());
+        const args = parts
+          .slice(1)
+          .join(" ")
+          .split("|")
+          .map((s) => s.trim());
         if (!args[0]) {
           response = "Usage: `/connect <name> | <company> | <role>`";
           break;
@@ -469,6 +520,9 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
         userEmail={userEmail}
         chatHistory={chatHistory}
         currentChatId={currentChatId}
+        kpiData={kpiData}
+        alerts={sidebarAlerts}
+        loadingMetrics={loadingMetrics}
         onAgentClick={(id) => {
           const a = DEFAULT_AGENTS.find((a) => a.id === id);
           if (a)
@@ -479,11 +533,12 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
               ),
             );
         }}
+        onKpiClick={(cmd) => handleSendMessage(cmd)}
         onSettingsClick={() => setShowSetup(true)}
         onPrivacyClick={() => setShowPrivacy(true)}
         onCommandPaletteOpen={() => setShowCmdPalette(true)}
         onQuickAction={(action) => {
-          const map = {
+          const map: Record<string, string> = {
             summary: "/summary",
             metrics: "/metrics",
             create: "/create campaign",
@@ -494,6 +549,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
         onNewChat={handleNewChat}
         onLoadChat={handleLoadChat}
         onDeleteChat={handleDeleteChat}
+        onRefreshMetrics={refreshMetrics}
         onSignOut={handleSignOut}
       />
 

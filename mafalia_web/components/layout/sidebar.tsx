@@ -26,9 +26,16 @@ import {
   Rocket,
   Handshake,
   LogOut,
+  RefreshCw,
+  Bell,
+  Lightbulb,
+  TrendingDown,
+  Loader2,
   type LucideIcon,
 } from "lucide-react";
 import type { Agent, ChatSession } from "@/lib/types";
+import type { KpiData, AlertItem } from "@/lib/metrics-fetch";
+import { EMPTY_KPI } from "@/lib/metrics-fetch";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -45,13 +52,39 @@ const AGENT_ICONS: Record<string, LucideIcon> = {
   omar: Handshake,
 };
 
+// Which command to run when a KPI card is clicked
+const KPI_COMMANDS: Record<keyof KpiData, string> = {
+  revenue: "/analyze revenue",
+  clients: "/analyze customers",
+  orders: "/analyze operations",
+  stock: "/analyze inventory",
+};
+
+const KPI_LABELS: Record<keyof KpiData, string> = {
+  revenue: "Revenue",
+  clients: "Clients",
+  orders: "Orders",
+  stock: "Stock",
+};
+
+const DAILY_TIPS = [
+  "Use /predict revenue to forecast next 30-day revenue with your current data.",
+  "Try /analyze customers to identify your highest-value client segments.",
+  "Run /create campaign to have Nala draft a targeted marketing campaign.",
+  "Use /ask idris reorder to check which products need restocking now.",
+];
+
 interface SidebarProps {
   agents: Agent[];
   status: string;
   userEmail?: string;
   chatHistory: ChatSession[];
   currentChatId: string;
+  kpiData: KpiData | null;
+  alerts: AlertItem[];
+  loadingMetrics: boolean;
   onAgentClick: (agentId: string) => void;
+  onKpiClick: (cmd: string) => void;
   onSettingsClick: () => void;
   onPrivacyClick: () => void;
   onCommandPaletteOpen: () => void;
@@ -59,6 +92,7 @@ interface SidebarProps {
   onNewChat: () => void;
   onLoadChat: (chatId: string) => void;
   onDeleteChat: (chatId: string) => void;
+  onRefreshMetrics: () => void;
   onSignOut: () => void;
 }
 
@@ -68,7 +102,11 @@ export function Sidebar({
   userEmail,
   chatHistory,
   currentChatId,
+  kpiData,
+  alerts,
+  loadingMetrics,
   onAgentClick,
+  onKpiClick,
   onSettingsClick,
   onPrivacyClick,
   onCommandPaletteOpen,
@@ -76,37 +114,137 @@ export function Sidebar({
   onNewChat,
   onLoadChat,
   onDeleteChat,
+  onRefreshMetrics,
   onSignOut,
 }: SidebarProps) {
   const [showHistory, setShowHistory] = React.useState(false);
+  const [time, setTime] = React.useState("");
+  const [tipIndex] = React.useState(() => Math.floor(Math.random() * DAILY_TIPS.length));
+
+  React.useEffect(() => {
+    const tick = () => {
+      setTime(
+        new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+      );
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const kpi = kpiData ?? EMPTY_KPI;
+  const kpiKeys = Object.keys(KPI_LABELS) as (keyof KpiData)[];
 
   return (
-    <aside className="w-60 min-w-60 h-full flex flex-col bg-card border-r border-border">
-      {/* Logo */}
-      <div className="px-5 pt-5 pb-4 flex items-center gap-3">
-        <div className="relative w-9 h-9 flex items-center justify-center">
-          <Image
-            src="/mafalia-logo.png"
-            alt="Mafalia"
-            width={36}
-            height={36}
-            className="object-contain"
-          />
+    <aside className="w-[300px] min-w-[300px] h-full flex flex-col bg-background border-r border-border overflow-hidden">
+      {/* ── Header ── */}
+      <div className="px-5 pt-5 pb-4 border-b border-border">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="relative w-10 h-10 flex-shrink-0">
+            <Image
+              src="/mafalia-logo.png"
+              alt="Mafalia"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-bold tracking-tight leading-none text-foreground">
+              Mafalia Intelligence
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
+              Your growth partner
+            </p>
+          </div>
+          <ThemeToggle />
         </div>
-        <div className="flex flex-col">
-          <p className="text-[15px] font-bold tracking-tight leading-none">Mafalia</p>
-          <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.18em] mt-1">
-            Intelligence
-          </p>
+
+        {/* Status row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse-soft" />
+            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              {agents.length} agents online
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-muted-foreground tabular-nums">{time}</span>
+            <button
+              onClick={onSettingsClick}
+              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              title="Settings"
+            >
+              <Settings className="size-3.5" />
+            </button>
+            <button
+              onClick={onRefreshMetrics}
+              disabled={loadingMetrics}
+              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors disabled:opacity-40"
+              title="Refresh metrics"
+            >
+              <RefreshCw className={cn("size-3.5", loadingMetrics && "animate-spin")} />
+            </button>
+          </div>
         </div>
-        <ThemeToggle className="ml-auto" />
       </div>
 
-      {/* Search */}
-      <div className="px-3 mb-3">
+      {/* ── Business Pulse (KPI Cards) ── */}
+      <div className="px-4 py-3 border-b border-border">
+        <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest mb-2.5 px-1">
+          Business Pulse
+        </p>
+        {loadingMetrics && !kpiData ? (
+          <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" />
+            <span className="text-[12px]">Fetching live metrics…</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {kpiKeys.map((key) => {
+              const m = kpi[key];
+              return (
+                <button
+                  key={key}
+                  onClick={() => onKpiClick(KPI_COMMANDS[key])}
+                  className="rounded-lg border border-border bg-secondary/50 px-3 py-2.5 hover:bg-secondary hover:border-primary/30 hover:shadow-sm transition-all text-left group"
+                  title={`Analyze ${KPI_LABELS[key]}`}
+                >
+                  <p className="text-[9.5px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                    {KPI_LABELS[key]}
+                  </p>
+                  <p className="text-[15px] font-bold text-foreground leading-none mb-1 group-hover:text-primary transition-colors">
+                    {m.value}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {m.positive ? (
+                      <TrendingUp className="size-3 text-emerald-500" />
+                    ) : (
+                      <TrendingDown className="size-3 text-red-500" />
+                    )}
+                    <span
+                      className={cn(
+                        "text-[10px] font-bold tabular-nums",
+                        m.positive
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-red-500",
+                      )}
+                    >
+                      {m.change}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Search ── */}
+      <div className="px-4 pt-3 pb-2">
         <button
           onClick={onCommandPaletteOpen}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-secondary hover:bg-accent text-muted-foreground transition-colors border border-border/60"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary hover:bg-accent text-muted-foreground transition-colors border border-border/80"
         >
           <Search className="size-3.5" />
           <span className="flex-1 text-left text-[12px] font-medium">Search commands…</span>
@@ -116,22 +254,24 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* New Chat */}
-      <div className="px-3 mb-4">
+      {/* ── New Chat ── */}
+      <div className="px-4 pb-3">
         <button
           onClick={onNewChat}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-red-800 to-red-600 shadow-md hover:shadow-lg transition-all hover:scale-[1.02]"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-semibold text-[13px] bg-primary shadow-sm hover:bg-primary/90 transition-all hover:shadow-md"
         >
           <Plus className="size-4" strokeWidth={2.5} />
           <span>New Session</span>
         </button>
       </div>
 
-      <SectionDivider />
+      <div className="mx-4 h-px bg-border" />
 
-      {/* Quick Actions */}
-      <div className="px-3 mb-2">
-        <SectionLabel>Deep Tools</SectionLabel>
+      {/* ── Deep Tools ── */}
+      <div className="px-4 pt-3 pb-2">
+        <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-1">
+          Deep Tools
+        </p>
         <div className="space-y-0.5">
           <QuickBtn icon={BarChart3} label="Business Health" onClick={() => onQuickAction("summary")} />
           <QuickBtn icon={TrendingUp} label="Revenue Metrics" onClick={() => onQuickAction("metrics")} />
@@ -140,17 +280,19 @@ export function Sidebar({
         </div>
       </div>
 
-      <SectionDivider />
+      <div className="mx-4 h-px bg-border" />
 
-      {/* Agents */}
-      <div className="flex items-center justify-between px-5 mb-2">
-        <SectionLabel className="mb-0">Agents</SectionLabel>
+      {/* ── Agents ── */}
+      <div className="flex items-center justify-between px-5 pt-3 pb-1.5">
+        <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest">
+          Agents
+        </p>
         <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-          {agents.length} online
+          {agents.length} live
         </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 pb-2 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-3 pb-2 scrollbar-thin">
         <div className="space-y-0.5">
           {agents.map((agent) => {
             const Icon = AGENT_ICONS[agent.id];
@@ -158,11 +300,11 @@ export function Sidebar({
               <button
                 key={agent.id}
                 onClick={() => onAgentClick(agent.id)}
-                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-accent transition-colors group"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors group border border-transparent hover:border-border/60"
               >
-                <div className="size-7 rounded-md flex items-center justify-center flex-shrink-0 bg-secondary border border-border/60 group-hover:bg-card">
+                <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0 bg-secondary group-hover:bg-background border border-border/70 transition-colors">
                   {Icon ? (
-                    <Icon className="size-3.5 text-muted-foreground" />
+                    <Icon className="size-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                   ) : (
                     <span className="text-[10px] font-bold text-muted-foreground">
                       {agent.tag.slice(1, 4)}
@@ -171,30 +313,26 @@ export function Sidebar({
                 </div>
                 <div className="text-left flex-1 min-w-0">
                   <p className="text-[12.5px] font-semibold text-foreground truncate">{agent.name}</p>
-                  <p className="text-[10px] text-muted-foreground truncate uppercase tracking-wide font-medium">
-                    {agent.title}
-                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate font-medium">{agent.title}</p>
                 </div>
-                <span className="text-[8.5px] font-mono font-bold px-1 py-0.5 rounded bg-secondary text-muted-foreground">
-                  {agent.tag}
-                </span>
+                <span className="size-1.5 rounded-full bg-emerald-500 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" />
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Chat History */}
+      {/* ── Chat History ── */}
       <div className="px-3 py-2 border-t border-border">
         <button
           onClick={() => setShowHistory((v) => !v)}
-          className="w-full flex items-center justify-between px-2 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
         >
           <div className="flex items-center gap-2">
             <History className="size-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-wider">Sessions</span>
             {chatHistory.length > 0 && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-secondary border border-border">
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-secondary border border-border font-medium">
                 {chatHistory.length}
               </span>
             )}
@@ -212,7 +350,7 @@ export function Sidebar({
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="max-h-40 overflow-y-auto space-y-0.5 pt-1 scrollbar-thin">
+              <div className="max-h-36 overflow-y-auto space-y-0.5 pt-1 scrollbar-thin">
                 {chatHistory.length === 0 ? (
                   <p className="text-[10.5px] text-muted-foreground px-3 py-2 italic">
                     No previous sessions
@@ -225,18 +363,15 @@ export function Sidebar({
                         key={chat.id}
                         onClick={() => onLoadChat(chat.id)}
                         className={cn(
-                          "group flex items-center justify-between px-2 py-1.5 rounded-md cursor-pointer transition-colors",
+                          "group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-colors",
                           active
                             ? "bg-primary text-primary-foreground"
-                            : "hover:bg-accent text-muted-foreground hover:text-foreground",
+                            : "hover:bg-secondary text-muted-foreground hover:text-foreground",
                         )}
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <MessageSquare className="size-3 flex-shrink-0" />
                           <span className="text-[11.5px] truncate font-medium">{chat.title}</span>
-                          {active && (
-                            <span className="size-1.5 rounded-full bg-white animate-pulse-soft" />
-                          )}
                         </div>
                         <button
                           onClick={(e) => {
@@ -245,7 +380,9 @@ export function Sidebar({
                           }}
                           className={cn(
                             "opacity-0 group-hover:opacity-100 p-1 rounded transition-all",
-                            active ? "hover:bg-white/20" : "hover:bg-destructive/10 hover:text-destructive",
+                            active
+                              ? "hover:bg-white/20"
+                              : "hover:bg-destructive/10 hover:text-destructive",
                           )}
                         >
                           <Trash2 className="size-3" />
@@ -260,8 +397,50 @@ export function Sidebar({
         </AnimatePresence>
       </div>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-border bg-secondary/30">
+      {/* ── Live Alerts ── */}
+      <div className="px-4 py-2.5 border-t border-border bg-secondary/30">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <Bell className="size-3 text-muted-foreground" />
+            <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest">
+              Live Alerts
+            </p>
+          </div>
+          {loadingMetrics && <Loader2 className="size-3 animate-spin text-muted-foreground" />}
+        </div>
+
+        {alerts.length === 0 ? (
+          <p className="text-[10.5px] text-muted-foreground italic px-1">
+            {loadingMetrics ? "Loading…" : "No alerts — click refresh for live data"}
+          </p>
+        ) : (
+          <div className="space-y-1.5">
+            {alerts.map((alert, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <span
+                  className={cn(
+                    "mt-0.5 size-1.5 rounded-full flex-shrink-0",
+                    alert.type === "warning" && "bg-amber-400",
+                    alert.type === "info" && "bg-blue-400",
+                    alert.type === "success" && "bg-emerald-400",
+                  )}
+                />
+                <p className="text-[10.5px] text-muted-foreground leading-tight">{alert.text}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-2.5 pt-2 border-t border-border/60 flex items-start gap-1.5">
+          <Lightbulb className="size-3 text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-[10px] text-muted-foreground leading-tight italic">
+            {DAILY_TIPS[tipIndex]}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Footer ── */}
+      <div className="p-3 border-t border-border">
         <div className="flex gap-1.5 mb-2">
           <FooterBtn icon={ShieldCheck} label="Privacy" onClick={onPrivacyClick} />
           <FooterBtn icon={Settings} label="Settings" onClick={onSettingsClick} />
@@ -279,7 +458,7 @@ export function Sidebar({
         </div>
         {userEmail && (
           <div className="flex items-center gap-2 px-1 pt-2 border-t border-border">
-            <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+            <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
               {userEmail[0]?.toUpperCase()}
             </div>
             <span className="text-[10.5px] font-medium text-muted-foreground truncate flex-1">
@@ -288,7 +467,7 @@ export function Sidebar({
             <button
               onClick={onSignOut}
               aria-label="Sign out"
-              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             >
               <LogOut className="size-3" />
             </button>
@@ -296,29 +475,6 @@ export function Sidebar({
         )}
       </div>
     </aside>
-  );
-}
-
-function SectionDivider() {
-  return <div className="mx-5 my-3 h-px bg-border" />;
-}
-
-function SectionLabel({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <p
-      className={cn(
-        "text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-2",
-        className,
-      )}
-    >
-      {children}
-    </p>
   );
 }
 
@@ -334,9 +490,9 @@ function QuickBtn({
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-accent transition-colors group"
+      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors group border border-transparent hover:border-border/60"
     >
-      <div className="size-7 rounded-md flex items-center justify-center flex-shrink-0 bg-secondary border border-border/60 group-hover:bg-card">
+      <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/8 border border-primary/15 group-hover:bg-primary/12 transition-colors">
         <Icon className="size-3.5 text-primary" />
       </div>
       <span className="text-[12.5px] font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
@@ -358,7 +514,7 @@ function FooterBtn({
   return (
     <button
       onClick={onClick}
-      className="flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-2 rounded-md text-[10.5px] font-bold text-muted-foreground hover:text-foreground hover:bg-card border border-transparent hover:border-border transition-colors"
+      className="flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[10.5px] font-bold text-muted-foreground hover:text-foreground hover:bg-secondary border border-border hover:border-border transition-colors"
     >
       <Icon className="size-3" />
       <span>{label}</span>

@@ -152,11 +152,11 @@ export function ChatArea({
     >
       {/* Drag overlay */}
       {dragOver && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm pointer-events-none">
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/90 backdrop-blur-sm pointer-events-none">
           <div className="rounded-2xl border-2 border-dashed border-primary px-10 py-8 text-center bg-card shadow-xl">
             <Paperclip className="mx-auto size-8 text-primary mb-3" />
             <p className="text-[15px] font-bold text-foreground">Drop files to upload</p>
-            <p className="text-[12px] text-muted-foreground">
+            <p className="text-[12px] text-muted-foreground mt-1">
               Stored in your Mafalia workspace (max 20 MB each)
             </p>
           </div>
@@ -167,14 +167,14 @@ export function ChatArea({
       <AnimatePresence>
         {currentModel && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-6 left-1/2 -translate-x-1/2 z-20"
+            exit={{ opacity: 0, y: -16 }}
+            className="absolute top-5 left-1/2 -translate-x-1/2 z-20"
           >
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-card border border-border shadow-md">
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-background border border-border shadow-md">
               <Cpu className="size-3.5 text-primary" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">
+              <span className="text-[10.5px] font-bold uppercase tracking-wide text-foreground">
                 {currentModel.split("/").pop()}
               </span>
             </div>
@@ -189,57 +189,59 @@ export function ChatArea({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.45 }}
               className="flex flex-col items-center justify-center min-h-[60vh] pt-4"
             >
               <motion.div
-                initial={{ scale: 0.92, opacity: 0 }}
+                initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: "spring", damping: 20 }}
-                className="mb-6"
+                transition={{ delay: 0.08, type: "spring", damping: 22 }}
+                className="mb-5"
               >
-                <Image
-                  src="/mafalia-logo.png"
-                  alt="Mafalia"
-                  width={88}
-                  height={88}
-                  className="object-contain"
-                />
+                <div className="size-[88px] rounded-2xl border border-border shadow-sm flex items-center justify-center bg-background">
+                  <Image
+                    src="/mafalia-logo.png"
+                    alt="Mafalia"
+                    width={64}
+                    height={64}
+                    className="object-contain"
+                  />
+                </div>
               </motion.div>
 
               <motion.h1
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-[32px] font-bold mb-2 tracking-tight text-center leading-tight"
+                transition={{ delay: 0.18 }}
+                className="text-[30px] font-bold mb-1.5 tracking-tight text-center text-foreground"
               >
                 Mafalia <span className="text-primary">Intelligence</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-muted-foreground text-[14px] mb-10 max-w-lg text-center leading-relaxed"
+                transition={{ delay: 0.26 }}
+                className="text-muted-foreground text-[14px] mb-8 max-w-lg text-center leading-relaxed"
               >
                 Orchestrate 10 specialized agents to analyze business data, predict trends, and
-                automate operations.
+                automate operations across West Africa.
               </motion.p>
 
-              <div className="grid grid-cols-3 gap-3 w-full max-w-[540px]">
+              <div className="grid grid-cols-3 gap-2.5 w-full max-w-[560px]">
                 {QUICK_ACTIONS.map((action, i) => {
                   const Icon = action.icon;
                   return (
                     <motion.button
                       key={action.cmd}
-                      initial={{ opacity: 0, y: 16 }}
+                      initial={{ opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.15 + i * 0.04, type: "spring", damping: 25 }}
-                      whileHover={{ y: -3, scale: 1.02 }}
+                      transition={{ delay: 0.12 + i * 0.05, type: "spring", damping: 26 }}
+                      whileHover={{ y: -2, scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => onSendMessage(action.cmd)}
-                      className="flex flex-col items-center gap-2.5 px-3 py-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all"
+                      className="flex flex-col items-center gap-2.5 px-3 py-4 rounded-xl border border-border bg-background hover:border-primary/40 hover:shadow-md hover:bg-secondary/40 transition-all cursor-pointer"
                     >
-                      <div className="size-9 rounded-lg flex items-center justify-center bg-primary/10">
+                      <div className="size-9 rounded-lg flex items-center justify-center bg-primary/8 border border-primary/15">
                         <Icon className="size-4 text-primary" />
                       </div>
                       <span className="text-[11.5px] font-semibold text-foreground text-center leading-tight">
@@ -251,7 +253,7 @@ export function ChatArea({
               </div>
             </motion.div>
           ) : (
-            <div className="space-y-7 pb-8">
+            <div className="space-y-6 pb-8">
               {messages.map((msg) => (
                 <MessageBubble key={msg.id} msg={msg} />
               ))}
@@ -263,10 +265,10 @@ export function ChatArea({
                     exit={{ opacity: 0 }}
                     className="flex items-center gap-3"
                   >
-                    <div className="size-7 rounded-md flex items-center justify-center bg-secondary border border-border">
+                    <div className="size-7 rounded-lg flex items-center justify-center bg-secondary border border-border">
                       <Sparkles className="size-3.5 text-primary animate-pulse-soft" />
                     </div>
-                    <div className="px-4 py-2.5 rounded-2xl rounded-tl-md bg-card border border-border border-l-2 border-l-primary">
+                    <div className="px-4 py-3 rounded-2xl rounded-tl-md bg-background border border-border shadow-sm">
                       <div className="flex items-center gap-1.5">
                         <span className="typing-dot" />
                         <span className="typing-dot" />
@@ -283,14 +285,14 @@ export function ChatArea({
       </div>
 
       {/* Input Bar */}
-      <div className="px-6 py-5 bg-card/80 backdrop-blur-md border-t border-border">
+      <div className="px-6 py-4 bg-background border-t border-border">
         <div className="max-w-3xl mx-auto">
           {attachments.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-2.5">
               {attachments.map((a) => (
                 <div
                   key={a.path}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-secondary border border-border text-[12px]"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary border border-border text-[12px]"
                 >
                   <FileText className="size-3.5 text-primary" />
                   <span className="font-medium truncate max-w-[180px]">{a.name}</span>
@@ -299,7 +301,7 @@ export function ChatArea({
                   </span>
                   <button
                     onClick={() => setAttachments((prev) => prev.filter((x) => x.path !== a.path))}
-                    className="text-muted-foreground hover:text-destructive"
+                    className="text-muted-foreground hover:text-destructive transition-colors"
                     aria-label="Remove attachment"
                   >
                     <X className="size-3" />
@@ -309,7 +311,7 @@ export function ChatArea({
             </div>
           )}
 
-          <div className="rounded-2xl overflow-hidden border border-border bg-secondary/50 focus-within:bg-card focus-within:border-primary/50 transition-colors shadow-sm">
+          <div className="rounded-xl overflow-hidden border border-border bg-background focus-within:border-primary/50 transition-colors shadow-sm">
             <div className="flex items-end">
               <textarea
                 ref={inputRef}
@@ -317,22 +319,22 @@ export function ChatArea({
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder="Execute command or ask anything…"
-                className="flex-1 bg-transparent text-foreground placeholder-muted-foreground text-[14.5px] font-medium px-5 py-4 resize-none outline-none leading-relaxed"
-                style={{ minHeight: "56px", maxHeight: "160px" }}
+                className="flex-1 bg-transparent text-foreground placeholder-muted-foreground text-[14px] font-medium px-4 py-3.5 resize-none outline-none leading-relaxed"
+                style={{ minHeight: "52px", maxHeight: "160px" }}
                 rows={1}
               />
               <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={(!input.trim() && attachments.length === 0) || isLoading}
-                className="mr-3 mb-3 size-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 bg-gradient-to-r from-red-800 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-[1.04]"
+                className="mr-2.5 mb-2.5 size-9 rounded-lg flex items-center justify-center transition-all disabled:opacity-30 bg-primary text-white shadow-sm hover:bg-primary/90 hover:shadow-md"
                 aria-label="Send"
               >
-                <Send className="size-4" />
+                <Send className="size-3.5" />
               </button>
             </div>
 
-            <div className="flex items-center gap-1 px-3 pb-2.5 pt-0 border-t border-border/50">
+            <div className="flex items-center gap-1 px-2.5 pb-2.5 pt-0 border-t border-border/50">
               <Chip
                 icon={Paperclip}
                 label={uploading ? "Uploading…" : "Attach"}
@@ -342,7 +344,7 @@ export function ChatArea({
               <Chip icon={Slash} label="Actions" onClick={onCommandPaletteOpen} />
               <div className="flex-1" />
               <span className="text-[10px] font-bold text-muted-foreground tabular-nums select-none px-2">
-                {input.length}
+                {input.length > 0 ? input.length : ""}
               </span>
             </div>
           </div>
@@ -355,7 +357,7 @@ export function ChatArea({
             onChange={(e) => e.target.files && handleFiles(e.target.files)}
           />
 
-          <p className="mt-2.5 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em] select-none">
+          <p className="mt-2 text-center text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.2em] select-none">
             Mafalia Intelligence Platform
           </p>
         </div>
@@ -375,24 +377,22 @@ function MessageBubble({ msg }: { msg: Message }) {
   if (isUser) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col items-end"
       >
         <div className="flex items-center gap-2 mb-1.5 px-1">
-          <span className="text-[10.5px] font-bold text-muted-foreground uppercase tracking-wide">
-            {time}
-          </span>
+          <span className="text-[10px] text-muted-foreground tabular-nums">{time}</span>
           <span className="text-[11.5px] font-bold text-foreground">You</span>
         </div>
-        <div className="px-5 py-3 rounded-2xl rounded-tr-md max-w-[82%] bg-primary text-primary-foreground shadow-md">
+        <div className="px-4 py-3 rounded-2xl rounded-tr-sm max-w-[80%] bg-primary text-primary-foreground shadow-sm">
           <p className="text-[14px] leading-relaxed">{msg.content}</p>
           {msg.attachments && msg.attachments.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {msg.attachments.map((a) => (
                 <span
                   key={a.url}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-primary-foreground/15 text-[11px] font-medium"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/20 text-[11px] font-medium"
                 >
                   <FileText className="size-3" />
                   {a.name}
@@ -406,21 +406,23 @@ function MessageBubble({ msg }: { msg: Message }) {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-start">
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-start"
+    >
       <div className="flex items-center gap-2.5 mb-1.5 px-1">
-        <div className="size-6 rounded-md flex items-center justify-center bg-primary/10 border border-primary/20">
+        <div className="size-6 rounded-lg flex items-center justify-center bg-primary/8 border border-primary/20">
           {msg.agentTag === "[MAF]" || !msg.agentTag ? (
             <Sparkles className="size-3 text-primary" />
           ) : (
             <span className="text-[9.5px] font-bold text-primary">{msg.agentTag.slice(1, 4)}</span>
           )}
         </div>
-        <span className="text-[12px] font-bold text-primary tracking-tight">{tagShort}</span>
-        <span className="text-[10.5px] font-bold text-muted-foreground uppercase tracking-wide">
-          {time}
-        </span>
+        <span className="text-[12px] font-bold text-primary">{tagShort}</span>
+        <span className="text-[10px] text-muted-foreground tabular-nums">{time}</span>
       </div>
-      <div className="px-6 py-4 rounded-2xl rounded-tl-md max-w-[94%] bg-card border border-border border-l-4 border-l-primary shadow-sm">
+      <div className="px-5 py-4 rounded-2xl rounded-tl-sm max-w-[92%] bg-background border border-border border-l-[3px] border-l-primary shadow-sm">
         <div className="text-[14px] text-foreground leading-relaxed">
           <Markdown content={msg.content} />
         </div>
@@ -444,7 +446,7 @@ function Chip({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-card transition-colors text-[11.5px] font-semibold border border-transparent hover:border-border disabled:opacity-50"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[11.5px] font-semibold border border-transparent hover:border-border disabled:opacity-50"
     >
       <Icon className="size-3.5 opacity-70" />
       <span>{label}</span>

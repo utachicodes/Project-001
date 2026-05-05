@@ -52,32 +52,28 @@ export function LoginForm() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background px-4">
+    <main className="min-h-screen flex items-center justify-center bg-secondary/30 px-4">
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <Image src="/mafalia-logo.png" alt="Mafalia" width={48} height={48} />
-            <div className="text-left">
-              <p className="text-[20px] font-bold tracking-tight leading-none">Mafalia</p>
-              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.18em] mt-1">
-                Intelligence
-              </p>
+        <div className="text-center mb-7">
+          <div className="inline-flex items-center justify-center mb-5">
+            <div className="size-16 rounded-2xl border border-border shadow-sm flex items-center justify-center bg-background">
+              <Image src="/mafalia-logo.png" alt="Mafalia" width={44} height={44} className="object-contain" />
             </div>
           </div>
-          <h1 className="text-[26px] font-bold tracking-tight">
-            Sign in to <span className="text-primary">Mafalia Intelligence</span>
+          <h1 className="text-[26px] font-bold tracking-tight text-foreground">
+            Mafalia <span className="text-primary">Intelligence</span>
           </h1>
-          <p className="text-muted-foreground mt-2 text-[14px]">
-            Enter your email — we&apos;ll send you a secure magic link.
+          <p className="text-muted-foreground mt-1.5 text-[13px] font-medium">
+            Your growth partner — sign in to continue
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <div className="rounded-xl border border-border bg-background p-6 shadow-sm">
           {sent ? (
             <div className="text-center py-4">
               <div className="size-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-3">
@@ -136,7 +132,7 @@ export function LoginForm() {
           )}
         </div>
 
-        <p className="text-center text-[11px] text-muted-foreground mt-5">
+        <p className="text-center text-[11px] text-muted-foreground/70 mt-4">
           By continuing, you agree to Mafalia&apos;s privacy policy. API keys stay in your browser.
         </p>
       </motion.div>
