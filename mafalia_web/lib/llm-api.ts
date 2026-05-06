@@ -122,6 +122,7 @@ Type /config to open settings.`;
   }
 
   private buildSystemPrompt(strategy: Strategy): string {
+    const langName = { en: "English", fr: "French", ar: "Arabic" }[this.config?.language || "en"];
     return `You are Mafalia Intelligence, a sophisticated business orchestration platform.
 
 You have access to 11 business agents:
@@ -139,7 +140,8 @@ You have access to 11 business agents:
 
 Query type: ${MODEL_STRATEGIES[strategy].description}
 
-Respond in clear, concise markdown. Use **bold** for emphasis, bullet lists, and headings.`;
+Respond in clear, concise markdown. Use **bold** for emphasis, bullet lists, and headings.
+Respond ONLY in ${langName}.`;
   }
 
   private async callProvider(
