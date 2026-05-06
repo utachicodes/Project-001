@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, Rocket, CheckCircle2, AlertCircle, Database } from "lucide-react";
 import type { Config } from "@/lib/types";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ProviderSelector, ALL_PROVIDERS } from "./provider-selector";
 import { cn } from "@/lib/utils";
@@ -65,10 +65,12 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
           <div className="flex items-center gap-3 mb-1">
             <Image src="/mafalia-logo.png" alt="Mafalia" width={36} height={36} />
             <div>
-              <h2 className="text-lg font-bold tracking-tight">
+              <DialogTitle className="text-lg font-bold tracking-tight">
                 Configure <span className="text-primary">Mafalia Intelligence</span>
-              </h2>
-              <p className="text-[12.5px] text-muted-foreground">Activate your business agents</p>
+              </DialogTitle>
+              <DialogDescription className="text-[12.5px] text-muted-foreground">
+                Activate your business agents
+              </DialogDescription>
             </div>
           </div>
 
@@ -123,7 +125,7 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
           {step === 1 && (
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="size-8 rounded-md flex items-center justify-center bg-primary/10 border border-primary/20">
+                <div className="size-8 flex items-center justify-center">
                   <Sparkles className="size-4 text-primary" />
                 </div>
                 <div>
@@ -147,7 +149,7 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
           {step === 2 && (
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="size-8 rounded-md flex items-center justify-center bg-primary/10 border border-primary/20">
+                <div className="size-8 flex items-center justify-center">
                   <Sparkles className="size-4 text-primary" />
                 </div>
                 <div>
@@ -256,7 +258,7 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
           {step === 3 && (
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="size-8 rounded-md flex items-center justify-center bg-primary/10 border border-primary/20">
+                <div className="size-8 flex items-center justify-center">
                   <Database className="size-4 text-primary" />
                 </div>
                 <div>
