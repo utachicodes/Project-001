@@ -194,9 +194,30 @@ const VideoBackground = () => {
 };
 
 export default function LandingPage() {
-  const [lang, setLang] = useState<Language>("en");
+  const [lang, setLang] = useState<Language>(() => {
+    if (typeof window !== "undefined") {
+      const raw = localStorage.getItem("mafalia_config");
+      if (raw) {
+        try {
+          return JSON.parse(raw).language || "en";
+        } catch {
+          return "en";
+        }
+      }
+    }
+    return "en";
+  });
   const [user, setUser] = useState<any>(null);
   const t = dict[lang];
+
+  const changeLang = (newLang: Language) => {
+    setLang(newLang);
+    if (typeof window !== "undefined") {
+      const raw = localStorage.getItem("mafalia_config");
+      const config = raw ? JSON.parse(raw) : {};
+      localStorage.setItem("mafalia_config", JSON.stringify({ ...config, language: newLang }));
+    }
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -259,7 +280,7 @@ export default function LandingPage() {
           {/* Language Switcher */}
           <div className="flex items-center bg-black/5 rounded-full p-1 border border-black/5">
             <button
-              onClick={() => setLang("en")}
+              onClick={() => changeLang("en")}
               className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
                 lang === "en" ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
               }`}
@@ -267,7 +288,7 @@ export default function LandingPage() {
               EN
             </button>
             <button
-              onClick={() => setLang("fr")}
+              onClick={() => changeLang("fr")}
               className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
                 lang === "fr" ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
               }`}
@@ -275,7 +296,7 @@ export default function LandingPage() {
               FR
             </button>
             <button
-              onClick={() => setLang("ar")}
+              onClick={() => changeLang("ar")}
               className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
                 lang === "ar" ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
               }`}

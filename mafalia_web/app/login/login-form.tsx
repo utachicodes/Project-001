@@ -6,6 +6,9 @@ import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Mail, ArrowRight, CheckCircle2, ChevronLeft } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { loadConfig } from "@/lib/config-store";
+import { translations, type Language } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import { Fustat, Inter } from "next/font/google";
 
 const fustat = Fustat({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
@@ -83,9 +86,16 @@ const VideoBackground = () => {
       }, 100);
     };
 
+    if (video.readyState >= 3) {
+      handleLoadedData();
+    }
+
     video.addEventListener("loadeddata", handleLoadedData);
     video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("ended", handleEnded);
+
+    // Force play
+    video.play().catch(() => {});
 
     return () => {
       video.removeEventListener("loadeddata", handleLoadedData);
@@ -121,6 +131,25 @@ export function LoginForm() {
   const [loading, setLoading] = React.useState(false);
   const [sent, setSent] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [lang, setLang] = React.useState<Language>(() => {
+    if (typeof window !== "undefined") {
+      const raw = localStorage.getItem("mafalia_config");
+      if (raw) {
+        try {
+          return JSON.parse(raw).language || "en";
+        } catch {
+          return "en";
+        }
+      }
+    }
+    return "en";
+  });
+  const t = translations[lang];
+
+  React.useEffect(() => {
+    const cfg = loadConfig();
+    if (cfg?.language) setLang(cfg.language);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,13 +186,13 @@ export function LoginForm() {
   };
 
   return (
-    <main className={`min-h-screen flex flex-col relative overflow-hidden px-4 md:px-[120px] pt-8 ${inter.className}`}>
+    <main dir={lang === "ar" ? "rtl" : "ltr"} className={`min-h-screen flex flex-col relative overflow-hidden px-4 md:px-[120px] pt-8 ${inter.className}`}>
       <VideoBackground />
 
-      <nav className="w-full mb-12">
-        <Link href="/" className="inline-flex items-center gap-2 text-[14px] font-medium text-black hover:opacity-70 transition-opacity z-10">
-          <ChevronLeft className="w-4 h-4" />
-          Back to Home
+      <nav className="w-full mb-12 relative z-20">
+        <Link href="/" className="inline-flex items-center gap-2 text-[14px] font-medium text-black hover:opacity-70 transition-opacity">
+          <ChevronLeft className={cn("w-4 h-4", lang === "ar" && "rotate-180")} />
+          {t.backToHome}
         </Link>
       </nav>
 
@@ -186,10 +215,10 @@ export function LoginForm() {
           </div>
 
           <h1 className={`${fustat.className} text-[40px] font-bold tracking-[-2.4px] text-[#000000] mb-2 leading-tight text-center`}>
-            Welcome Back
+            {lang === "en" ? "Welcome Back" : lang === "fr" ? "Bon retour" : "مرحباً بعودتك"}
           </h1>
           <p className={`${fustat.className} text-[18px] tracking-[-0.4px] text-[#505050] mb-8 text-center`}>
-            Sign in to orchestrate your AI agents.
+            {lang === "en" ? "Sign in to orchestrate your AI agents." : lang === "fr" ? "Connectez-vous pour orchestrer vos agents IA." : "سجل الدخول لتنسيق عملاء الذكاء الاصطناعي الخاص بك."}
           </p>
 
           {/* Form inside glassmorphism container identical to landing page search box */}
@@ -221,10 +250,10 @@ export function LoginForm() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <label htmlFor="email" className="text-[13px] font-medium text-gray-200 ml-1">
-                    Email Address
+                    {lang === "en" ? "Email Address" : lang === "fr" ? "Adresse Email" : "عنوان البريد الإلكتروني"}
                   </label>
                   <div className="relative group bg-white rounded-[12px] p-1 flex items-center shadow-inner">
-                    <Mail className="absolute left-4 size-4.5 text-gray-400 group-focus-within:text-black transition-colors" />
+                    <Mail className={cn("absolute size-4.5 text-gray-400 group-focus-within:text-black transition-colors", lang === "ar" ? "right-4" : "left-4")} />
                     <input
                       id="email"
                       type="email"
@@ -233,7 +262,10 @@ export function LoginForm() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@company.com"
-                      className="w-full h-[44px] bg-transparent pl-10 pr-4 text-[16px] text-black placeholder:text-[rgba(0,0,0,0.6)] focus:outline-none"
+                      className={cn(
+                        "w-full h-[44px] bg-transparent pr-4 text-[16px] text-black placeholder:text-[rgba(0,0,0,0.6)] focus:outline-none",
+                        lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"
+                      )}
                     />
                   </div>
                 </div>
@@ -248,20 +280,20 @@ export function LoginForm() {
                   </motion.p>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={loading || !email.trim()}
-                  className="w-full h-[48px] relative flex items-center justify-center rounded-[12px] bg-black text-[15px] font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-                >
-                  {loading ? (
-                    <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      Log In securely
-                      <ArrowRight className="ml-2 size-4" />
-                    </>
-                  )}
-                </button>
+                  <button
+                    type="submit"
+                    disabled={loading || !email.trim()}
+                    className="w-full h-[48px] relative flex items-center justify-center rounded-[12px] bg-black text-[15px] font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                  >
+                    {loading ? (
+                      <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        {lang === "en" ? "Log In securely" : lang === "fr" ? "Se connecter en sécurité" : "تسجيل الدخول بشكل آمن"}
+                        <ArrowRight className={cn("ml-2 size-4", lang === "ar" && "rotate-180 mr-2 ml-0")} />
+                      </>
+                    )}
+                  </button>
               </form>
             )}
           </div>
