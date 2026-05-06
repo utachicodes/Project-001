@@ -113,6 +113,17 @@ export const DEFAULT_AGENTS: Agent[] = [
     description: "Manages B2B relationships and generates essential business documentation.",
     quickActions: ["/create business-plan", "/create pitch-deck", "/research partners"],
   },
+  {
+    id: "malik",
+    name: "Malik",
+    tag: "[SEC]",
+    title: "Security Sentinel",
+    color: "#FE0000",
+    status: "idle",
+    room: "Secure Vault",
+    description: "Monitors platform security, manages access controls, and ensures data compliance.",
+    quickActions: ["/analyze security", "/check compliance", "/ask malik access-logs"],
+  },
 ];
 
 export const ANALYZE_MAP: Record<string, string> = {

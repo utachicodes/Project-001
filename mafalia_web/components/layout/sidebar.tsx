@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Settings,
@@ -9,6 +10,7 @@ import {
   Trash2,
   ShieldCheck,
   ChevronRight,
+  ChevronLeft,
   MessageSquare,
   BarChart3,
   TrendingUp,
@@ -31,6 +33,12 @@ import {
   Lightbulb,
   TrendingDown,
   Loader2,
+  Zap,
+  ShieldAlert,
+  Target,
+  Layers,
+  Users,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 import type { Agent, ChatSession } from "@/lib/types";
@@ -118,6 +126,8 @@ export function Sidebar({
   onSignOut,
 }: SidebarProps) {
   const [showHistory, setShowHistory] = React.useState(false);
+  const [showTools, setShowTools] = React.useState(true);
+  const [showAgents, setShowAgents] = React.useState(true);
   const [time, setTime] = React.useState("");
   const [tipIndex] = React.useState(() => Math.floor(Math.random() * DAILY_TIPS.length));
 
@@ -138,110 +148,61 @@ export function Sidebar({
   return (
     <aside className="w-[300px] min-w-[300px] h-full flex flex-col bg-background border-r border-border overflow-hidden">
       {/* ── Header ── */}
-      <div className="px-5 pt-5 pb-4 border-b border-border">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="relative w-10 h-10 flex-shrink-0">
+      <div className="px-4 py-3 border-b border-border">
+        <div className="flex items-center gap-3">
+          <div className="relative w-8 h-8 flex-shrink-0">
             <Image
               src="/mafalia-logo.png"
               alt="Mafalia"
-              width={40}
-              height={40}
+              width={32}
+              height={32}
               className="object-contain"
             />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[15px] font-bold tracking-tight leading-none text-foreground">
-              Mafalia Intelligence
+            <Link href="/" className="group flex items-center gap-1">
+              <ChevronLeft className="size-3 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="text-[10px] font-bold text-muted-foreground group-hover:text-primary transition-colors uppercase tracking-tight">
+                Home
+              </span>
+            </Link>
+            <p className="text-[14px] font-bold tracking-tight leading-none text-foreground mt-0.5">
+              Mafalia <span className="text-primary">Intelligence</span>
             </p>
-            <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
-              Your growth partner
-            </p>
-          </div>
-          <ThemeToggle />
-        </div>
-
-        {/* Status row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse-soft" />
-            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-              {agents.length} agents online
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono text-muted-foreground tabular-nums">{time}</span>
-            <button
-              onClick={onSettingsClick}
-              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              title="Settings"
-            >
-              <Settings className="size-3.5" />
-            </button>
-            <button
-              onClick={onRefreshMetrics}
-              disabled={loadingMetrics}
-              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors disabled:opacity-40"
-              title="Refresh metrics"
-            >
-              <RefreshCw className={cn("size-3.5", loadingMetrics && "animate-spin")} />
-            </button>
           </div>
         </div>
       </div>
 
-      {/* ── Business Pulse (KPI Cards) ── */}
+      {/* ── Business Pulse ── */}
       <div className="px-4 py-3 border-b border-border">
-        <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest mb-2.5 px-1">
-          Business Pulse
-        </p>
-        {loadingMetrics && !kpiData ? (
-          <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" />
-            <span className="text-[12px]">Fetching live metrics…</span>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            {kpiKeys.map((key) => {
-              const m = kpi[key];
-              return (
-                <button
-                  key={key}
-                  onClick={() => onKpiClick(KPI_COMMANDS[key])}
-                  className="rounded-lg border border-border bg-secondary/50 px-3 py-2.5 hover:bg-secondary hover:border-primary/30 hover:shadow-sm transition-all text-left group"
-                  title={`Analyze ${KPI_LABELS[key]}`}
-                >
-                  <p className="text-[9.5px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                    {KPI_LABELS[key]}
-                  </p>
-                  <p className="text-[15px] font-bold text-foreground leading-none mb-1 group-hover:text-primary transition-colors">
-                    {m.value}
-                  </p>
-                  <div className="flex items-center gap-1">
-                    {m.positive ? (
-                      <TrendingUp className="size-3 text-emerald-500" />
-                    ) : (
-                      <TrendingDown className="size-3 text-red-500" />
-                    )}
-                    <span
-                      className={cn(
-                        "text-[10px] font-bold tabular-nums",
-                        m.positive
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-red-500",
-                      )}
-                    >
-                      {m.change}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
+        <div className="grid grid-cols-2 gap-2">
+          {kpiKeys.map((key) => {
+            const m = kpi[key];
+            return (
+              <button
+                key={key}
+                onClick={() => onKpiClick(KPI_COMMANDS[key])}
+                className="rounded-lg border border-border bg-secondary/30 px-2 py-1.5 hover:bg-secondary hover:border-primary/30 transition-all text-left"
+              >
+                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">
+                  {KPI_LABELS[key]}
+                </p>
+                <p className="text-[13px] font-bold text-foreground tabular-nums">{m.value}</p>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* ── Search ── */}
-      <div className="px-4 pt-3 pb-2">
+      {/* ── Main Actions ── */}
+      <div className="px-4 py-3 space-y-2">
+        <button
+          onClick={onNewChat}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-semibold text-[13px] bg-primary shadow-sm hover:bg-primary/90 transition-all"
+        >
+          <Plus className="size-4" strokeWidth={2.5} />
+          <span>New Session</span>
+        </button>
         <button
           onClick={onCommandPaletteOpen}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary hover:bg-accent text-muted-foreground transition-colors border border-border/80"
@@ -254,147 +215,146 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* ── New Chat ── */}
-      <div className="px-4 pb-3">
-        <button
-          onClick={onNewChat}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-semibold text-[13px] bg-primary shadow-sm hover:bg-primary/90 transition-all hover:shadow-md"
-        >
-          <Plus className="size-4" strokeWidth={2.5} />
-          <span>New Session</span>
-        </button>
-      </div>
-
-      <div className="mx-4 h-px bg-border" />
-
-      {/* ── Deep Tools ── */}
-      <div className="px-4 pt-3 pb-2">
-        <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-1">
-          Deep Tools
-        </p>
-        <div className="space-y-0.5">
-          <QuickBtn icon={BarChart3} label="Business Health" onClick={() => onQuickAction("summary")} />
-          <QuickBtn icon={TrendingUp} label="Revenue Metrics" onClick={() => onQuickAction("metrics")} />
-          <QuickBtn icon={Wand2} label="Campaign Forge" onClick={() => onQuickAction("create")} />
-          <QuickBtn icon={Globe} label="Market Intel" onClick={() => onQuickAction("research")} />
-        </div>
-      </div>
-
-      <div className="mx-4 h-px bg-border" />
-
-      {/* ── Agents ── */}
-      <div className="flex items-center justify-between px-5 pt-3 pb-1.5">
-        <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest">
-          Agents
-        </p>
-        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-          {agents.length} live
-        </span>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-3 pb-2 scrollbar-thin">
-        <div className="space-y-0.5">
-          {agents.map((agent) => {
-            const Icon = AGENT_ICONS[agent.id];
-            return (
-              <button
-                key={agent.id}
-                onClick={() => onAgentClick(agent.id)}
-                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors group border border-transparent hover:border-border/60"
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin px-2 space-y-4 pt-2">
+        {/* Deep Tools */}
+        <div className="space-y-1">
+          <button
+            onClick={() => setShowTools(!showTools)}
+            className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
+          >
+            <div className="flex items-center gap-1.5">
+              <Zap className="size-3" />
+              <span>Special Operations</span>
+            </div>
+            <motion.div animate={{ rotate: showTools ? 90 : 0 }}>
+              <ChevronRight className="size-3" />
+            </motion.div>
+          </button>
+          <AnimatePresence>
+            {showTools && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden space-y-0.5"
               >
-                <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0 bg-secondary group-hover:bg-background border border-border/70 transition-colors">
-                  {Icon ? (
-                    <Icon className="size-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-                  ) : (
-                    <span className="text-[10px] font-bold text-muted-foreground">
-                      {agent.tag.slice(1, 4)}
-                    </span>
-                  )}
-                </div>
-                <div className="text-left flex-1 min-w-0">
-                  <p className="text-[12.5px] font-semibold text-foreground truncate">{agent.name}</p>
-                  <p className="text-[10px] text-muted-foreground truncate font-medium">{agent.title}</p>
-                </div>
-                <span className="size-1.5 rounded-full bg-emerald-500 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" />
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Chat History ── */}
-      <div className="px-3 py-2 border-t border-border">
-        <button
-          onClick={() => setShowHistory((v) => !v)}
-          className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <History className="size-3.5" />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Sessions</span>
-            {chatHistory.length > 0 && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-secondary border border-border font-medium">
-                {chatHistory.length}
-              </span>
+                <QuickBtn icon={ShieldAlert} label="Business Health" onClick={() => onQuickAction("summary")} />
+                <QuickBtn icon={Target} label="Revenue Metrics" onClick={() => onQuickAction("metrics")} />
+                <QuickBtn icon={Layers} label="Campaign Forge" onClick={() => onQuickAction("create")} />
+                <QuickBtn icon={Globe} label="Market Intel" onClick={() => onQuickAction("research")} />
+              </motion.div>
             )}
-          </div>
-          <motion.div animate={{ rotate: showHistory ? 90 : 0 }} transition={{ duration: 0.2 }}>
-            <ChevronRight className="size-3" />
-          </motion.div>
-        </button>
+          </AnimatePresence>
+        </div>
 
-        <AnimatePresence>
-          {showHistory && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="max-h-36 overflow-y-auto space-y-0.5 pt-1 scrollbar-thin">
-                {chatHistory.length === 0 ? (
-                  <p className="text-[10.5px] text-muted-foreground px-3 py-2 italic">
-                    No previous sessions
-                  </p>
-                ) : (
-                  chatHistory.map((chat) => {
-                    const active = currentChatId === chat.id;
-                    return (
-                      <div
-                        key={chat.id}
-                        onClick={() => onLoadChat(chat.id)}
+        {/* Agents */}
+        <div className="space-y-1">
+          <button
+            onClick={() => setShowAgents(!showAgents)}
+            className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
+          >
+            <div className="flex items-center gap-1.5">
+              <Users className="size-3" />
+              <span>Intelligence Squad</span>
+            </div>
+            <motion.div animate={{ rotate: showAgents ? 90 : 0 }}>
+              <ChevronRight className="size-3" />
+            </motion.div>
+          </button>
+          <AnimatePresence>
+            {showAgents && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden space-y-0.5"
+              >
+                {agents.map((agent) => {
+                  const Icon = AGENT_ICONS[agent.id];
+                  return (
+                    <button
+                      key={agent.id}
+                      onClick={() => onAgentClick(agent.id)}
+                      className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-secondary transition-colors group"
+                    >
+                      <div className="size-6 rounded-md flex items-center justify-center flex-shrink-0 bg-secondary group-hover:bg-background border border-border/50">
+                        {Icon ? (
+                          <Icon className="size-3 text-muted-foreground group-hover:text-primary transition-colors" />
+                        ) : (
+                          <span className="text-[9px] font-bold text-muted-foreground">
+                            {agent.tag.slice(1, 4)}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[12px] font-medium text-muted-foreground group-hover:text-foreground transition-colors truncate">
+                        {agent.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Sessions */}
+        <div className="space-y-1">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
+          >
+            <div className="flex items-center gap-1.5">
+              <History className="size-3.5" />
+              <span>Sessions</span>
+              {chatHistory.length > 0 && (
+                <span className="ml-1 text-[9px] px-1 py-0 rounded-full bg-secondary border border-border">
+                  {chatHistory.length}
+                </span>
+              )}
+            </div>
+            <motion.div animate={{ rotate: showHistory ? 90 : 0 }}>
+              <ChevronRight className="size-3" />
+            </motion.div>
+          </button>
+          <AnimatePresence>
+            {showHistory && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden space-y-0.5"
+              >
+                {chatHistory.map((chat) => {
+                  const active = currentChatId === chat.id;
+                  return (
+                    <div
+                      key={chat.id}
+                      onClick={() => onLoadChat(chat.id)}
+                      className={cn(
+                        "group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-colors",
+                        active ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      <span className="text-[11.5px] truncate font-medium">{chat.title}</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteChat(chat.id);
+                        }}
                         className={cn(
-                          "group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-colors",
-                          active
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-secondary text-muted-foreground hover:text-foreground",
+                          "opacity-0 group-hover:opacity-100 p-1 rounded transition-all",
+                          active ? "hover:bg-white/20" : "hover:bg-destructive/10 hover:text-destructive",
                         )}
                       >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <MessageSquare className="size-3 flex-shrink-0" />
-                          <span className="text-[11.5px] truncate font-medium">{chat.title}</span>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDeleteChat(chat.id);
-                          }}
-                          className={cn(
-                            "opacity-0 group-hover:opacity-100 p-1 rounded transition-all",
-                            active
-                              ? "hover:bg-white/20"
-                              : "hover:bg-destructive/10 hover:text-destructive",
-                          )}
-                        >
-                          <Trash2 className="size-3" />
-                        </button>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                        <Trash2 className="size-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* ── Live Alerts ── */}
@@ -408,71 +368,67 @@ export function Sidebar({
           </div>
           {loadingMetrics && <Loader2 className="size-3 animate-spin text-muted-foreground" />}
         </div>
-
-        {alerts.length === 0 ? (
-          <p className="text-[10.5px] text-muted-foreground italic px-1">
-            {loadingMetrics ? "Loading…" : "No alerts — click refresh for live data"}
-          </p>
-        ) : (
-          <div className="space-y-1.5">
-            {alerts.map((alert, i) => (
-              <div key={i} className="flex items-start gap-2">
-                <span
-                  className={cn(
-                    "mt-0.5 size-1.5 rounded-full flex-shrink-0",
-                    alert.type === "warning" && "bg-amber-400",
-                    alert.type === "info" && "bg-blue-400",
-                    alert.type === "success" && "bg-emerald-400",
-                  )}
-                />
-                <p className="text-[10.5px] text-muted-foreground leading-tight">{alert.text}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
+        <div className="space-y-1.5">
+          {alerts.slice(0, 2).map((alert, i) => (
+            <div key={i} className="flex items-start gap-2">
+              <span className={cn("mt-1 size-1 rounded-full flex-shrink-0", alert.type === "warning" ? "bg-amber-400" : "bg-emerald-400")} />
+              <p className="text-[10px] text-muted-foreground leading-tight">{alert.text}</p>
+            </div>
+          ))}
+        </div>
         <div className="mt-2.5 pt-2 border-t border-border/60 flex items-start gap-1.5">
           <Lightbulb className="size-3 text-amber-400 flex-shrink-0 mt-0.5" />
-          <p className="text-[10px] text-muted-foreground leading-tight italic">
+          <p className="text-[9.5px] text-muted-foreground leading-tight italic">
             {DAILY_TIPS[tipIndex]}
           </p>
         </div>
       </div>
 
       {/* ── Footer ── */}
-      <div className="p-3 border-t border-border">
-        <div className="flex gap-1.5 mb-2">
-          <FooterBtn icon={ShieldCheck} label="Privacy" onClick={onPrivacyClick} />
-          <FooterBtn icon={Settings} label="Settings" onClick={onSettingsClick} />
-        </div>
-        <div className="flex items-center gap-2 px-1 mb-2">
-          <span
-            className={cn(
-              "size-1.5 rounded-full flex-shrink-0",
-              status.toLowerCase().includes("connected")
-                ? "bg-emerald-500 animate-pulse-soft"
-                : "bg-muted-foreground/40",
-            )}
-          />
-          <span className="text-[10px] font-medium text-muted-foreground truncate">{status}</span>
-        </div>
-        {userEmail && (
-          <div className="flex items-center gap-2 px-1 pt-2 border-t border-border">
+      <div className="p-3 border-t border-border bg-secondary/20">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <div className="flex items-center gap-2">
             <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
-              {userEmail[0]?.toUpperCase()}
+              {userEmail?.[0]?.toUpperCase()}
             </div>
-            <span className="text-[10.5px] font-medium text-muted-foreground truncate flex-1">
-              {userEmail}
+            <span className="text-[10.5px] font-bold text-muted-foreground truncate max-w-[100px]">
+              {userEmail?.split("@")[0]}
             </span>
-            <button
-              onClick={onSignOut}
-              aria-label="Sign out"
-              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            >
-              <LogOut className="size-3" />
+          </div>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <button onClick={onRefreshMetrics} disabled={loadingMetrics} className="p-1 rounded text-muted-foreground hover:text-foreground">
+              <RefreshCw className={cn("size-3", loadingMetrics && "animate-spin")} />
+            </button>
+            <button onClick={onSettingsClick} className="p-1 rounded text-muted-foreground hover:text-foreground">
+              <Settings className="size-3" />
             </button>
           </div>
-        )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={onPrivacyClick} className="flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] font-bold bg-secondary hover:bg-background border border-border text-muted-foreground">
+            <ShieldCheck className="size-3" />
+            <span>Privacy</span>
+          </button>
+          <button onClick={onSignOut} className="flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] font-bold bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all border border-destructive/20">
+            <LogOut className="size-3" />
+            <span>Logout</span>
+          </button>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between px-1">
+          <div className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                "size-1 rounded-full",
+                status.toLowerCase().includes("ready") ? "bg-emerald-500 animate-pulse-soft" : "bg-muted-foreground/40",
+              )}
+            />
+            <span className="text-[9px] font-bold text-muted-foreground uppercase">{status}</span>
+          </div>
+          <span className="text-[9px] font-mono text-muted-foreground/60">{time}</span>
+        </div>
       </div>
     </aside>
   );
@@ -490,12 +446,12 @@ function QuickBtn({
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors group border border-transparent hover:border-border/60"
+      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors group"
     >
-      <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/8 border border-primary/15 group-hover:bg-primary/12 transition-colors">
-        <Icon className="size-3.5 text-primary" />
+      <div className="size-6 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/8 border border-primary/15 group-hover:bg-primary/12 transition-colors">
+        <Icon className="size-3 text-primary" />
       </div>
-      <span className="text-[12.5px] font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+      <span className="text-[12px] font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
         {label}
       </span>
     </button>

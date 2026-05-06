@@ -88,14 +88,32 @@ Type /config to open settings.`;
       const free = strategyModels.find((m) => m.includes(":free"));
       return free || strategyModels[0];
     }
-    const available = strategyModels.find((m) =>
+    const availableMatch = strategyModels.find((m) =>
       provider.models.some((pm) => m.includes(pm) || pm.includes(m)),
     );
-    return available || this.config.model;
+
+    if (availableMatch && this.config.provider !== "openrouter") {
+      // Return the native ID that matched instead of the OpenRouter-formatted ID
+      const native = provider.models.find((pm) => availableMatch.includes(pm) || pm.includes(availableMatch));
+      return native || availableMatch;
+    }
+
+    return availableMatch || this.config.model;
   }
 
   async chat(message: string): Promise<{ content: string; modelUsed: string }> {
     if (!this.hasValidConfig()) throw new Error("API key not configured");
+
+    // Validation to help users with mismatched keys/providers
+    const key = this.config!.apiKey;
+    const provider = this.config!.provider;
+    if (provider === "openrouter" && key.startsWith("AIza")) {
+      throw new Error("You are using a Google Gemini API key with OpenRouter selected as the provider. Please go to Settings and change the Provider to 'Google (Gemini)'.");
+    }
+    if (provider === "google" && key.startsWith("sk-")) {
+      throw new Error("You are using an OpenAI/OpenRouter API key with Google Gemini selected as the provider. Please go to Settings and change the Provider to 'OpenRouter' or 'OpenAI'.");
+    }
+
     const strategy = this.selectModelStrategy(message);
     const model = this.getOptimalModel(strategy);
     const systemPrompt = this.buildSystemPrompt(strategy);
@@ -106,7 +124,7 @@ Type /config to open settings.`;
   private buildSystemPrompt(strategy: Strategy): string {
     return `You are Mafalia Intelligence, a sophisticated business orchestration platform.
 
-You have access to 10 business agents:
+You have access to 11 business agents:
 - Zara [REV]: Revenue strategy, pricing, profit analysis
 - Kofi [OPS]: Operations, efficiency, workflows
 - Amara [CUS]: Customer insights, churn, loyalty
@@ -114,9 +132,10 @@ You have access to 10 business agents:
 - Nala [MKT]: Marketing campaigns, social media
 - Tariq [FIN]: Finance, cash flow, health scores
 - Sana [DAT]: Data science, forecasting, patterns
-- Ravi [TEC]: Technology, APIs, security reviews
+- Ravi [TEC]: Technology, APIs, data engineering
 - Luna [GRO]: Growth hacking, funnels, experiments
 - Omar [PAR]: Partnerships, suppliers, deals
+- Malik [SEC]: Security reviews, compliance, access controls
 
 Query type: ${MODEL_STRATEGIES[strategy].description}
 
