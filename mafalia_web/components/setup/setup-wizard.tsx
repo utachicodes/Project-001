@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { translations, type Language } from "@/lib/i18n";
 import { ProviderSelector, ALL_PROVIDERS } from "./provider-selector";
 import { cn } from "@/lib/utils";
-import { translations, type Language } from "@/lib/i18n";
 
 interface SetupWizardProps {
   open: boolean;
