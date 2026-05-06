@@ -68,11 +68,14 @@ const KPI_COMMANDS: Record<keyof KpiData, string> = {
   stock: "/analyze inventory",
 };
 
-const KPI_LABELS: Record<keyof KpiData, string> = {
-  revenue: "Revenue",
-  clients: "Clients",
-  orders: "Orders",
-  stock: "Stock",
+const getKpiLabels = (lang: Language): Record<keyof KpiData, string> => {
+  const t = translations[lang];
+  return {
+    revenue: t.revenue,
+    clients: t.revPulse, // or custom
+    orders: t.efficiency,
+    stock: t.riskLevel,
+  };
 };
 
 const DAILY_TIPS = [
@@ -91,6 +94,7 @@ interface SidebarProps {
   kpiData: KpiData | null;
   alerts: AlertItem[];
   loadingMetrics: boolean;
+  language: Language;
   onAgentClick: (agentId: string) => void;
   onKpiClick: (cmd: string) => void;
   onSettingsClick: () => void;
@@ -124,7 +128,9 @@ export function Sidebar({
   onDeleteChat,
   onRefreshMetrics,
   onSignOut,
+  language,
 }: SidebarProps) {
+  const t = translations[language || "en"];
   const [showHistory, setShowHistory] = React.useState(false);
   const [showTools, setShowTools] = React.useState(true);
   const [showAgents, setShowAgents] = React.useState(true);
@@ -167,6 +173,7 @@ export function Sidebar({
         <div className="grid grid-cols-2 gap-2">
           {kpiKeys.map((key) => {
             const m = kpi[key];
+            const labels = getKpiLabels(language);
             return (
               <button
                 key={key}
@@ -174,7 +181,7 @@ export function Sidebar({
                 className="rounded-lg border border-border bg-secondary/30 px-2 py-1.5 hover:bg-secondary hover:border-primary/30 transition-all text-left"
               >
                 <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">
-                  {KPI_LABELS[key]}
+                  {labels[key]}
                 </p>
                 <p className="text-[13px] font-bold text-foreground tabular-nums">{m.value}</p>
               </button>
@@ -190,14 +197,14 @@ export function Sidebar({
           className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-semibold text-[13px] bg-primary shadow-sm hover:bg-primary/90 transition-all"
         >
           <Plus className="size-4" strokeWidth={2.5} />
-          <span>New Session</span>
+          <span>{t.newSession}</span>
         </button>
         <button
           onClick={onCommandPaletteOpen}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary hover:bg-accent text-muted-foreground transition-colors border border-border/80"
         >
           <Search className="size-3.5" />
-          <span className="flex-1 text-left text-[12px] font-medium">Search commands…</span>
+          <span className="flex-1 text-left text-[12px] font-medium">{t.searchPlaceholder}</span>
           <kbd className="inline-flex h-5 px-1.5 items-center rounded border border-border bg-background font-mono text-[10px]">
             /
           </kbd>
@@ -213,7 +220,7 @@ export function Sidebar({
           >
             <div className="flex items-center gap-1.5">
               <Zap className="size-3" />
-              <span>Special Operations</span>
+              <span>{t.specialOperations}</span>
             </div>
             <motion.div animate={{ rotate: showTools ? 90 : 0 }}>
               <ChevronRight className="size-3" />
@@ -227,10 +234,10 @@ export function Sidebar({
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden space-y-0.5"
               >
-                <QuickBtn icon={ShieldAlert} label="Business Health" onClick={() => onQuickAction("summary")} />
-                <QuickBtn icon={Target} label="Revenue Metrics" onClick={() => onQuickAction("metrics")} />
-                <QuickBtn icon={Layers} label="Campaign Forge" onClick={() => onQuickAction("create")} />
-                <QuickBtn icon={Globe} label="Market Intel" onClick={() => onQuickAction("research")} />
+                <QuickBtn icon={ShieldAlert} label={t.bizHealth} onClick={() => onQuickAction("summary")} />
+                <QuickBtn icon={Target} label={t.revPulse} onClick={() => onQuickAction("metrics")} />
+                <QuickBtn icon={Layers} label={t.campForge} onClick={() => onQuickAction("create")} />
+                <QuickBtn icon={Globe} label={t.marketIntel} onClick={() => onQuickAction("research")} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -244,7 +251,7 @@ export function Sidebar({
           >
             <div className="flex items-center gap-1.5">
               <Users className="size-3" />
-              <span>Intelligence Squad</span>
+              <span>{t.intelligenceSquad}</span>
             </div>
             <motion.div animate={{ rotate: showAgents ? 90 : 0 }}>
               <ChevronRight className="size-3" />
@@ -294,7 +301,7 @@ export function Sidebar({
           >
             <div className="flex items-center gap-1.5">
               <History className="size-3.5" />
-              <span>Sessions</span>
+              <span>{t.sessions}</span>
               {chatHistory.length > 0 && (
                 <span className="ml-1 text-[9px] px-1 py-0 rounded-full bg-secondary border border-border">
                   {chatHistory.length}
@@ -352,7 +359,7 @@ export function Sidebar({
           <div className="flex items-center gap-1.5">
             <Bell className="size-3 text-muted-foreground" />
             <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest">
-              Live Alerts
+              {t.liveAlerts}
             </p>
           </div>
           {loadingMetrics && <Loader2 className="size-3 animate-spin text-muted-foreground" />}
@@ -398,11 +405,11 @@ export function Sidebar({
         <div className="grid grid-cols-2 gap-2">
           <button onClick={onPrivacyClick} className="flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] font-bold bg-secondary hover:bg-background border border-border text-muted-foreground">
             <ShieldCheck className="size-3" />
-            <span>Privacy</span>
+            <span>{t.privacy}</span>
           </button>
           <button onClick={onSignOut} className="flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] font-bold bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all border border-destructive/20">
             <LogOut className="size-3" />
-            <span>Logout</span>
+            <span>{t.signOut}</span>
           </button>
         </div>
 

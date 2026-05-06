@@ -24,6 +24,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Kbd } from "@/components/ui/kbd";
+import { translations, type Language } from "@/lib/i18n";
 
 interface Command {
   id: string;
@@ -73,9 +74,11 @@ interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (command: string, needsArgs: boolean) => void;
+  language: Language;
 }
 
-export function CommandPalette({ isOpen, onClose, onSelect }: CommandPaletteProps) {
+export function CommandPalette({ isOpen, onClose, onSelect, language }: CommandPaletteProps) {
+  const t = translations[language || "en"];
   const [query, setQuery] = React.useState("");
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -174,7 +177,7 @@ export function CommandPalette({ isOpen, onClose, onSelect }: CommandPaletteProp
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Type a command or search…"
+                  placeholder={t.searchCommands}
                   className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-[14px] font-medium outline-none"
                   autoComplete="off"
                   spellCheck={false}
@@ -185,7 +188,7 @@ export function CommandPalette({ isOpen, onClose, onSelect }: CommandPaletteProp
               <div ref={listRef} className="max-h-[380px] overflow-y-auto py-2 scrollbar-thin">
                 {flatList.length === 0 && (
                   <div className="px-4 py-10 text-center text-muted-foreground text-[13px]">
-                    No commands found
+                    {t.noCommands}
                   </div>
                 )}
                 {Object.entries(grouped).map(([cat, cmds]) => (

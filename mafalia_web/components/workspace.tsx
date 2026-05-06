@@ -22,6 +22,7 @@ import { llmClient } from "@/lib/llm-api";
 import { createClient } from "@/lib/supabase/client";
 import { addConnection, getConnections } from "@/lib/supabase/data";
 import type { UploadedFile } from "@/lib/supabase/storage";
+import { translations, type Language } from "@/lib/i18n";
 
 interface WorkspaceProps {
   userId: string;
@@ -36,12 +37,14 @@ const mkAssistantMsg = (content: string, agentTag = "[MAF]"): Message => ({
   timestamp: new Date().toISOString(),
 });
 
-const welcomeMsg = (hasKey: boolean): Message =>
-  mkAssistantMsg(
+const welcomeMsg = (hasKey: boolean, lang: Language): Message => {
+  const t = translations[lang];
+  return mkAssistantMsg(
     hasKey
       ? ""
-      : `Configure an AI provider to get started. Click **Settings** in the sidebar or type \`/config\`.\n\n• **OpenRouter** — Free tier at openrouter.ai\n• **Google Gemini** — Free API at aistudio.google.com\n• **Ollama** — Run locally, no API key needed`,
+      : `${t.setupRequired}.\n\n• **OpenRouter** — Free tier at openrouter.ai\n• **Google Gemini** — Free API at aistudio.google.com\n• **Ollama** — Run locally`,
   );
+};
 
 export function Workspace({ userId, userEmail }: WorkspaceProps) {
   const router = useRouter();
@@ -86,7 +89,8 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
     if (saved) {
       setConfig(saved);
       llmClient.setConfig(saved);
-      setStatus(hasValid ? `Ready: ${saved.provider}` : `Setup Required: ${saved.provider}`);
+      const t = translations[saved.language || "en"];
+      setStatus(hasValid ? `${t.ready}: ${saved.provider}` : `${t.setupRequired}: ${saved.provider}`);
       if (hasValid) refreshMetrics();
     }
     if (!hasValid) {
@@ -96,7 +100,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
   }, [refreshMetrics]);
 
   React.useEffect(() => {
-    if (!currentChatId) setMessages([welcomeMsg(!!config?.apiKey || config?.provider === "ollama")]);
+    if (!currentChatId) setMessages([welcomeMsg(!!config?.apiKey || config?.provider === "ollama", config.language)]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config]);
 
@@ -127,7 +131,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
     }
     const id = `${Date.now()}`;
     setCurrentChatId(id);
-    setMessages([welcomeMsg(!!config?.apiKey || config?.provider === "ollama")]);
+    setMessages([welcomeMsg(!!config?.apiKey || config?.provider === "ollama", config.language)]);
   };
 
   const handleLoadChat = (id: string) => {
@@ -144,7 +148,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
     saveChatHistory(updated);
     if (currentChatId === id) {
       setCurrentChatId("");
-      setMessages([welcomeMsg(!!config?.apiKey)]);
+      setMessages([welcomeMsg(!!config?.apiKey, config.language)]);
     }
   };
 
@@ -153,7 +157,8 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
     persistConfig(cfg);
     setConfig(cfg);
     llmClient.setConfig(cfg);
-    setStatus(hasValid ? `Ready: ${cfg.provider}` : `Setup Required: ${cfg.provider}`);
+    const t = translations[cfg.language || "en"];
+    setStatus(hasValid ? `${t.ready}: ${cfg.provider}` : `${t.setupRequired}: ${cfg.provider}`);
     setShowSetup(false);
     addMsg(
       mkAssistantMsg(
@@ -163,7 +168,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       ),
     );
     if (hasValid) {
-      toast.success(`Connected to ${cfg.provider}`);
+      toast.success(t.ready);
       refreshMetrics();
     }
   };
@@ -519,7 +524,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div dir={config.language === "ar" ? "rtl" : "ltr"} className="flex h-screen w-full overflow-hidden">
       <Sidebar
         agents={DEFAULT_AGENTS}
         status={status}
@@ -529,6 +534,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
         kpiData={kpiData}
         alerts={sidebarAlerts}
         loadingMetrics={loadingMetrics}
+        language={config.language}
         onAgentClick={(id) => {
           const a = DEFAULT_AGENTS.find((a) => a.id === id);
           if (a)
@@ -565,6 +571,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
         currentModel={currentModel}
         userId={userId}
         pendingInput={pendingInput}
+        language={config.language}
         onSendMessage={handleSendMessage}
         onCommandPaletteOpen={() => setShowCmdPalette(true)}
         onPendingInputConsumed={() => setPendingInput("")}
@@ -573,6 +580,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       <CommandPalette
         isOpen={showCmdPalette}
         onClose={() => setShowCmdPalette(false)}
+        language={config.language}
         onSelect={(cmd, needsArgs) => {
           setShowCmdPalette(false);
           if (needsArgs) setPendingInput(cmd);
@@ -583,11 +591,12 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       <SetupWizard
         open={showSetup}
         config={config}
+        language={config.language}
         onSave={saveConfigAndConnect}
         onClose={() => setShowSetup(false)}
       />
 
-      <PrivacyModal open={showPrivacy} onClose={() => setShowPrivacy(false)} />
+      <PrivacyModal open={showPrivacy} language={config.language} onClose={() => setShowPrivacy(false)} />
     </div>
   );
 }

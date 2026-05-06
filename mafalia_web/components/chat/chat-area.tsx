@@ -21,15 +21,19 @@ import type { Message } from "@/lib/types";
 import { Markdown } from "./markdown";
 import { uploadFile, type UploadedFile } from "@/lib/supabase/storage";
 import { cn } from "@/lib/utils";
+import { translations, type Language } from "@/lib/i18n";
 
-const QUICK_ACTIONS = [
-  { label: "Business Health", cmd: "/summary", icon: BarChart3 },
-  { label: "Revenue Pulse", cmd: "/analyze revenue", icon: TrendingUp },
-  { label: "Campaign Forge", cmd: "/create campaign", icon: Wand2 },
-  { label: "Market Intel", cmd: "/research trends", icon: Compass },
-  { label: "Growth Oracle", cmd: "/predict growth", icon: TrendingUp },
-  { label: "Boss View", cmd: "/boss", icon: Crown },
-];
+const getQuickActions = (lang: Language) => {
+  const t = translations[lang];
+  return [
+    { label: t.bizHealth, cmd: "/summary", icon: BarChart3 },
+    { label: t.revPulse, cmd: "/analyze revenue", icon: TrendingUp },
+    { label: t.campForge, cmd: "/create campaign", icon: Wand2 },
+    { label: t.marketIntel, cmd: "/research trends", icon: Compass },
+    { label: t.growthOracle, cmd: "/predict growth", icon: TrendingUp },
+    { label: t.bossView, cmd: "/boss", icon: Crown },
+  ];
+};
 
 interface ChatAreaProps {
   messages: Message[];
@@ -40,6 +44,7 @@ interface ChatAreaProps {
   onSendMessage: (content: string, attachments?: UploadedFile[]) => void;
   onCommandPaletteOpen: () => void;
   onPendingInputConsumed?: () => void;
+  language: Language;
 }
 
 export function ChatArea({
@@ -51,7 +56,9 @@ export function ChatArea({
   onSendMessage,
   onCommandPaletteOpen,
   onPendingInputConsumed,
+  language,
 }: ChatAreaProps) {
+  const t = translations[language || "en"];
   const [input, setInput] = React.useState("");
   const [attachments, setAttachments] = React.useState<UploadedFile[]>([]);
   const [uploading, setUploading] = React.useState(false);
@@ -216,12 +223,15 @@ export function ChatArea({
                 transition={{ delay: 0.26 }}
                 className="text-muted-foreground text-[14px] mb-8 max-w-lg text-center leading-relaxed"
               >
-                Orchestrate 11 specialized agents to analyze business data, predict trends, and
-                automate operations across West Africa.
+                {language === "en"
+                  ? "Orchestrate 11 specialized agents to analyze business data, predict trends, and automate operations."
+                  : language === "fr"
+                  ? "Orchestrez 11 agents spécialisés pour analyser les données, prédire les tendances et automatiser vos opérations."
+                  : "قم بتنسيق 11 عميلًا متخصصًا لتحليل بيانات العمل والتنبؤ بالاتجاهات وأتمتة العمليات."}
               </motion.p>
 
               <div className="grid grid-cols-3 gap-2.5 w-full max-w-[560px]">
-                {QUICK_ACTIONS.map((action, i) => {
+                {getQuickActions(language).map((action, i) => {
                   const Icon = action.icon;
                   return (
                     <motion.button
@@ -330,11 +340,11 @@ export function ChatArea({
             <div className="flex items-center gap-1 px-2.5 pb-2.5 pt-0 border-t border-border/50">
               <Chip
                 icon={Paperclip}
-                label={uploading ? "Uploading…" : "Attach"}
+                label={uploading ? (language === "en" ? "Uploading…" : "Téléchargement...") : t.attach}
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
               />
-              <Chip icon={Slash} label="Actions" onClick={onCommandPaletteOpen} />
+              <Chip icon={Slash} label={language === "en" ? "Actions" : "Actions"} onClick={onCommandPaletteOpen} />
               <div className="flex-1" />
               <span className="text-[10px] font-bold text-muted-foreground tabular-nums select-none px-2">
                 {input.length > 0 ? input.length : ""}
