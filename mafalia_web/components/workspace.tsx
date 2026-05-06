@@ -82,12 +82,14 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
     if (initRef.current) return;
     initRef.current = true;
     const saved = loadConfig();
-    if (saved?.apiKey || saved?.provider === "ollama") {
+    const hasValid = saved?.apiKey || saved?.provider === "ollama";
+    if (saved) {
       setConfig(saved);
       llmClient.setConfig(saved);
-      setStatus(`Connected: ${saved.provider}`);
-      refreshMetrics();
-    } else {
+      setStatus(hasValid ? `Ready: ${saved.provider}` : `Setup Required: ${saved.provider}`);
+      if (hasValid) refreshMetrics();
+    }
+    if (!hasValid) {
       setShowSetup(true);
     }
     setChatHistory(loadChatHistory());
@@ -147,19 +149,23 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
   };
 
   const saveConfigAndConnect = (cfg: Config) => {
+    const hasValid = cfg.apiKey || cfg.provider === "ollama";
     persistConfig(cfg);
     setConfig(cfg);
     llmClient.setConfig(cfg);
-    setStatus(`Connected: ${cfg.provider}`);
+    setStatus(hasValid ? `Ready: ${cfg.provider}` : `Setup Required: ${cfg.provider}`);
     setShowSetup(false);
     addMsg(
       mkAssistantMsg(
-        `**Configuration saved.**\n\n• **Provider:** ${cfg.provider}\n• **Model:** ${cfg.model}`,
+        hasValid
+          ? `**Configuration saved.**\n\n• **Provider:** ${cfg.provider}\n• **Model:** ${cfg.model}`
+          : `**Configuration saved.**\n\n*Note: An API key is required to activate ${cfg.provider}.*`,
       ),
     );
-    toast.success(`Connected to ${cfg.provider}`);
-    // Fetch live metrics now that we have a working connection
-    refreshMetrics();
+    if (hasValid) {
+      toast.success(`Connected to ${cfg.provider}`);
+      refreshMetrics();
+    }
   };
 
   const addMsg = (msg: Message) => setMessages((prev) => [...prev, msg]);
@@ -509,7 +515,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.refresh();
-    router.push("/login");
+    router.push("/");
   };
 
   return (

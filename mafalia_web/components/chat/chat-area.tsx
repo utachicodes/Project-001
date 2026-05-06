@@ -198,12 +198,12 @@ export function ChatArea({
                 transition={{ delay: 0.08, type: "spring", damping: 22 }}
                 className="mb-5"
               >
-                <div className="size-[88px] rounded-2xl border border-border shadow-sm flex items-center justify-center bg-background">
+                <div className="size-[88px] flex items-center justify-center">
                   <Image
                     src="/mafalia-logo.png"
                     alt="Mafalia"
-                    width={64}
-                    height={64}
+                    width={88}
+                    height={88}
                     className="object-contain"
                   />
                 </div>
@@ -239,7 +239,7 @@ export function ChatArea({
                       whileHover={{ y: -2, scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => onSendMessage(action.cmd)}
-                      className="flex flex-col items-center gap-2.5 px-3 py-4 rounded-xl border border-border bg-background hover:border-primary/40 hover:shadow-md hover:bg-secondary/40 transition-all cursor-pointer"
+                      className="flex flex-col items-center gap-2.5 px-3 py-4 rounded-xl border border-border bg-background hover:border-primary/40 hover:shadow-md hover:bg-secondary/40 transition-all cursor-pointer group"
                     >
                       <div className="size-9 rounded-lg flex items-center justify-center bg-primary/8 border border-primary/15">
                         <Icon className="size-4 text-primary" />
@@ -385,7 +385,7 @@ function MessageBubble({ msg }: { msg: Message }) {
           <span className="text-[10px] text-muted-foreground tabular-nums">{time}</span>
           <span className="text-[11.5px] font-bold text-foreground">You</span>
         </div>
-        <div className="px-4 py-3 rounded-2xl rounded-tr-sm max-w-[80%] bg-primary text-primary-foreground shadow-sm">
+        <div className="px-4 py-3 rounded-2xl rounded-tr-sm max-w-[80%] bg-primary text-primary-foreground">
           <p className="text-[14px] leading-relaxed">{msg.content}</p>
           {msg.attachments && msg.attachments.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -422,7 +422,7 @@ function MessageBubble({ msg }: { msg: Message }) {
         <span className="text-[12px] font-bold text-primary">{tagShort}</span>
         <span className="text-[10px] text-muted-foreground tabular-nums">{time}</span>
       </div>
-      <div className="px-5 py-4 rounded-2xl rounded-tl-sm max-w-[92%] bg-background border border-border border-l-[3px] border-l-primary shadow-sm">
+      <div className="px-5 py-4 rounded-2xl rounded-tl-sm max-w-[92%] bg-secondary/30 border-l-[3px] border-l-primary">
         <div className="text-[14px] text-foreground leading-relaxed">
           <Markdown content={msg.content} />
         </div>
