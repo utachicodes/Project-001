@@ -260,7 +260,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
 ### Business Intelligence
 • \`/summary\` — Full business health check
 • \`/metrics\` — Live KPI dashboard
-• \`/agents\` — List all 10 agents
+• \`/agents\` — List all 11 agents
 • \`/ask <agent> <question>\` — Ask a specific agent
 
 ### Actions
@@ -295,7 +295,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
 
       case "/boss":
         response =
-          "**Boss View** — high-level oversight across all 10 agents. Use `/summary` for a full health check or `/rooms` to see agent assignments.";
+          "**Boss View** — high-level oversight across all 11 agents. Use `/summary` for a full health check or `/rooms` to see agent assignments.";
         break;
 
       case "/summary": {

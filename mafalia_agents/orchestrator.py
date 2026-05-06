@@ -116,7 +116,7 @@ class MafaliaOrchestrator:
     - Multi-agent: Combines insights from multiple agents
     - Parallel execution: Queries agents in optimal order
     - Result synthesis: Merges and ranks outputs
-    - Business summary: Full health check using all 10 agents
+    - Business summary: Full health check using all 11 agents
     """
 
     def __init__(self, data_dir: str = "."):
@@ -207,7 +207,7 @@ class MafaliaOrchestrator:
 
     def full_business_summary(self) -> Dict:
         """
-        Generate a complete business summary using all 10 agents.
+        Generate a complete business summary using all 11 agents.
         The ultimate business health check.
         """
         start_time = datetime.now()

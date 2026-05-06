@@ -38,6 +38,7 @@ export const ALL_PROVIDERS: ProviderInfo[] = [
       { id: 'meta-llama/llama-3.2-11b-vision-instruct:free', name: 'Llama 3.2 11B', description: 'Open-source with vision', isFree: true, contextLength: '128K tokens', strengths: ['Vision', 'Open source'], provider: 'meta' },
       { id: 'nvidia/llama-3.1-nemotron-70b-instruct:free', name: 'Nemotron 70B', description: 'Powerful instruct model', isFree: true, contextLength: '128K tokens', strengths: ['Helpfulness'], provider: 'nvidia' },
       { id: 'qwen/qwen-2.5-72b-instruct:free', name: 'Qwen 2.5 72B', description: 'Large multilingual model', isFree: true, contextLength: '128K tokens', strengths: ['Multilingual', 'Math'], provider: 'qwen' },
+      { id: 'z-ai/glm-4.5-air:free', name: 'GLM 4.5 Air', description: 'Advanced Chinese LLM', isFree: true, contextLength: '128K tokens', strengths: ['Multilingual', 'Reasoning'], provider: 'z-ai' },
       { id: 'deepseek/deepseek-chat:free', name: 'DeepSeek Chat', description: 'Great for coding', isFree: true, contextLength: '64K tokens', strengths: ['Coding', 'Technical'], provider: 'deepseek' },
     ],
     paidModels: [

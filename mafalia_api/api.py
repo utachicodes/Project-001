@@ -379,7 +379,7 @@ async def orchestrate(request: OrchestrateRequest):
 
 @app.get("/orchestrate/summary", tags=["Orchestration"])
 async def full_business_summary():
-    """Run a full business health check using all 10 agents simultaneously."""
+    """Run a full business health check using all 11 agents simultaneously."""
     from mafalia_agents.orchestrator import MafaliaOrchestrator
     orch = MafaliaOrchestrator(DATA_DIR)
     return orch.full_business_summary()
@@ -471,7 +471,7 @@ async def knowledge_stats():
 
 @app.get("/skills", tags=["Skills"])
 async def all_skills():
-    """Get complete skill catalog for all 10 agents."""
+    """Get complete skill catalog for all 11 agents."""
     from mafalia_agents.skills import get_all_skills, skills_summary
     return {
         "summary": skills_summary(),
@@ -563,7 +563,7 @@ async def mcp_config():
                 "mafalia": {
                     "command": "python",
                     "args": ["run_mcp.py"],
-                    "description": "Mafalia AI Agents - 10 specialized business intelligence agents",
+                    "description": "Mafalia AI Agents - 11 specialized business intelligence agents",
                 }
             }
         },

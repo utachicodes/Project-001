@@ -33,7 +33,7 @@ from rich import box
 
 app = typer.Typer(
     name="mafalia",
-    help="Mafalia AI Agents -- 10 specialized business intelligence agents",
+    help="Mafalia AI Agents -- 11 specialized business intelligence agents",
     add_completion=False,
 )
 
@@ -65,7 +65,7 @@ def _print_header():
     console.print()
     console.print(Panel.fit(
         "[bold bright_green]MAFALIA AI AGENTS[/bold bright_green]\n"
-        "[dim]10 specialized business intelligence agents[/dim]",
+        "[dim]11 specialized business intelligence agents[/dim]",
         border_style="bright_green",
     ))
     console.print()
@@ -195,10 +195,10 @@ def orchestrate(
 
 @app.command()
 def summary():
-    """Run a full business health check using all 10 agents."""
+    """Run a full business health check using all 11 agents."""
     from mafalia_agents.orchestrator import MafaliaOrchestrator
 
-    with Progress(SpinnerColumn(), TextColumn("[bold bright_green]Running full business health check (10 agents)..."),
+    with Progress(SpinnerColumn(), TextColumn("[bold bright_green]Running full business health check (11 agents)..."),
                   transient=True) as progress:
         progress.add_task("", total=None)
         orch = MafaliaOrchestrator(DATA_DIR)
@@ -452,7 +452,7 @@ def mcp_config():
             "mafalia": {
                 "command": "python",
                 "args": [os.path.join(DATA_DIR, "run_mcp.py")],
-                "description": "Mafalia AI Agents - 10 specialized business intelligence agents",
+                "description": "Mafalia AI Agents - 11 specialized business intelligence agents",
             }
         }
     }

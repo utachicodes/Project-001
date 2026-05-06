@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Mafalia Intelligence",
   description:
-    "Mafalia Intelligence — AI-powered business operations platform. Orchestrate 10 specialized agents to analyze data, predict trends, and automate operations.",
+    "Mafalia Intelligence — AI-powered business operations platform. Orchestrate 11 specialized agents to analyze data, predict trends, and automate operations.",
   icons: { icon: "/mafalia-logo.png", apple: "/mafalia-logo.png" },
 };
 

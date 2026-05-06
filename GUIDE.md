@@ -38,10 +38,14 @@ Welcome to the **Mafalia Intelligence Platform**, a desktop-first command center
 
 ## 2. Platform Architecture
 
-The system consists of three layers:
-1.  **Frontend (Electron/React)**: Premium UI matching `mafalia.com`, built with TypeScript and Tailwind.
-2.  **Bridge API (FastAPI)**: Connects the frontend to the local file system and agents. Runs on port `9777`.
-3.  **Agents (Python)**: 10 specialized agents (`Zara`, `Kofi`, etc.) that process deterministic business rules and CSV data.
+## ── System Overview ──────────────────────────────────────────────
+
+Mafalia is an intelligence platform that orchestrates **11 specialized business agents**. It bridges a modern React/TypeScript frontend with a powerful Python/FastAPI backend to provide deep analytical insights from your local and cloud data.
+
+### 🔑 Key Components
+- **AI Core**: Powered by **OpenRouter** (Recommended: `z-ai/glm-4.5-air:free`).
+- **Data Engine**: Processes CSV files (Revenue, Inventory, Customers) locally.
+- **Design System**: Premium HSL-based tokens with official **Mafalia Branding**.
 
 ## 3. Core Features & Commands
 
@@ -86,7 +90,7 @@ pytest
 
 ### Manual Verification Flow
 1.  **Health Check**: Run `Invoke-RestMethod -Uri http://127.0.0.1:9777/health`.
-2.  **Agent Discovery**: Run `/agents` in the app to verify all 10 agents are online.
+2.  **Agent Discovery**: Run `/agents` in the app to verify all 11 agents are online.
 3.  **Data Pulse**: Run `/metrics` to verify CSV data is being parsed correctly.
 4.  **UI Audit**: Verify that the logo, HSL colors, and hover states match the premium Mafalia design language.
 

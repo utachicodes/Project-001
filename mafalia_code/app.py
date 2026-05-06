@@ -510,7 +510,7 @@ class MafaliaCodeApp(ctk.CTk):
                 "/summary    -- Full business health check\n"
                 "/metrics    -- Live KPI dashboard\n"
                 "/ask <agent> <question> -- Ask a specific agent\n"
-                "/agents     -- List all 10 agents\n"
+                "/agents     -- List all 11 agents\n"
                 "/clear      -- Clear chat\n"
                 "/config     -- Open settings\n"
                 "/cost       -- Show token usage\n"
@@ -525,7 +525,7 @@ class MafaliaCodeApp(ctk.CTk):
             for name, info in AGENT_INFO.items():
                 c = COLORS["agent_colors"][name]
                 lines.append(f"{info['tag']} {name.capitalize()} -- {info['title']}")
-            self._add_ai_msg("Your 10 Agents:\n\n" + "\n".join(lines))
+            self._add_ai_msg("Your 11 Agents:\n\n" + "\n".join(lines))
         elif cmd == "/ask" and arg:
             agent_parts = arg.split(maxsplit=1)
             agent_name = agent_parts[0].lower()

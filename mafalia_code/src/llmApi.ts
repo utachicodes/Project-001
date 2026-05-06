@@ -159,7 +159,7 @@ Click /config to open settings.`
   }
 
   private buildSystemPrompt(strategy: keyof typeof MODEL_STRATEGIES, businessContext: string): string {
-    const basePrompt = `You are Mafalia AI, a business operations assistant powered by specialized AI agents.
+    const basePrompt = `You are Mafalia Intelligence, a sophisticated business orchestration platform.
 
 You have access to 10 business agents:
 - Zara [REV]: Revenue strategy, pricing, profit analysis
@@ -338,7 +338,7 @@ Query type: ${MODEL_STRATEGIES[strategy].description}`
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'http://localhost:5173',
-        'X-Title': 'Mafalia Code',
+        'X-Title': 'Mafalia Intelligence',
       },
       body: JSON.stringify({
         model,

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:\\\\Users\\\\abdou\\\\Documents\\\\MafaliaAI\\\\Project-001\\\\mafalia_code\" log --oneline -10)",
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder npx next build)",
+      "Bash(git check-ignore *)",
+      "Bash(git add *)",
+      "Bash(git push *)"
+    ]
+  }
+}

@@ -2,8 +2,8 @@
 
 # Mafalia AI Agent System
 
-**10 specialized AI agents covering 20 products across 4 verticals**
-**POS &middot; Finance/RH &middot; Hotel/Ops &middot; Equipment**
+**11 specialized AI agents covering 20+ products across 4 verticals**
+**POS &middot; Finance/RH &middot; Hotel/Ops &middot; Equipment &middot; Product Creation**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -16,7 +16,7 @@
 
 ## About
 
-Mafalia AI is a multi-agent business intelligence platform for the **Mafalia ecosystem** — serving restaurants, retailers, hotels, and service businesses across West Africa. It exposes **10 named agents** through five interfaces: **Desktop App (Mafalia Code)**, MCP server, REST API, CLI, and web dashboard.
+Mafalia AI is a multi-agent business intelligence platform for the **Mafalia ecosystem** — serving restaurants, retailers, hotels, and service businesses across West Africa. It exposes **11 named agents** through five interfaces: **Desktop App (Mafalia Code)**, MCP server, REST API, CLI, and web dashboard.
 
 > **Note on model usage:** The agents are deterministic and rule-based. They process requests via keyword routing and return structured analytics from business data. No LLM API is called internally. Mafalia Code connects to any LLM provider (OpenAI, Anthropic, Google, OpenRouter) so users pick the model they want.
 
@@ -28,13 +28,13 @@ The flagship interface. A modern **Electron + React + TypeScript** desktop appli
 
 **Features:**
 - **Beautiful Chat Interface** - Modern dark theme with color-coded agent responses
-- **10 Agent Sidebar** - Click any agent for instant domain briefing
+- **11 Agent Sidebar** - Click any agent for instant domain briefing
 - **Quick Actions** - One-click Business Summary, Live Metrics, New Chat
 - **Slash Commands** - `/summary`, `/metrics`, `/agents`, `/ask`, `/config`, `/help`
 - **Multi-Provider LLM** - Connect OpenAI, Anthropic (Claude), Google (Gemini), OpenRouter, Ollama (local), or custom endpoints
 - **Configuration Validation** - Automatic validation of API keys and Ollama connectivity on startup
 - **Setup Wizard** - First-run configuration for API keys and settings
-- **Real Business Data** - Powered by your 10 Mafalia agents with actual CSV data
+- **Real Business Data** - Powered by your 11 Mafalia agents with actual CSV data
 - **Cloud Sync (Supabase)** - Optional cloud backup for chat sessions and agent memory
 - **Environment Support** - Load API keys and config from `.env` files
 
@@ -144,6 +144,9 @@ Growth Loop Architect &middot; Funnel Surgeon &middot; Experiment Engine &middot
 ### `Omar` — Partnership Connector `[PAR]`
 Deal Architect &middot; Network Mapper &middot; Supplier Scout &middot; Negotiation Engine &middot; Alliance Builder
 
+### `Birame` — Product Visionary `[PRD]`
+SEO Architect &middot; Visual Catalyst &middot; Catalog Structurer &middot; Price Modeler &middot; Content Generator
+
 </td>
 </tr>
 </table>
@@ -160,6 +163,7 @@ The system covers **Mafalia's 20 products** across 4 verticals:
 | **Finance / RH** | Credit Scoring IA, API Paiement, Carte Mafalia, Comptabilite | Tariq |
 | **Hotel / Ops** | Hotel PMS, Housekeeping, Transport, Fournisseurs, Carbone Mesure | Kofi, Sana, Idris |
 | **Equipment** | Telephone POS, Terminaux, Tablettes & Kiosques, Imprimantes, PMS API | Ravi |
+| **Product Creation** | Catalog Manager, SEO Content, Image Generation, Product Descriptions | Birame |
 
 ---
 
@@ -167,7 +171,7 @@ The system covers **Mafalia's 20 products** across 4 verticals:
 
 ```
 mafalia_agents/           Core agent logic
-  agents.py                 10 agent implementations (BaseMafaliaAgent)
+  agents.py                 11 agent implementations (BaseMafaliaAgent)
   orchestrator.py           Smart routing + multi-agent coordination
   skills.py                 65+ structured skill definitions
   prompts.py                System prompts + few-shot examples
@@ -262,7 +266,7 @@ Add to your Claude Desktop config:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/agents` | List all 10 agents |
+| `GET` | `/agents` | List all 11 agents |
 | `GET` | `/agents/{name}` | Agent profile |
 | `POST` | `/agents/message` | Send message to agent |
 | `GET` | `/agents/{name}/skills` | Agent skills |
@@ -294,6 +298,9 @@ Add to your Claude Desktop config:
 | `GET` | `/agents/sana/anomalies` | Anomaly detection |
 | `GET` | `/agents/luna/growth` | Growth strategies |
 | `GET` | `/agents/omar/partnerships` | Partnerships |
+| `GET` | `/agents/birame/product` | Product creation |
+| `GET` | `/agents/birame/image` | Image generation |
+| `GET` | `/agents/birame/seo` | SEO content |
 
 </details>
 
@@ -346,10 +353,10 @@ Add to your Claude Desktop config:
 
 ## MCP Tools
 
-**23 tools** exposed via Model Context Protocol:
+**24 tools** exposed via Model Context Protocol:
 
 <details>
-<summary><strong>Agent Tools</strong> (17)</summary>
+<summary><strong>Agent Tools</strong> (18)</summary>
 
 | Tool | Description |
 |------|-------------|
@@ -367,6 +374,7 @@ Add to your Claude Desktop config:
 | `get_tech_recommendations` | Ravi: tech recommendations |
 | `get_growth_strategies` | Luna: growth strategies |
 | `get_partnership_opportunities` | Omar: partnerships |
+| `create_product` | Birame: product creation & image generation |
 | `search_knowledge_base` | Search knowledge base |
 | `get_business_summary` | Full business summary |
 | `get_agent_memory` | Agent memory state |

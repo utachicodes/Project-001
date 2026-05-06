@@ -19,7 +19,7 @@ const STEPS = [
 export default function SetupWizard({ config, onSave, onClose }: SetupWizardProps) {
   const [step, setStep]       = useState(1)
   const [provider, setProvider] = useState(config?.provider || 'openrouter')
-  const [model, setModel]     = useState(config?.model || 'google/gemini-2.0-flash-exp:free')
+  const [model, setModel]     = useState(config?.model || 'z-ai/glm-4.5-air:free')
   const [apiKey, setApiKey]   = useState(config?.apiKey || '')
   const [dataDir, setDataDir] = useState(config?.dataDir || '')
   const [baseUrl, setBaseUrl] = useState(config?.baseUrl || '')
@@ -65,12 +65,12 @@ export default function SetupWizard({ config, onSave, onClose }: SetupWizardProp
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#E63946] shadow-sm">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6"><path d="M12 2L2 22h4l6-12 6 12h4L12 2z"/></svg>
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <img src="/mafalia-logo.png" alt="Mafalia Logo" className="w-full h-auto object-contain" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-900">Setup <span className="text-[#E63946]">Mafalia Code</span></h2>
+                <h2 className="text-xl font-bold text-slate-900">Configure <span className="text-[#E63946]">Mafalia Intelligence</span></h2>
               </div>
-              <p className="text-[13px] text-slate-500 ml-12 font-medium">Power your business with intelligence</p>
+              <p className="text-[13px] text-slate-500 ml-12 font-medium">Activate your business agents</p>
             </div>
             <button onClick={onClose}
               className="p-2 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-white/[0.06] transition-all">

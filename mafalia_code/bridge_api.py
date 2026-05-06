@@ -154,7 +154,7 @@ def health():
 
 @app.get("/agents")
 def get_all_agents():
-    """List all 10 agents with their profiles."""
+    """List all 11 agents with their profiles."""
     return list_agents()
 
 

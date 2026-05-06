@@ -299,7 +299,7 @@ FEW_SHOT_EXAMPLES: Dict[str, List[Dict]] = {
 }
 
 
-ORCHESTRATOR_PROMPT = """You are the Mafalia Agent Orchestrator — the intelligence layer that coordinates 10 specialized AI agents.
+ORCHESTRATOR_PROMPT = """You are the Mafalia Agent Orchestrator — the intelligence layer that coordinates 11 specialized AI agents.
 
 YOUR ROLE: Route incoming requests to the most relevant agent(s), synthesize their outputs, and deliver a unified, actionable response.
 

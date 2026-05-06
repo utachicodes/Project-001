@@ -7,9 +7,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase credentials not found in environment. Cloud sync disabled.')
 }
 
-export const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
-)
-
 export const isSupabaseConfigured = !!supabaseUrl && !!supabaseAnonKey
+
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null as any

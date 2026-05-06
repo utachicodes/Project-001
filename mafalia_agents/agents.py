@@ -1759,7 +1759,7 @@ class Sana(BaseMafaliaAgent):
             "recommendations": [
                 "Add schema validation on CSV load with column type checks",
                 "Create shared utility for safe division and NaN guards",
-                "Standardize response envelope across all 10 agents",
+                "Standardize response envelope across all 11 agents",
                 "Add unit tests for each agent's core calculation methods",
             ],
         }

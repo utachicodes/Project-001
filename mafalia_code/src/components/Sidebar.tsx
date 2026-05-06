@@ -47,10 +47,8 @@ export default function Sidebar({
       {/* ── Logo ──────────────────────────────────── */}
       <div className="px-6 pt-7 pb-5 drag-region">
         <div className="flex items-center gap-3.5 no-drag">
-          <div className="relative w-11 h-11 rounded-[12px] flex items-center justify-center bg-[#E63946] shadow-lg shadow-red-100">
-            <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7">
-              <path d="M4 18l4-12 4 12M12 18l4-12 4 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-            </svg>
+          <div className="relative w-11 h-11 flex items-center justify-center">
+            <img src="/mafalia-logo.png" alt="Mafalia Logo" className="w-full h-auto object-contain" />
           </div>
           <div className="flex flex-col">
             <p className="text-[17px] font-extrabold text-slate-900 tracking-tight leading-none">Mafalia</p>

@@ -36,7 +36,7 @@ interface Command {
 const COMMANDS: Command[] = [
   { id: "/summary", label: "Business Summary", description: "Full health check across all domains", icon: BarChart3, category: "business" },
   { id: "/metrics", label: "Live Metrics", description: "Real-time KPI dashboard", icon: TrendingUp, category: "business" },
-  { id: "/agents", label: "List Agents", description: "All 10 agents and their superpowers", icon: Users, category: "business" },
+  { id: "/agents", label: "List Agents", description: "All 11 agents and their superpowers", icon: Users, category: "business" },
   { id: "/ask", label: "Ask Agent", description: "/ask <agent> <question>", icon: MessageSquare, category: "agents" },
   { id: "/analyze", label: "Analyze", description: "Deep analysis (revenue, customers, inventory…)", icon: BarChart3, category: "actions" },
   { id: "/predict", label: "Predict", description: "Forecast future (revenue, churn, cashflow…)", icon: TrendingUp, category: "actions" },

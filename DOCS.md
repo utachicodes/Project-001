@@ -1,9 +1,9 @@
 # Mafalia AI Agent System - Documentation
 
 ## Overview
-Mafalia AI is a multi-agent business intelligence platform designed for the Mafalia ecosystem. It features 10 specialized AI agents that provide actionable insights across various business verticals: POS, Finance, Operations, and Marketing.
+Mafalia AI is a multi-agent business intelligence platform designed for the Mafalia ecosystem. It features 11 specialized AI agents that provide actionable insights across various business verticals: POS, Finance, Operations, Marketing, and Product Creation.
 
-## 10 Specialized AI Agents
+## 11 Specialized AI Agents
 
 | Agent | Vertical | Superpowers |
 |-------|----------|-------------|
@@ -17,6 +17,7 @@ Mafalia AI is a multi-agent business intelligence platform designed for the Mafa
 | **Ravi** | Tech | Security auditing, API integration, Hardware fleet |
 | **Luna** | Growth | Growth loops, Funnel surgery, Experiment design |
 | **Omar** | Partners | Deal architecture, Supplier scouting, Ecosystem mapping |
+| **Birame** | Products | SEO content, Image generation, Catalog structuring, Product creation |
 
 ---
 

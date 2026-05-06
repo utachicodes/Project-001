@@ -198,7 +198,7 @@ function App() {
         response = `**Available Commands:**
 
 ### Business Intelligence
-• /agents — List all 10 agents
+• /agents — List all 11 agents
 • /summary — Full business health check
 • /metrics — Live KPI dashboard
 • /ask <agent> <question> — Ask a specific agent

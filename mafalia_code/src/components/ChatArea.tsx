@@ -219,10 +219,8 @@ export default function ChatArea({
                 transition={{ delay: 0.1, type: 'spring', damping: 20 }}
                 className="relative mb-8"
               >
-                <div className="relative w-20 h-20 rounded-[20px] flex items-center justify-center bg-[#E63946] shadow-2xl shadow-red-200">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-12 h-12">
-                    <path d="M4 18l4-12 4 12M12 18l4-12 4 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                  </svg>
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                  <img src="/mafalia-logo.png" alt="Mafalia Logo" className="w-full h-auto object-contain" />
                 </div>
               </motion.div>
 
@@ -240,7 +238,7 @@ export default function ChatArea({
                 transition={{ delay: 0.3 }}
                 className="text-slate-500 text-[15px] font-medium mb-12 max-w-lg text-center leading-relaxed"
               >
-                Your complete business command center. Orchestrate 10 specialized agents to analyze, predict, and automate your growth.
+                Orchestrate 11 specialized agents to analyze business data, predict trends, and automate operations.
               </motion.p>
 
               {/* Quick action grid */}

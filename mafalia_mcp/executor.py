@@ -273,7 +273,7 @@ async def render_prompt(name: str, arguments: Dict, data_dir: str = ".") -> str:
     """Render a named MCP prompt template."""
     if name == "business_health_check":
         focus = arguments.get("focus_area", "all areas")
-        return f"""You are a business intelligence AI with access to 10 specialized Mafalia agents.
+        return f"""You are a business intelligence AI with access to 11 specialized Mafalia agents.
 
 Perform a COMPLETE business health check for the restaurant business, focusing on: {focus}
 

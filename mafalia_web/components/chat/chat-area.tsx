@@ -223,7 +223,7 @@ export function ChatArea({
                 transition={{ delay: 0.26 }}
                 className="text-muted-foreground text-[14px] mb-8 max-w-lg text-center leading-relaxed"
               >
-                Orchestrate 10 specialized agents to analyze business data, predict trends, and
+                Orchestrate 11 specialized agents to analyze business data, predict trends, and
                 automate operations across West Africa.
               </motion.p>
 

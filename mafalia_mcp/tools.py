@@ -292,7 +292,7 @@ MAFALIA_TOOLS = [
         "name": "palace_status",
         "description": (
             "Get the full MemPalace status — wings, rooms, drawers, tunnels, "
-            "knowledge graph stats. Shows memory structure for all 10 agents."
+            "knowledge graph stats. Shows memory structure for all 11 agents."
         ),
         "inputSchema": {
             "type": "object",
@@ -459,7 +459,7 @@ MAFALIA_RESOURCES = [
 MAFALIA_PROMPTS = [
     {
         "name": "business_health_check",
-        "description": "Complete business health check prompt using all 10 agents",
+        "description": "Complete business health check prompt using all 11 agents",
         "arguments": [
             {
                 "name": "focus_area",

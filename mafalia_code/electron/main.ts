@@ -15,6 +15,7 @@ function createWindow() {
     height: 900,
     minWidth: 900,
     minHeight: 600,
+    title: 'Mafalia Intelligence',
     titleBarStyle: 'hiddenInset',
     icon: path.join(_dirname, '../public/mafalia-logo.png'),
     webPreferences: {
