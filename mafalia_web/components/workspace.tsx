@@ -40,7 +40,7 @@ const welcomeMsg = (hasKey: boolean): Message =>
   mkAssistantMsg(
     hasKey
       ? ""
-      : `**Welcome to Mafalia Intelligence.**\n\nConfigure an AI provider to get started. Click **Settings** in the sidebar or type \`/config\`.\n\n• **OpenRouter** — Free tier at openrouter.ai\n• **Google Gemini** — Free API at aistudio.google.com\n• **Ollama** — Run locally, no API key needed`,
+      : `Configure an AI provider to get started. Click **Settings** in the sidebar or type \`/config\`.\n\n• **OpenRouter** — Free tier at openrouter.ai\n• **Google Gemini** — Free API at aistudio.google.com\n• **Ollama** — Run locally, no API key needed`,
   );
 
 export function Workspace({ userId, userEmail }: WorkspaceProps) {

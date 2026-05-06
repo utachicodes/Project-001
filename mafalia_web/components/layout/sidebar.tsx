@@ -149,7 +149,7 @@ export function Sidebar({
     <aside className="w-[300px] min-w-[300px] h-full flex flex-col bg-background border-r border-border overflow-hidden">
       {/* ── Header ── */}
       <div className="px-4 py-3 border-b border-border">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center justify-center hover:opacity-80 transition-opacity">
           <div className="relative w-8 h-8 flex-shrink-0">
             <Image
               src="/mafalia-logo.png"
@@ -159,18 +159,7 @@ export function Sidebar({
               className="object-contain"
             />
           </div>
-          <div className="flex-1 min-w-0">
-            <Link href="/" className="group flex items-center gap-1">
-              <ChevronLeft className="size-3 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-[10px] font-bold text-muted-foreground group-hover:text-primary transition-colors uppercase tracking-tight">
-                Home
-              </span>
-            </Link>
-            <p className="text-[14px] font-bold tracking-tight leading-none text-foreground mt-0.5">
-              Mafalia <span className="text-primary">Intelligence</span>
-            </p>
-          </div>
-        </div>
+        </Link>
       </div>
 
       {/* ── Business Pulse ── */}

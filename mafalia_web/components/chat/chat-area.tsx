@@ -209,14 +209,7 @@ export function ChatArea({
                 </div>
               </motion.div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18 }}
-                className="text-[30px] font-bold mb-1.5 tracking-tight text-center text-foreground"
-              >
-                Mafalia <span className="text-primary">Intelligence</span>
-              </motion.h1>
+
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
