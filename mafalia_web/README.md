@@ -4,7 +4,7 @@ Web port of the Mafalia Intelligence desktop platform. Sibling product to `mafal
 
 ## What it is
 
-A web-based AI agent copilot. 11 specialized agents (Zara, Kofi, Amara, Idris, Nala, Tariq, Sana, Ravi, Luna, Omar, Birame) answer business questions across revenue, operations, customers, inventory, marketing, finance, data, tech, growth, partnerships, and product creation. Multi-provider LLM support — bring your own key (OpenRouter, Google, OpenAI, Anthropic, Ollama, custom).
+A web-based AI agent copilot. 11 specialized agents (Zara, Kofi, Amara, Idris, Nala, Tariq, Sana, Ravi, Luna, Omar, Malik) answer business questions across revenue, operations, customers, inventory, marketing, finance, data, tech, growth, partnerships, and governance. Multi-provider LLM support — bring your own key (OpenRouter, Google, OpenAI, Anthropic, Ollama, custom).
 
 ## Stack
 
