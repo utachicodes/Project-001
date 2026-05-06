@@ -2893,20 +2893,20 @@ class Omar(BaseMafaliaAgent):
 
 
 # ============================================================
-# AGENT 11: ZURI - The Product Visionary
+# AGENT 11: BIRAME - The Product Visionary
 # ============================================================
 
 
-class Zuri(BaseMafaliaAgent):
+class Birame(BaseMafaliaAgent):
     """
-    ZURI - The Product Visionary
+    BIRAME - The Product Visionary
     Superpower: Turns raw ideas into market-ready products with SEO & visuals
     Personality: Creative, meticulous, visual
     """
 
     def _get_profile(self) -> AgentProfile:
         return AgentProfile(
-            name="Zuri",
+            name="Birame",
             title="Product Visionary",
             personality=AgentPersonality.CREATIVE,
             superpowers=[
@@ -2916,7 +2916,7 @@ class Zuri(BaseMafaliaAgent):
                 "Price Modeler -- suggests competitive pricing based on product attributes",
                 "Content Generator -- instantly writes ad copy, social posts, and product specs",
             ],
-            description="Zuri transforms basic concepts into fully fledged, market-ready products. She creates compelling content, structured catalogs, and visual assets.",
+            description="Birame transforms basic concepts into fully fledged, market-ready products. He creates compelling content, structured catalogs, and visual assets.",
             color="#FF006E",
             tag="[PRD]",
             voice_style="creative, inspiring, detail-oriented",
@@ -3003,7 +3003,7 @@ ALL_AGENTS = {
     "ravi": Ravi,
     "luna": Luna,
     "omar": Omar,
-    "zuri": Zuri,
+    "birame": Birame,
 }
 
 AGENT_PROFILES = {name: agent(".")._get_profile() for name, agent in ALL_AGENTS.items()}

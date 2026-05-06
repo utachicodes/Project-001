@@ -27,12 +27,12 @@ const DEFAULT_AGENTS: Agent[] = [
   { id: 'ravi',  name: 'Ravi',  tag: '[TEC]', title: 'Tech Architect',     color: 'var(--primary)', status: 'idle', room: 'Server Room',   description: 'Develops automation scripts and manages the underlying platform infrastructure.', quickActions: ['/create code', '/automate api', '/analyze system'] },
   { id: 'luna',  name: 'Luna',  tag: '[GRO]', title: 'Growth Hacker',         color: 'var(--accent-violet)', status: 'idle', room: 'Growth Lab',   description: 'Identifies growth opportunities and optimizes conversion funnels through experimentation.', quickActions: ['/analyze growth', '/create experiment', '/predict growth'] },
   { id: 'omar',  name: 'Omar',  tag: '[PAR]', title: 'Partnership Connector',   color: 'var(--accent-cyan)', status: 'idle', room: 'Deal Room',    description: 'Manages B2B relationships and generates essential business documentation.', quickActions: ['/create business-plan', '/create pitch-deck', '/research partners'] },
-  { id: 'zuri',  name: 'Zuri',  tag: '[PRD]', title: 'Product Visionary',   color: 'var(--accent-violet)', status: 'idle', room: 'Creative Studio',    description: 'Creates market-ready products with SEO content, catalogs, and dynamic images.', quickActions: ['/create product', '/create image', '/create description'] },
+  { id: 'birame',  name: 'Birame',  tag: '[PRD]', title: 'Product Visionary',   color: 'var(--accent-violet)', status: 'idle', room: 'Creative Studio',    description: 'Creates market-ready products with SEO content, catalogs, and dynamic images.', quickActions: ['/create product', '/create image', '/create description'] },
 ]
 
 const ANALYZE_MAP: Record<string, string> = { revenue: 'zara', operations: 'kofi', customers: 'amara', inventory: 'idris', marketing: 'nala', finance: 'tariq', data: 'sana', system: 'ravi', growth: 'luna' }
 const PREDICT_MAP: Record<string, string> = { revenue: 'zara', churn: 'amara', inventory: 'idris', cashflow: 'tariq', growth: 'luna' }
-const CREATE_MAP:  Record<string, string> = { campaign: 'nala', code: 'ravi', experiment: 'luna', 'business-plan': 'omar', 'pitch-deck': 'omar', report: 'sana', sop: 'omar', product: 'zuri', image: 'zuri', description: 'zuri' }
+const CREATE_MAP:  Record<string, string> = { campaign: 'nala', code: 'ravi', experiment: 'luna', 'business-plan': 'omar', 'pitch-deck': 'omar', report: 'sana', sop: 'omar', product: 'birame', image: 'birame', description: 'birame' }
 
 const mkMsg = (content: string, agentTag = '[MAF]'): Message => ({
   id: Date.now().toString(),
