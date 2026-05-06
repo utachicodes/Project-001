@@ -3,9 +3,11 @@ import * as React from "react";
 import { Shield, Database, Globe, FileText, Lock, KeyRound, HardDrive } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { translations, type Language } from "@/lib/i18n";
 
 interface PrivacyModalProps {
   open: boolean;
+  language: Language;
   onClose: () => void;
 }
 
@@ -42,7 +44,8 @@ const ITEMS = [
   },
 ];
 
-export function PrivacyModal({ open, onClose }: PrivacyModalProps) {
+export function PrivacyModal({ open, language, onClose }: PrivacyModalProps) {
+  const t = translations[language || "en"];
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-xl">
@@ -51,8 +54,14 @@ export function PrivacyModal({ open, onClose }: PrivacyModalProps) {
             <Shield className="size-4 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <DialogTitle>Privacy & data handling</DialogTitle>
-            <DialogDescription>How Mafalia Intelligence treats your data on the web</DialogDescription>
+            <DialogTitle>{t.privacy}</DialogTitle>
+            <DialogDescription>
+              {language === "en"
+                ? "How Mafalia treats your data"
+                : language === "fr"
+                ? "Comment Mafalia traite vos données"
+                : "كيف تعالج مفاليا بياناتك"}
+            </DialogDescription>
           </div>
         </div>
 
@@ -79,7 +88,9 @@ export function PrivacyModal({ open, onClose }: PrivacyModalProps) {
         </div>
 
         <div className="flex justify-end pt-2">
-          <Button onClick={onClose}>Got it</Button>
+          <Button onClick={onClose}>
+            {language === "en" ? "Got it" : language === "fr" ? "Compris" : "موافق"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

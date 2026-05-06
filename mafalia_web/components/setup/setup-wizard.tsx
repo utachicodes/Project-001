@@ -6,23 +6,39 @@ import { Sparkles, Rocket, CheckCircle2, AlertCircle, Database } from "lucide-re
 import type { Config } from "@/lib/types";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { translations, type Language } from "@/lib/i18n";
 import { ProviderSelector, ALL_PROVIDERS } from "./provider-selector";
 import { cn } from "@/lib/utils";
+import { translations, type Language } from "@/lib/i18n";
 
 interface SetupWizardProps {
   open: boolean;
   config: Config | null;
+  language: Language;
   onSave: (config: Config) => void;
   onClose: () => void;
 }
 
-const STEPS = [
-  { num: 1, title: "Provider", desc: "Choose model & provider" },
-  { num: 2, title: "API Key", desc: "Enter credentials" },
-  { num: 3, title: "Review", desc: "Confirm and launch" },
+const getSteps = (lang: Language) => [
+  {
+    num: 1,
+    title: lang === "en" ? "Provider" : lang === "fr" ? "Fournisseur" : "المزود",
+    desc: lang === "en" ? "Choose model" : lang === "fr" ? "Choisir le modèle" : "اختر النموذج",
+  },
+  {
+    num: 2,
+    title: lang === "en" ? "API Key" : lang === "fr" ? "Clé API" : "مفتاح API",
+    desc: lang === "en" ? "Credentials" : lang === "fr" ? "Identifiants" : "بيانات الاعتماد",
+  },
+  {
+    num: 3,
+    title: lang === "en" ? "Review" : lang === "fr" ? "Révision" : "مراجعة",
+    desc: lang === "en" ? "Confirm" : lang === "fr" ? "Confirmer" : "تأكيد",
+  },
 ];
 
-export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps) {
+export function SetupWizard({ open, config, language, onSave, onClose }: SetupWizardProps) {
+  const t = translations[language || "en"];
   const [step, setStep] = React.useState(1);
   const [provider, setProvider] = React.useState(config?.provider || "openrouter");
   const [model, setModel] = React.useState(config?.model || "z-ai/glm-4.5-air:free");
@@ -66,16 +82,16 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
             <Image src="/mafalia-logo.png" alt="Mafalia" width={36} height={36} />
             <div>
               <DialogTitle className="text-lg font-bold tracking-tight">
-                Configure <span className="text-primary">Mafalia Intelligence</span>
+                {language === "en" ? "Configure" : language === "fr" ? "Configurer" : "تكوين"} <span className="text-primary">Mafalia Intelligence</span>
               </DialogTitle>
               <DialogDescription className="text-[12.5px] text-muted-foreground">
-                Activate your business agents
+                {language === "en" ? "Activate your business agents" : language === "fr" ? "Activez vos agents d'entreprise" : "تنشيط عملاء عملك"}
               </DialogDescription>
             </div>
           </div>
 
           <div className="flex items-center gap-2 mt-5">
-            {STEPS.map((s, i) => {
+            {getSteps(language).map((s, i, arr) => {
               const done = step > s.num;
               const active = step === s.num;
               return (
@@ -107,7 +123,7 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
                       {s.title}
                     </span>
                   </button>
-                  {i < STEPS.length - 1 && (
+                  {i < arr.length - 1 && (
                     <div
                       className={cn(
                         "w-8 h-px mx-1 transition-colors",
@@ -129,9 +145,9 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
                   <Sparkles className="size-4 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-[14px] font-bold">Choose your AI provider</h3>
+                  <h3 className="text-[14px] font-bold">{t.providerSettings}</h3>
                   <p className="text-[12px] text-muted-foreground">
-                    Select from free and premium models
+                    {language === "en" ? "Select from free and premium models" : language === "fr" ? "Choisissez parmi des modèles gratuits et premium" : "اختر من بين النماذج المجانية والمميزة"}
                   </p>
                 </div>
               </div>
@@ -301,14 +317,14 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
             onClick={() => setStep(Math.max(1, step - 1))}
             disabled={step === 1}
           >
-            Back
+            {t.back}
           </Button>
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={onClose}>
-              Cancel
+              {t.cancel}
             </Button>
             {step < 3 ? (
-              <Button onClick={() => setStep(step + 1)}>Next</Button>
+              <Button onClick={() => setStep(step + 1)}>{t.next}</Button>
             ) : (
               <Button
                 variant="mafalia"
@@ -317,11 +333,11 @@ export function SetupWizard({ open, config, onSave, onClose }: SetupWizardProps)
               >
                 {isSaving ? (
                   <>
-                    <Sparkles className="size-3.5 animate-spin" /> Finalizing…
+                    <Sparkles className="size-3.5 animate-spin" /> ...
                   </>
                 ) : (
                   <>
-                    <Rocket className="size-3.5" /> Finish setup
+                    <Rocket className="size-3.5" /> {t.finish}
                   </>
                 )}
               </Button>
