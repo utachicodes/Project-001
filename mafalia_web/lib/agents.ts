@@ -116,13 +116,13 @@ export const DEFAULT_AGENTS: Agent[] = [
   {
     id: "malik",
     name: "Malik",
-    tag: "[SEC]",
-    title: "Security Sentinel",
+    tag: "[GOV]",
+    title: "Governance & Security",
     color: "#FE0000",
     status: "idle",
-    room: "Secure Vault",
-    description: "Monitors platform security, manages access controls, and ensures data compliance.",
-    quickActions: ["/analyze security", "/check compliance", "/ask malik access-logs"],
+    room: "Executive Suite",
+    description: "Monitors platform security, manages user permissions, and provides the bird's-eye Boss View.",
+    quickActions: ["/analyze security", "/boss view", "/audit permissions"],
   },
 ];
 
@@ -136,6 +136,8 @@ export const ANALYZE_MAP: Record<string, string> = {
   data: "sana",
   system: "ravi",
   growth: "luna",
+  security: "malik",
+  governance: "malik",
 };
 export const PREDICT_MAP: Record<string, string> = {
   revenue: "zara",
@@ -143,6 +145,7 @@ export const PREDICT_MAP: Record<string, string> = {
   inventory: "idris",
   cashflow: "tariq",
   growth: "luna",
+  risk: "malik",
 };
 export const CREATE_MAP: Record<string, string> = {
   campaign: "nala",
@@ -152,4 +155,5 @@ export const CREATE_MAP: Record<string, string> = {
   "pitch-deck": "omar",
   report: "sana",
   sop: "omar",
+  "security-audit": "malik",
 };
