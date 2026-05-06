@@ -5,6 +5,7 @@ export interface Config {
   baseUrl?: string;
   maxTokens: number;
   temperature: number;
+  language: "en" | "fr" | "ar";
 }
 
 export type AgentStatus = "idle" | "working" | "reporting" | "error" | "offline";

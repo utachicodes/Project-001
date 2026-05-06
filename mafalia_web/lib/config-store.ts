@@ -10,6 +10,7 @@ export const DEFAULT_CONFIG: Config = {
   baseUrl: "https://openrouter.ai/api/v1",
   maxTokens: 4096,
   temperature: 0.4,
+  language: "en",
 };
 
 export function loadConfig(): Config | null {
