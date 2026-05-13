@@ -20,7 +20,6 @@ export const translations = {
     offline: "Offline",
     provider: "Provider",
     agentsOnline: "agents online",
-    backToHome: "Back to Home",
     bizHealth: "Business Health",
     revPulse: "Revenue Pulse",
     campForge: "Campaign Forge",

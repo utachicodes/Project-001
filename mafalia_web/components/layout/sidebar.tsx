@@ -44,6 +44,7 @@ import {
 import type { Agent, ChatSession } from "@/lib/types";
 import type { KpiData, AlertItem } from "@/lib/metrics-fetch";
 import { EMPTY_KPI } from "@/lib/metrics-fetch";
+import { Language, translations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -149,7 +150,7 @@ export function Sidebar({
   }, []);
 
   const kpi = kpiData ?? EMPTY_KPI;
-  const kpiKeys = Object.keys(KPI_LABELS) as (keyof KpiData)[];
+  const kpiKeys = Object.keys(KPI_COMMANDS) as (keyof KpiData)[];
 
   return (
     <aside className="w-[300px] min-w-[300px] h-full flex flex-col bg-background border-r border-border overflow-hidden">

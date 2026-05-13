@@ -1,6 +1,8 @@
 "use client";
 import * as React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
@@ -15,6 +17,8 @@ import {
   Cpu,
   X,
   FileText,
+  Mic,
+  MicOff,
   type LucideIcon,
 } from "lucide-react";
 import type { Message } from "@/lib/types";
@@ -22,6 +26,8 @@ import { Markdown } from "./markdown";
 import { uploadFile, type UploadedFile } from "@/lib/supabase/storage";
 import { cn } from "@/lib/utils";
 import { translations, type Language } from "@/lib/i18n";
+import { voiceService, type VoiceLanguage } from "@/lib/voice";
+import { VocalVisualizer } from "./vocal-visualizer";
 
 const getQuickActions = (lang: Language) => {
   const t = translations[lang];
@@ -67,8 +73,76 @@ export function ChatArea({
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  const [isVocalMode, setIsVocalMode] = React.useState(false);
+  const [isListening, setIsListening] = React.useState(false);
+  const [isSpeaking, setIsSpeaking] = React.useState(false);
+
   const isWelcome =
     messages.length === 0 || (messages.length === 1 && !messages[0].content);
+
+  // Sync voice language with app language
+  const getVoiceLang = (lang: Language): VoiceLanguage => {
+    switch (lang) {
+      case "fr": return "fr-FR";
+      case "ar": return "ar-SA";
+      default: return "en-US";
+    }
+  };
+
+  // Speak AI response if vocal mode is on
+  React.useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    if (isVocalMode && lastMsg && lastMsg.role === "assistant" && !isLoading) {
+      setIsSpeaking(true);
+      voiceService.speak(lastMsg.content, getVoiceLang(language), () => {
+        setIsSpeaking(false);
+        // Automatically start listening again after speaking
+        if (isVocalMode) startVoiceRecording();
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, isLoading, isVocalMode]);
+
+  const startVoiceRecording = () => {
+    if (!voiceService.isSupported()) {
+      toast.error(language === "en" ? "Speech recognition is not supported in your browser." : "La reconnaissance vocale n'est pas supportée par votre navigateur.");
+      setIsVocalMode(false);
+      return;
+    }
+    setIsListening(true);
+    voiceService.startListening(
+      getVoiceLang(language),
+      (result) => {
+        setInput(result.transcript);
+        if (result.isFinal) {
+          setIsListening(false);
+          // Wait a bit before sending to let the user see the result
+          setTimeout(() => {
+            onSendMessage(result.transcript);
+            setInput("");
+          }, 500);
+        }
+      },
+      () => setIsListening(false),
+      (error) => {
+        console.error("Voice Error:", error);
+        setIsListening(false);
+      }
+    );
+  };
+
+  const toggleVocalMode = () => {
+    const next = !isVocalMode;
+    setIsVocalMode(next);
+    if (next) {
+      startVoiceRecording();
+    } else {
+      voiceService.stopListening();
+      voiceService.stopSpeaking();
+      setIsListening(false);
+      setIsSpeaking(false);
+    }
+  };
 
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -170,24 +244,37 @@ export function ChatArea({
         </div>
       )}
 
-      {/* Active model badge */}
-      <AnimatePresence>
-        {currentModel && (
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="absolute top-5 left-1/2 -translate-x-1/2 z-20"
-          >
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-background border border-border shadow-md">
-              <Cpu className="size-3.5 text-primary" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide text-foreground">
-                {currentModel.split("/").pop()}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Active model badge or Vocal Visualizer */}
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3">
+        <AnimatePresence>
+          {(isListening || isSpeaking) && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <VocalVisualizer isListening={isListening} isSpeaking={isSpeaking} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {currentModel && !isListening && !isSpeaking && (
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+            >
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-background border border-border shadow-md">
+                <Cpu className="size-3.5 text-primary" />
+                <span className="text-[10.5px] font-bold uppercase tracking-wide text-foreground">
+                  {currentModel.split("/").pop()}
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Message Area */}
       <div className="flex-1 overflow-y-auto px-6 py-10 scrollbar-thin">
@@ -345,6 +432,12 @@ export function ChatArea({
                 disabled={uploading}
               />
               <Chip icon={Slash} label={language === "en" ? "Actions" : "Actions"} onClick={onCommandPaletteOpen} />
+              <Chip 
+                icon={isVocalMode ? Mic : MicOff} 
+                label="Vocals" 
+                onClick={toggleVocalMode}
+                active={isVocalMode}
+              />
               <div className="flex-1" />
               <span className="text-[10px] font-bold text-muted-foreground tabular-nums select-none px-2">
                 {input.length > 0 ? input.length : ""}
@@ -439,17 +532,22 @@ function Chip({
   label,
   onClick,
   disabled,
+  active,
 }: {
   icon: LucideIcon;
   label: string;
   onClick: () => void;
   disabled?: boolean;
+  active?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[11.5px] font-semibold border border-transparent hover:border-border disabled:opacity-50"
+      className={cn(
+        "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[11.5px] font-semibold border border-transparent hover:border-border disabled:opacity-50",
+        active && "bg-primary/10 text-primary border-primary/20"
+      )}
     >
       <Icon className="size-3.5 opacity-70" />
       <span>{label}</span>

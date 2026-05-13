@@ -68,6 +68,7 @@ export function SetupWizard({ open, config, language, onSave, onClose }: SetupWi
       baseUrl: resolvedBaseUrl,
       maxTokens: 4096,
       temperature: 0.4,
+      language,
     });
     setIsSaving(false);
   };
