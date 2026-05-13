@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight, ShieldCheck } from "lucide-react";
@@ -8,7 +9,7 @@ import { Fustat } from "next/font/google";
 
 const fustat = Fustat({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
-export default function ConfirmPage() {
+function ConfirmContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const code = searchParams.get("code");
@@ -73,3 +74,16 @@ export default function ConfirmPage() {
     </div>
   );
 }
+
+export default function ConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f8f8]">
+        <div className="size-6 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+      </div>
+    }>
+      <ConfirmContent />
+    </Suspense>
+  );
+}
+
