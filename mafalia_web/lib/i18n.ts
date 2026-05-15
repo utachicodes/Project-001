@@ -47,6 +47,12 @@ export const translations = {
     apiKeyRequired: "API Key Required",
     readyToLaunch: "Ready to launch",
     confirmAndLaunch: "Confirm and launch",
+    password: "Password",
+    signUp: "Sign Up",
+    login: "Log In",
+    noAccount: "Don't have an account?",
+    hasAccount: "Already have an account?",
+    createAccount: "Create your account",
   },
   fr: {
     home: "Accueil",
@@ -95,6 +101,12 @@ export const translations = {
     apiKeyRequired: "Clé API Requise",
     readyToLaunch: "Prêt à lancer",
     confirmAndLaunch: "Confirmer et lancer",
+    password: "Mot de passe",
+    signUp: "S'inscrire",
+    login: "Se connecter",
+    noAccount: "Vous n'avez pas de compte ?",
+    hasAccount: "Vous avez déjà un compte ?",
+    createAccount: "Créez votre compte",
   },
   ar: {
     home: "الرئيسية",
@@ -143,5 +155,13 @@ export const translations = {
     apiKeyRequired: "مفتاح API مطلوب",
     readyToLaunch: "جاهز للانطلاق",
     confirmAndLaunch: "تأكيد وانطلاق",
+    password: "كلمة المرور",
+    signUp: "إنشاء حساب",
+    login: "تسجيل الدخول",
+    noAccount: "ليس لديك حساب؟",
+    hasAccount: "لديك حساب بالفعل؟",
+    createAccount: "أنشئ حسابك",
   },
-} as const;
+};
+
+export type TranslationKey = keyof typeof translations.en;

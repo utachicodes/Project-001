@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Mail, ArrowRight, CheckCircle2, ChevronLeft } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ChevronLeft } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { loadConfig } from "@/lib/config-store";
 import { translations, type Language } from "@/lib/i18n";
@@ -127,9 +127,12 @@ const VideoBackground = () => {
 export function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/";
+  const [isSignUp, setIsSignUp] = React.useState(false);
   const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [sent, setSent] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [lang, setLang] = React.useState<Language>(() => {
     if (typeof window !== "undefined") {
@@ -153,7 +156,7 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !password.trim()) return;
     setError(null);
     setLoading(true);
 
@@ -168,22 +171,27 @@ export function LoginForm() {
     try {
       const supabase = createClient();
       
-      // Get the site URL from env or current origin
-      const siteUrl = 
-        process.env.NEXT_PUBLIC_SITE_URL || 
-        (typeof window !== "undefined" ? window.location.origin : "");
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
-        options: {
-          // Use /auth/confirm to prevent email scanner consumption
-          emailRedirectTo: `${siteUrl}/auth/confirm?next=${encodeURIComponent(next)}`,
-        },
-      });
-      if (error) throw error;
-      setSent(true);
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: password,
+          options: {
+            emailRedirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback?next=${encodeURIComponent(next)}`,
+          },
+        });
+        if (error) throw error;
+        setSuccess(true);
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password,
+        });
+        if (error) throw error;
+        // Navigation is handled by middleware once session is detected
+        window.location.href = next;
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send magic link");
+      setError(err instanceof Error ? err.message : "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -219,15 +227,18 @@ export function LoginForm() {
           </div>
 
           <h1 className={`${fustat.className} text-[40px] font-bold tracking-[-2.4px] text-[#000000] mb-2 leading-tight text-center`}>
-            {lang === "en" ? "Welcome Back" : lang === "fr" ? "Bon retour" : "مرحباً بعودتك"}
+            {isSignUp ? t.createAccount : t.welcomeBack}
           </h1>
           <p className={`${fustat.className} text-[18px] tracking-[-0.4px] text-[#505050] mb-8 text-center`}>
-            {lang === "en" ? "Sign in to orchestrate your AI agents." : lang === "fr" ? "Connectez-vous pour orchestrer vos agents IA." : "سجل الدخول لتنسيق عملاء الذكاء الاصطناعي الخاص بك."}
+            {isSignUp 
+              ? (lang === "en" ? "Join us to orchestrate your AI agents." : lang === "fr" ? "Rejoignez-nous pour orchestrer vos agents IA." : "انضم إلينا لتنسيق عملاء الذكاء الاصطناعي الخاص بك.")
+              : t.signInOrchestrate
+            }
           </p>
 
           {/* Form inside glassmorphism container identical to landing page search box */}
           <div className="w-full rounded-[18px] bg-[rgba(0,0,0,0.24)] backdrop-blur-md p-6 shadow-2xl border border-white/10">
-            {sent ? (
+            {success && isSignUp ? (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -236,25 +247,27 @@ export function LoginForm() {
                 <div className="size-14 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="size-7 text-emerald-400" />
                 </div>
-                <h2 className={`${fustat.className} text-[20px] font-bold text-white mb-2`}>Check your inbox</h2>
+                <h2 className={`${fustat.className} text-[20px] font-bold text-white mb-2`}>{t.checkInbox}</h2>
                 <p className="text-[14px] text-gray-300 leading-relaxed mb-6">
-                  We sent a magic link to <span className="font-semibold text-white">{email}</span>. Click the link to securely sign in.
+                  {lang === "en" ? "We sent a confirmation link to " : lang === "fr" ? "Nous avons envoyé un lien de confirmation à " : "لقد أرسلنا رابط تأكيد إلى "}
+                  <span className="font-semibold text-white">{email}</span>.
                 </p>
                 <button
                   onClick={() => {
-                    setSent(false);
-                    setEmail("");
+                    setSuccess(false);
+                    setIsSignUp(false);
                   }}
-                  className="text-[13px] font-medium text-gray-300 hover:text-white transition-colors"
+                  className="text-[13px] font-medium text-gray-300 hover:text-white transition-colors underline"
                 >
-                  Use a different email
+                  {t.login}
                 </button>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email Field */}
                 <div className="space-y-1.5">
                   <label htmlFor="email" className="text-[13px] font-medium text-gray-200 ml-1">
-                    {lang === "en" ? "Email Address" : lang === "fr" ? "Adresse Email" : "عنوان البريد الإلكتروني"}
+                    {t.emailAddress}
                   </label>
                   <div className="relative group bg-white rounded-[12px] p-1 flex items-center shadow-inner">
                     <Mail className={cn("absolute size-4.5 text-gray-400 group-focus-within:text-black transition-colors", lang === "ar" ? "right-4" : "left-4")} />
@@ -267,10 +280,43 @@ export function LoginForm() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@company.com"
                       className={cn(
-                        "w-full h-[44px] bg-transparent pr-4 text-[16px] text-black placeholder:text-[rgba(0,0,0,0.6)] focus:outline-none",
+                        "w-full h-[44px] bg-transparent text-[16px] text-black placeholder:text-[rgba(0,0,0,0.6)] focus:outline-none",
                         lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"
                       )}
                     />
+                  </div>
+                </div>
+
+                {/* Password Field */}
+                <div className="space-y-1.5">
+                  <label htmlFor="password" className="text-[13px] font-medium text-gray-200 ml-1">
+                    {t.password}
+                  </label>
+                  <div className="relative group bg-white rounded-[12px] p-1 flex items-center shadow-inner">
+                    <Lock className={cn("absolute size-4.5 text-gray-400 group-focus-within:text-black transition-colors", lang === "ar" ? "right-4" : "left-4")} />
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete={isSignUp ? "new-password" : "current-password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className={cn(
+                        "w-full h-[44px] bg-transparent text-[16px] text-black placeholder:text-[rgba(0,0,0,0.6)] focus:outline-none",
+                        lang === "ar" ? "pr-10 pl-12" : "pl-10 pr-12"
+                      )}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className={cn(
+                        "absolute text-gray-400 hover:text-black transition-colors p-2",
+                        lang === "ar" ? "left-2" : "right-2"
+                      )}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                 </div>
                 
@@ -284,20 +330,36 @@ export function LoginForm() {
                   </motion.p>
                 )}
 
+                <button
+                  type="submit"
+                  disabled={loading || !email.trim() || !password.trim()}
+                  className="w-full h-[48px] relative flex items-center justify-center rounded-[12px] bg-black text-[15px] font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                >
+                  {loading ? (
+                    <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      {isSignUp ? t.signUp : t.logInSecurely}
+                      <ArrowRight className={cn("ml-2 size-4", lang === "ar" && "rotate-180 mr-2 ml-0")} />
+                    </>
+                  )}
+                </button>
+
+                <div className="pt-2 text-center">
                   <button
-                    type="submit"
-                    disabled={loading || !email.trim()}
-                    className="w-full h-[48px] relative flex items-center justify-center rounded-[12px] bg-black text-[15px] font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                    type="button"
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      setError(null);
+                    }}
+                    className="text-[13px] font-medium text-gray-200 hover:text-white transition-colors"
                   >
-                    {loading ? (
-                      <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        {lang === "en" ? "Log In securely" : lang === "fr" ? "Se connecter en sécurité" : "تسجيل الدخول بشكل آمن"}
-                        <ArrowRight className={cn("ml-2 size-4", lang === "ar" && "rotate-180 mr-2 ml-0")} />
-                      </>
-                    )}
+                    {isSignUp ? t.hasAccount : t.noAccount}
+                    <span className="ml-1 underline">
+                      {isSignUp ? t.login : t.signUp}
+                    </span>
                   </button>
+                </div>
               </form>
             )}
           </div>
