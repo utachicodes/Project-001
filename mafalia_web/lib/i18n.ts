@@ -53,6 +53,8 @@ export const translations = {
     noAccount: "Don't have an account?",
     hasAccount: "Already have an account?",
     createAccount: "Create your account",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
   },
   fr: {
     home: "Accueil",
@@ -107,6 +109,8 @@ export const translations = {
     noAccount: "Vous n'avez pas de compte ?",
     hasAccount: "Vous avez déjà un compte ?",
     createAccount: "Créez votre compte",
+    showPassword: "Afficher le mot de passe",
+    hidePassword: "Masquer le mot de passe",
   },
   ar: {
     home: "الرئيسية",
@@ -161,6 +165,8 @@ export const translations = {
     noAccount: "ليس لديك حساب؟",
     hasAccount: "لديك حساب بالفعل؟",
     createAccount: "أنشئ حسابك",
+    showPassword: "إظهار كلمة المرور",
+    hidePassword: "إخفاء كلمة المرور",
   },
 };
 

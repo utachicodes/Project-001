@@ -124,9 +124,17 @@ const VideoBackground = () => {
   );
 };
 
+const validateNext = (path: string | null): string => {
+  if (!path || !path.startsWith("/") || path.startsWith("//")) {
+    return "/";
+  }
+  return path;
+};
+
 export function LoginForm() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/";
+  const rawNext = searchParams.get("next");
+  const next = validateNext(rawNext);
   const [isSignUp, setIsSignUp] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -310,6 +318,7 @@ export function LoginForm() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? t.hidePassword : t.showPassword}
                       className={cn(
                         "absolute text-gray-400 hover:text-black transition-colors p-2",
                         lang === "ar" ? "left-2" : "right-2"
