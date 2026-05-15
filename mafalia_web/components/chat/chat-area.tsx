@@ -105,16 +105,20 @@ export function ChatArea({
 
   const startVoiceRecording = () => {
     if (!voiceService.isSupported()) {
+      console.warn("Speech recognition not supported");
       toast.error(language === "en" ? "Speech recognition is not supported in your browser." : "La reconnaissance vocale n'est pas supportée par votre navigateur.");
       setIsVocalMode(false);
       return;
     }
+    console.log("Starting voice recording...");
     setIsListening(true);
     voiceService.startListening(
       getVoiceLang(language),
       (result) => {
+        console.log("Voice Result:", result);
         setInput(result.transcript);
         if (result.isFinal) {
+          console.log("Final Transcript:", result.transcript);
           setIsListening(false);
           // Wait a bit before sending to let the user see the result
           setTimeout(() => {
@@ -123,10 +127,16 @@ export function ChatArea({
           }, 500);
         }
       },
-      () => setIsListening(false),
+      () => {
+        console.log("Voice listening ended");
+        setIsListening(false);
+      },
       (error) => {
         console.error("Voice Error:", error);
         setIsListening(false);
+        if (error === 'not-allowed') {
+          toast.error(language === "en" ? "Microphone access denied." : "Accès au microphone refusé.");
+        }
       }
     );
   };
@@ -135,6 +145,7 @@ export function ChatArea({
     const next = !isVocalMode;
     setIsVocalMode(next);
     if (next) {
+      toast.info(language === "en" ? "Vocal mode enabled. I'm listening..." : "Mode vocal activé. Je vous écoute...");
       startVoiceRecording();
     } else {
       voiceService.stopListening();
