@@ -33,7 +33,7 @@ export const ALL_PROVIDERS: ProviderInfo[] = [
     requiresApiKey: true,
     freeModels: [
       { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash", description: "Fast multimodal model", isFree: true, contextLength: "1M tokens", strengths: ["Speed", "Multimodal"] },
-      { id: "google/gemini-2.5-pro-exp-03-25:free", name: "Gemini 2.5 Pro", description: "Advanced reasoning", isFree: true, contextLength: "1M tokens", strengths: ["Coding", "Reasoning"] },
+      { id: "google/gemini-2.0-pro-exp-02-05:free", name: "Gemini 2.0 Pro", description: "Advanced reasoning", isFree: true, contextLength: "1M tokens", strengths: ["Coding", "Reasoning"] },
       { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", description: "Advanced multilingual LLM", isFree: true, contextLength: "128K tokens", strengths: ["Multilingual", "Reasoning"] },
       { id: "meta-llama/llama-3.2-11b-vision-instruct:free", name: "Llama 3.2 11B", description: "Open-source with vision", isFree: true, contextLength: "128K tokens", strengths: ["Vision", "Open source"] },
       { id: "deepseek/deepseek-chat:free", name: "DeepSeek Chat", description: "Great for coding", isFree: true, contextLength: "64K tokens", strengths: ["Coding", "Technical"] },
@@ -52,7 +52,7 @@ export const ALL_PROVIDERS: ProviderInfo[] = [
     requiresApiKey: true,
     freeModels: [
       { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash", description: "Fast multimodal", isFree: true, contextLength: "1M tokens", strengths: ["Speed", "Free tier"] },
-      { id: "gemini-2.5-pro-exp-03-25", name: "Gemini 2.5 Pro", description: "Advanced reasoning", isFree: true, contextLength: "1M tokens", strengths: ["Reasoning", "Coding"] },
+      { id: "gemini-2.0-pro-exp-02-05", name: "Gemini 2.0 Pro", description: "Advanced reasoning", isFree: true, contextLength: "1M tokens", strengths: ["Reasoning", "Coding"] },
     ],
     paidModels: [
       { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", description: "Production-ready", isFree: false, contextLength: "2M tokens", strengths: ["Production", "Enterprise"] },

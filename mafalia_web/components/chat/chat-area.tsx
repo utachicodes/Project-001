@@ -76,6 +76,11 @@ export function ChatArea({
   const [isVocalMode, setIsVocalMode] = React.useState(false);
   const [isListening, setIsListening] = React.useState(false);
   const [isSpeaking, setIsSpeaking] = React.useState(false);
+  const isVocalModeRef = React.useRef(isVocalMode);
+
+  React.useEffect(() => {
+    isVocalModeRef.current = isVocalMode;
+  }, [isVocalMode]);
 
   const isWelcome =
     messages.length === 0 || (messages.length === 1 && !messages[0].content);
@@ -97,7 +102,7 @@ export function ChatArea({
       voiceService.speak(lastMsg.content, getVoiceLang(language), () => {
         setIsSpeaking(false);
         // Automatically start listening again after speaking
-        if (isVocalMode) startVoiceRecording();
+        if (isVocalModeRef.current) startVoiceRecording();
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -232,7 +237,7 @@ export function ChatArea({
   return (
     <div
       className={cn(
-        "flex-1 flex flex-col h-full relative overflow-hidden bg-background transition-colors",
+        "flex-1 flex flex-col h-full relative overflow-hidden bg-[#F9F9F9] dark:bg-[#0A0A0A] transition-colors",
         dragOver && "bg-primary/5",
       )}
       onDragOver={(e) => {
@@ -245,323 +250,258 @@ export function ChatArea({
       {/* Drag overlay */}
       {dragOver && (
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/90 backdrop-blur-sm pointer-events-none">
-          <div className="rounded-2xl border-2 border-dashed border-primary px-10 py-8 text-center bg-card shadow-xl">
-            <Paperclip className="mx-auto size-8 text-primary mb-3" />
-            <p className="text-[15px] font-bold text-foreground">Drop files to upload</p>
-            <p className="text-[12px] text-muted-foreground mt-1">
-              Stored in your Mafalia workspace (max 20 MB each)
+          <div className="rounded-[32px] border-2 border-dashed border-primary px-12 py-10 text-center bg-card shadow-2xl">
+            <Paperclip className="mx-auto size-10 text-primary mb-4" />
+            <p className="text-[18px] font-bold text-foreground">Drop data to ingest</p>
+            <p className="text-[13px] text-muted-foreground mt-2">
+              Processing via Intelligence Layer (max 20 MB)
             </p>
           </div>
         </div>
       )}
 
-      {/* Active model badge or Vocal Visualizer */}
-      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3">
-        <AnimatePresence>
+      {/* Top Header - Platform Status */}
+      <div className="absolute top-0 inset-x-0 h-16 flex items-center justify-center px-6 z-20 pointer-events-none">
+        <div className="flex items-center gap-4 bg-background/80 backdrop-blur-md border border-border px-4 py-1.5 rounded-full shadow-sm pointer-events-auto">
+          <div className="flex items-center gap-2">
+            <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+              {currentModel ? currentModel.split("/").pop() : "Intelligence Core"}
+            </span>
+          </div>
           {(isListening || isSpeaking) && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
+            <>
+              <div className="w-[1px] h-3 bg-border" />
               <VocalVisualizer isListening={isListening} isSpeaking={isSpeaking} />
-            </motion.div>
+            </>
           )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {currentModel && !isListening && !isSpeaking && (
-            <motion.div
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-            >
-              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-background border border-border shadow-md">
-                <Cpu className="size-3.5 text-primary" />
-                <span className="text-[10.5px] font-bold uppercase tracking-wide text-foreground">
-                  {currentModel.split("/").pop()}
-                </span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </div>
       </div>
 
       {/* Message Area */}
-      <div className="flex-1 overflow-y-auto px-6 py-10 scrollbar-thin">
-        <div className="max-w-3xl mx-auto">
+      <div className="flex-1 overflow-y-auto pt-24 pb-40 px-6 scrollbar-none">
+        <div className="max-w-4xl mx-auto">
           {isWelcome ? (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.45 }}
-              className="flex flex-col items-center justify-center min-h-[60vh] pt-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center min-h-[50vh]"
             >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.08, type: "spring", damping: 22 }}
-                className="mb-5"
-              >
-                <div className="size-[88px] flex items-center justify-center">
-                  <Image
-                    src="/mafalia-logo.png"
-                    alt="Mafalia"
-                    width={88}
-                    height={88}
-                    className="object-contain"
-                  />
-                </div>
-              </motion.div>
+              <div className="size-20 bg-primary/10 rounded-[28px] flex items-center justify-center mb-8 border border-primary/20">
+                <Sparkles className="size-10 text-primary" />
+              </div>
+              <h2 className="text-[28px] font-bold tracking-tight mb-3">Intelligence Command</h2>
+              <p className="text-muted-foreground text-[15px] mb-12 max-w-md text-center font-medium">
+                Execute complex business logic through our modular agent network.
+              </p>
 
-
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.26 }}
-                className="text-muted-foreground text-[14px] mb-8 max-w-lg text-center leading-relaxed"
-              >
-                {language === "en"
-                  ? "Orchestrate 11 specialized agents to analyze business data, predict trends, and automate operations."
-                  : language === "fr"
-                  ? "Orchestrez 11 agents spécialisés pour analyser les données, prédire les tendances et automatiser vos opérations."
-                  : "قم بتنسيق 11 عميلًا متخصصًا لتحليل بيانات العمل والتنبؤ بالاتجاهات وأتمتة العمليات."}
-              </motion.p>
-
-              <div className="grid grid-cols-3 gap-2.5 w-full max-w-[560px]">
-                {getQuickActions(language).map((action, i) => {
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+                {getQuickActions(language).slice(0, 4).map((action, i) => {
                   const Icon = action.icon;
                   return (
-                    <motion.button
+                    <button
                       key={action.cmd}
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.12 + i * 0.05, type: "spring", damping: 26 }}
-                      whileHover={{ y: -2, scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
                       onClick={() => onSendMessage(action.cmd)}
-                      className="flex flex-col items-center gap-2.5 px-3 py-4 rounded-xl border border-border bg-background hover:border-primary/40 hover:shadow-md hover:bg-secondary/40 transition-all cursor-pointer group"
+                      className="flex items-center gap-4 p-4 rounded-2xl border border-border bg-background hover:border-primary/40 hover:shadow-lg transition-all group text-left"
                     >
-                      <div className="size-9 rounded-lg flex items-center justify-center bg-primary/8 border border-primary/15">
-                        <Icon className="size-4 text-primary" />
+                      <div className="size-10 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <Icon className="size-5 text-muted-foreground group-hover:text-primary" />
                       </div>
-                      <span className="text-[11.5px] font-semibold text-foreground text-center leading-tight">
-                        {action.label}
-                      </span>
-                    </motion.button>
+                      <div>
+                        <p className="text-[14px] font-bold text-foreground">{action.label}</p>
+                        <p className="text-[12px] font-medium text-muted-foreground opacity-70">Execute platform command</p>
+                      </div>
+                    </button>
                   );
                 })}
               </div>
             </motion.div>
           ) : (
-            <div className="space-y-6 pb-8">
+            <div className="space-y-12">
               {messages.map((msg) => (
                 <MessageBubble key={msg.id} msg={msg} />
               ))}
-              <AnimatePresence>
-                {isLoading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="size-7 rounded-lg flex items-center justify-center bg-secondary border border-border">
-                      <Sparkles className="size-3.5 text-primary animate-pulse-soft" />
-                    </div>
-                    <div className="px-4 py-3 rounded-2xl rounded-tl-md bg-background border border-border shadow-sm">
-                      <div className="flex items-center gap-1.5">
-                        <span className="typing-dot" />
-                        <span className="typing-dot" />
-                        <span className="typing-dot" />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {isLoading && (
+                <div className="flex items-start gap-4">
+                   <div className="size-10 rounded-xl bg-secondary animate-pulse" />
+                   <div className="space-y-2 pt-2">
+                     <div className="h-4 w-48 bg-secondary rounded animate-pulse" />
+                     <div className="h-4 w-32 bg-secondary rounded animate-pulse opacity-60" />
+                   </div>
+                </div>
+              )}
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
       </div>
 
-      {/* Input Bar */}
-      <div className="px-6 py-4 bg-background border-t border-border">
-        <div className="max-w-3xl mx-auto">
-          {attachments.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-2.5">
-              {attachments.map((a) => (
-                <div
-                  key={a.path}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary border border-border text-[12px]"
-                >
-                  <FileText className="size-3.5 text-primary" />
-                  <span className="font-medium truncate max-w-[180px]">{a.name}</span>
-                  <span className="text-muted-foreground tabular-nums">
-                    {(a.size / 1024).toFixed(0)}KB
-                  </span>
+      {/* Floating Input Area */}
+      <div className="absolute bottom-8 inset-x-0 px-6 z-30 pointer-events-none">
+        <div className="max-w-3xl mx-auto pointer-events-auto">
+          <div className="bg-background/90 backdrop-blur-xl rounded-[28px] border border-border shadow-2xl overflow-hidden focus-within:border-primary/40 transition-all">
+            
+            {attachments.length > 0 && (
+              <div className="flex flex-wrap gap-2 px-4 pt-4">
+                {attachments.map((a) => (
+                  <div key={a.path} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary text-[12px] font-bold">
+                    <FileText className="size-3.5 text-primary" />
+                    <span className="truncate max-w-[120px]">{a.name}</span>
+                    <button 
+                      onClick={() => setAttachments(prev => prev.filter(x => x.path !== a.path))} 
+                      className="hover:text-destructive"
+                      aria-label={t.removeAttachment}
+                    >
+                      <X className="size-3" aria-hidden="true" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-end px-2 py-2">
+              <div className="flex-1 flex flex-col">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask the intelligence core..."
+                  className="w-full bg-transparent text-foreground placeholder-muted-foreground/60 text-[15px] font-medium px-4 py-3 resize-none outline-none leading-relaxed"
+                  style={{ minHeight: "52px", maxHeight: "160px" }}
+                  rows={1}
+                />
+              </div>
+              <div className="flex items-center gap-1.5 pb-2 pr-2">
+                  <InputToolBtn 
+                    icon={Paperclip} 
+                    onClick={() => fileInputRef.current?.click()} 
+                    active={uploading} 
+                    ariaLabel={t.uploadFile}
+                  />
+                  <InputToolBtn 
+                    icon={Slash} 
+                    onClick={onCommandPaletteOpen} 
+                    ariaLabel={t.openCommands}
+                  />
+                  <InputToolBtn 
+                    icon={isVocalMode ? Mic : MicOff} 
+                    onClick={toggleVocalMode} 
+                    active={isVocalMode} 
+                    ariaLabel={t.toggleVoice}
+                  />
+                  <div className="w-[1px] h-6 bg-border mx-1" />
                   <button
-                    onClick={() => setAttachments((prev) => prev.filter((x) => x.path !== a.path))}
-                    className="text-muted-foreground hover:text-destructive transition-colors"
-                    aria-label="Remove attachment"
+                    onClick={handleSubmit}
+                    disabled={(!input.trim() && attachments.length === 0) || isLoading}
+                    className="size-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+                    aria-label={t.sendMessage}
                   >
-                    <X className="size-3" />
+                    <Send className="size-4" aria-hidden="true" />
                   </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="rounded-xl overflow-hidden border border-border bg-background focus-within:border-primary/50 transition-colors shadow-sm">
-            <div className="flex items-end">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder="Execute command or ask anything…"
-                className="flex-1 bg-transparent text-foreground placeholder-muted-foreground text-[14px] font-medium px-4 py-3.5 resize-none outline-none leading-relaxed"
-                style={{ minHeight: "52px", maxHeight: "160px" }}
-                rows={1}
-              />
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={(!input.trim() && attachments.length === 0) || isLoading}
-                className="mr-2.5 mb-2.5 size-9 rounded-lg flex items-center justify-center transition-all disabled:opacity-30 bg-primary text-white shadow-sm hover:bg-primary/90 hover:shadow-md"
-                aria-label="Send"
-              >
-                <Send className="size-3.5" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1 px-2.5 pb-2.5 pt-0 border-t border-border/50">
-              <Chip
-                icon={Paperclip}
-                label={uploading ? (language === "en" ? "Uploading…" : "Téléchargement...") : t.attach}
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-              />
-              <Chip icon={Slash} label={language === "en" ? "Actions" : "Actions"} onClick={onCommandPaletteOpen} />
-              <Chip 
-                icon={isVocalMode ? Mic : MicOff} 
-                label="Vocals" 
-                onClick={toggleVocalMode}
-                active={isVocalMode}
-              />
-              <div className="flex-1" />
-              <span className="text-[10px] font-bold text-muted-foreground tabular-nums select-none px-2">
-                {input.length > 0 ? input.length : ""}
-              </span>
+              </div>
             </div>
           </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            className="hidden"
-            onChange={(e) => e.target.files && handleFiles(e.target.files)}
-          />
-
-          <p className="mt-2 text-center text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.2em] select-none">
-            Mafalia Intelligence Platform
+          <p className="text-center text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] mt-4 select-none">
+            Authorized Intelligence Access Only
           </p>
         </div>
       </div>
+
+      <input 
+        ref={fileInputRef} 
+        type="file" 
+        multiple 
+        className="hidden" 
+        onChange={(e) => {
+          if (e.target.files) handleFiles(e.target.files);
+          e.target.value = '';
+        }} 
+      />
     </div>
+  );
+}
+
+function InputToolBtn({ 
+  icon: Icon, 
+  onClick, 
+  active,
+  ariaLabel
+}: { 
+  icon: any, 
+  onClick: () => void, 
+  active?: boolean,
+  ariaLabel: string
+}) {
+  return (
+    <button 
+      onClick={onClick}
+      className={cn(
+        "size-10 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all",
+        active && "text-primary bg-primary/10"
+      )}
+      aria-label={ariaLabel}
+    >
+      <Icon className="size-4.5" aria-hidden="true" />
+    </button>
   );
 }
 
 function MessageBubble({ msg }: { msg: Message }) {
   const isUser = msg.role === "user";
-  const time = new Date(msg.timestamp).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  const tagShort = msg.agentTag?.replace("[", "").replace("]", "") || "MAFALIA";
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={cn("flex gap-6", isUser ? "flex-row-reverse" : "flex-row")}
+    >
+      {/* Avatar / Icon */}
+      <div className={cn(
+        "size-10 rounded-2xl flex items-center justify-center flex-shrink-0 border",
+        isUser ? "bg-background border-border" : "bg-primary/10 border-primary/20"
+      )}>
+        {isUser ? (
+          <span className="text-[14px] font-bold text-foreground">U</span>
+        ) : (
+          <Sparkles className="size-5 text-primary" />
+        )}
+      </div>
 
-  if (isUser) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-end"
-      >
-        <div className="flex items-center gap-2 mb-1.5 px-1">
-          <span className="text-[10px] text-muted-foreground tabular-nums">{time}</span>
-          <span className="text-[11.5px] font-bold text-foreground">You</span>
+      <div className={cn("flex flex-col space-y-2", isUser ? "items-end" : "items-start")}>
+        <div className="flex items-center gap-3">
+          {!isUser && (
+             <span className="text-[11px] font-black text-primary uppercase tracking-tighter bg-primary/10 px-1.5 py-0.5 rounded">
+               {msg.agentTag?.replace("[", "").replace("]", "") || "INTEL"}
+             </span>
+          )}
+          <span className="text-[11px] font-bold text-muted-foreground tabular-nums">
+            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
         </div>
-        <div className="px-4 py-3 rounded-2xl rounded-tr-sm max-w-[80%] bg-primary text-primary-foreground">
-          <p className="text-[14px] leading-relaxed">{msg.content}</p>
+
+        <div className={cn(
+          "max-w-[85%] text-[15px] leading-relaxed font-medium",
+          isUser ? "text-foreground bg-white dark:bg-white/5 px-5 py-4 rounded-[24px] rounded-tr-none border border-border" : "text-foreground"
+        )}>
+          {isUser ? (
+            <p>{msg.content}</p>
+          ) : (
+            <Markdown content={msg.content} />
+          )}
+
           {msg.attachments && msg.attachments.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-4 flex flex-wrap gap-2">
               {msg.attachments.map((a) => (
-                <span
-                  key={a.url}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/20 text-[11px] font-medium"
-                >
-                  <FileText className="size-3" />
-                  {a.name}
-                </span>
+                <div key={a.url} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary/50 border border-border text-[12px] font-bold">
+                  <FileText className="size-4 text-primary" />
+                  <span>{a.name}</span>
+                </div>
               ))}
             </div>
           )}
         </div>
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-start"
-    >
-      <div className="flex items-center gap-2.5 mb-1.5 px-1">
-        <div className="size-6 rounded-lg flex items-center justify-center bg-primary/8 border border-primary/20">
-          {msg.agentTag === "[MAF]" || !msg.agentTag ? (
-            <Sparkles className="size-3 text-primary" />
-          ) : (
-            <span className="text-[9.5px] font-bold text-primary">{msg.agentTag.slice(1, 4)}</span>
-          )}
-        </div>
-        <span className="text-[12px] font-bold text-primary">{tagShort}</span>
-        <span className="text-[10px] text-muted-foreground tabular-nums">{time}</span>
-      </div>
-      <div className="px-5 py-4 rounded-2xl rounded-tl-sm max-w-[92%] bg-secondary/30 border-l-[3px] border-l-primary">
-        <div className="text-[14px] text-foreground leading-relaxed">
-          <Markdown content={msg.content} />
-        </div>
       </div>
     </motion.div>
-  );
-}
-
-function Chip({
-  icon: Icon,
-  label,
-  onClick,
-  disabled,
-  active,
-}: {
-  icon: LucideIcon;
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-  active?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[11.5px] font-semibold border border-transparent hover:border-border disabled:opacity-50",
-        active && "bg-primary/10 text-primary border-primary/20"
-      )}
-    >
-      <Icon className="size-3.5 opacity-70" />
-      <span>{label}</span>
-    </button>
   );
 }

@@ -6,7 +6,7 @@ const HISTORY_KEY = "mafalia_chat_history";
 export const DEFAULT_CONFIG: Config = {
   provider: "openrouter",
   apiKey: "",
-  model: "z-ai/glm-4.5-air:free",
+  model: "", // No default model, user must choose
   baseUrl: "https://openrouter.ai/api/v1",
   maxTokens: 4096,
   temperature: 0.4,
