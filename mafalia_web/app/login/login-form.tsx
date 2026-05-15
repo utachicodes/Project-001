@@ -180,11 +180,15 @@ export function LoginForm() {
       const supabase = createClient();
       
       if (isSignUp) {
+        // Use NEXT_PUBLIC_SITE_URL if defined, otherwise fallback to window.location.origin
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                       (typeof window !== "undefined" ? window.location.origin : "");
+        
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password: password,
           options: {
-            emailRedirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback?next=${encodeURIComponent(next)}`,
+            emailRedirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(next)}`,
           },
         });
         if (error) throw error;
