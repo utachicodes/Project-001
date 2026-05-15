@@ -16,13 +16,14 @@ import {
   List
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Language } from "@/lib/i18n";
+import { Language, translations } from "@/lib/i18n";
 
 interface FilesViewProps {
   language: Language;
 }
 
 export function FilesView({ language }: FilesViewProps) {
+  const t = translations[language || "en"];
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid");
 
   const files = [
@@ -41,21 +42,23 @@ export function FilesView({ language }: FilesViewProps) {
       <div className="px-8 pt-8 pb-6 border-b border-border bg-background/50 backdrop-blur-md">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-[28px] font-bold tracking-tight">Files Manager</h1>
-            <p className="text-muted-foreground font-medium">All intelligence data and documents</p>
+            <h1 className="text-[28px] font-bold tracking-tight">{t.filesManager}</h1>
+            <p className="text-muted-foreground font-medium">{t.filesSubtitle}</p>
           </div>
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setViewMode("grid")}
               className={cn("p-2 rounded-xl border transition-all", viewMode === "grid" ? "bg-primary text-white border-primary shadow-lg" : "bg-background border-border hover:bg-secondary")}
+              aria-label={t.viewGrid}
             >
-              <LayoutGrid className="size-4" />
+              <LayoutGrid className="size-4" aria-hidden="true" />
             </button>
             <button 
               onClick={() => setViewMode("list")}
               className={cn("p-2 rounded-xl border transition-all", viewMode === "list" ? "bg-primary text-white border-primary shadow-lg" : "bg-background border-border hover:bg-secondary")}
+              aria-label={t.viewList}
             >
-              <List className="size-4" />
+              <List className="size-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -65,13 +68,13 @@ export function FilesView({ language }: FilesViewProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <input 
               type="text" 
-              placeholder="Search documents..." 
+              placeholder={t.searchDocuments} 
               className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2 text-[14px] outline-none focus:border-primary/40 transition-colors"
             />
           </div>
           <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-background hover:bg-secondary text-[13px] font-bold transition-all">
-            <Filter className="size-4" />
-            Filter
+            <Filter className="size-4" aria-hidden="true" />
+            {t.filter}
           </button>
         </div>
       </div>
@@ -89,11 +92,11 @@ export function FilesView({ language }: FilesViewProps) {
              <table className="w-full text-left text-[13px]">
                <thead className="bg-secondary/30 border-b border-border text-muted-foreground font-bold uppercase tracking-wider text-[10px]">
                  <tr>
-                   <th className="px-6 py-3">Name</th>
-                   <th className="px-6 py-3">Size</th>
-                   <th className="px-6 py-3">Modified</th>
-                   <th className="px-6 py-3">Agent</th>
-                   <th className="px-6 py-3 text-right">Actions</th>
+                   <th className="px-6 py-3">{t.name}</th>
+                   <th className="px-6 py-3">{t.size}</th>
+                   <th className="px-6 py-3">{t.modified}</th>
+                   <th className="px-6 py-3">{t.agent}</th>
+                   <th className="px-6 py-3 text-right">{t.actions}</th>
                  </tr>
                </thead>
                <tbody className="divide-y divide-border">

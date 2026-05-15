@@ -47,13 +47,13 @@ export function PlatformOverview({
         {/* Header Section */}
         <div className="flex items-end justify-between mb-2">
           <div>
-            <h1 className="text-[32px] font-bold tracking-tight text-foreground">Intelligence Platform</h1>
-            <p className="text-muted-foreground font-medium">Control center for your AI operations</p>
+            <h1 className="text-[32px] font-bold tracking-tight text-foreground">{t.intelPlatform}</h1>
+            <p className="text-muted-foreground font-medium">{t.controlCenter}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
               <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">System Live</span>
+              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{t.systemLive}</span>
             </div>
           </div>
         </div>
@@ -62,21 +62,21 @@ export function PlatformOverview({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard 
             icon={TrendingUp} 
-            label="Revenue Growth" 
+            label={t.revenueGrowth} 
             value={kpiData?.revenue.value || "$0.00"} 
             trend="+12.5%" 
             color="primary"
           />
           <StatCard 
             icon={Database} 
-            label="Data Processed" 
+            label={t.dataProcessed} 
             value="1.2 TB" 
             trend="+5.2%" 
             color="blue"
           />
           <StatCard 
             icon={ShieldCheck} 
-            label="Security Guard" 
+            label={t.securityGuard} 
             value="Active" 
             subValue="3 Layers" 
             color="emerald"
@@ -89,13 +89,13 @@ export function PlatformOverview({
           {/* Recent Files Section */}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-[18px] font-bold tracking-tight">Recent Data</h2>
-              <button 
-                onClick={onNavigateToFiles}
-                className="text-[12px] font-bold text-primary hover:underline flex items-center gap-1"
-              >
-                View all <ChevronRight className="size-3" />
-              </button>
+              <h2 className="text-[18px] font-bold tracking-tight">{t.recentData}</h2>
+               <button 
+                 onClick={onNavigateToFiles}
+                 className="text-[12px] font-bold text-primary hover:underline flex items-center gap-1"
+               >
+                 {t.viewAll} <ChevronRight className="size-3" />
+               </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {recentFiles.map((file, i) => (
@@ -116,7 +116,7 @@ export function PlatformOverview({
           {/* Intelligence Monitor Section */}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-[18px] font-bold tracking-tight">Intelligence Monitor</h2>
+              <h2 className="text-[18px] font-bold tracking-tight">{t.intelMonitor}</h2>
               <div className="flex items-center gap-2">
                 <Activity className="size-4 text-primary animate-pulse" />
               </div>
@@ -129,7 +129,7 @@ export function PlatformOverview({
               </div>
               <div className="bg-secondary/30 p-3 border-t border-border flex justify-center">
                 <button className="text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest">
-                  View Full Trace
+                  {t.viewFullTrace}
                 </button>
               </div>
             </div>
@@ -138,19 +138,24 @@ export function PlatformOverview({
         </div>
 
         {/* Quick Commands Bar */}
-        <div className="p-6 rounded-2xl bg-primary text-primary-foreground shadow-xl relative overflow-hidden group cursor-pointer" onClick={onNavigateToChat}>
+        <button 
+          type="button"
+          onClick={onNavigateToChat}
+          aria-label={t.openIntelCommand}
+          className="w-full text-left p-6 rounded-2xl bg-primary text-primary-foreground shadow-xl relative overflow-hidden group transition-all hover:shadow-2xl hover:scale-[1.01]"
+        >
           <div className="relative z-10 flex items-center justify-between">
             <div>
-              <h3 className="text-[20px] font-bold mb-1">Open Intelligence Command</h3>
-              <p className="opacity-80 text-[14px]">Communicate with your 11 specialized agents directly.</p>
+              <h3 className="text-[20px] font-bold mb-1">{t.openIntelCommand}</h3>
+              <p className="opacity-80 text-[14px]">{t.commSpecializedAgents}</p>
             </div>
             <div className="size-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md group-hover:scale-110 transition-transform">
-              <Search className="size-6" />
+              <Search className="size-6" aria-hidden="true" />
             </div>
           </div>
           {/* Decorative background element */}
-          <div className="absolute -right-10 -bottom-10 size-40 bg-white/10 rounded-full blur-3xl" />
-        </div>
+          <div className="absolute -right-10 -bottom-10 size-40 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        </button>
 
       </div>
     </div>

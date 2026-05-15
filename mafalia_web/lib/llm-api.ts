@@ -60,7 +60,15 @@ Type /config to open settings.`;
   }
 
   chat(message: string): Promise<{ content: string; modelUsed: string }> {
-    if (!this.hasValidConfig()) throw new Error("API key not configured");
+    if (!this.hasValidConfig()) {
+      const missing = [];
+      if (!this.config?.provider) missing.push("Provider");
+      if (!this.config?.model) missing.push("Model");
+      if (this.config?.provider !== "ollama" && this.config?.provider !== "custom" && !this.config?.apiKey) {
+        missing.push("API Key");
+      }
+      throw new Error(`Configuration incomplete. Missing: ${missing.join(", ")}`);
+    }
 
     // Validation to help users with mismatched keys/providers
     const key = this.config!.apiKey;

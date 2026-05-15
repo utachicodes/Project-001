@@ -162,19 +162,19 @@ export function Sidebar({
           </p>
           <NavBtn 
             icon={Activity} 
-            label="Overview" 
+            label={t.overview} 
             active={activeView === "overview"} 
             onClick={() => onViewChange("overview")} 
           />
           <NavBtn 
             icon={MessageSquare} 
-            label="Chat" 
+            label={t.chat} 
             active={activeView === "chat"} 
             onClick={() => onViewChange("chat")} 
           />
           <NavBtn 
             icon={Package} 
-            label="Files" 
+            label={t.files} 
             active={activeView === "files"} 
             onClick={() => onViewChange("files")} 
           />
@@ -248,22 +248,24 @@ export function Sidebar({
                   <span className="text-[13px] font-bold">New Session</span>
                 </button>
                 {chatHistory.slice(0, 5).map((chat) => (
-                  <div
+                  <button
                     key={chat.id}
                     onClick={() => onLoadChat(chat.id)}
                     className={cn(
-                      "group flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all",
+                      "w-full group flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all border-none outline-none focus:ring-2 focus:ring-primary/20",
                       currentChatId === chat.id ? "bg-secondary text-foreground" : "hover:bg-secondary/50 text-muted-foreground"
                     )}
+                    aria-label={`Load chat ${chat.title}`}
                   >
                     <span className="text-[12.5px] truncate font-medium">{chat.title}</span>
                     <button 
                       onClick={(e) => { e.stopPropagation(); onDeleteChat(chat.id); }}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive"
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive transition-opacity"
+                      aria-label={`Delete chat ${chat.title}`}
                     >
                       <Trash2 className="size-3" />
                     </button>
-                  </div>
+                  </button>
                 ))}
               </motion.div>
             )}

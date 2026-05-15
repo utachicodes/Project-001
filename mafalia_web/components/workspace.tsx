@@ -408,8 +408,12 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
         language={config.language}
         onSelect={(cmd, needsArgs) => {
           setShowCmdPalette(false);
-          if (needsArgs) setPendingInput(cmd);
-          else handleSendMessage(cmd);
+          if (needsArgs) {
+            setPendingInput(cmd);
+            setActiveView("chat");
+          } else {
+            handleSendMessage(cmd);
+          }
         }}
       />
 

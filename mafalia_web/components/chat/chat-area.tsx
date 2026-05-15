@@ -76,6 +76,11 @@ export function ChatArea({
   const [isVocalMode, setIsVocalMode] = React.useState(false);
   const [isListening, setIsListening] = React.useState(false);
   const [isSpeaking, setIsSpeaking] = React.useState(false);
+  const isVocalModeRef = React.useRef(isVocalMode);
+
+  React.useEffect(() => {
+    isVocalModeRef.current = isVocalMode;
+  }, [isVocalMode]);
 
   const isWelcome =
     messages.length === 0 || (messages.length === 1 && !messages[0].content);
@@ -97,7 +102,7 @@ export function ChatArea({
       voiceService.speak(lastMsg.content, getVoiceLang(language), () => {
         setIsSpeaking(false);
         // Automatically start listening again after speaking
-        if (isVocalMode) startVoiceRecording();
+        if (isVocalModeRef.current) startVoiceRecording();
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -342,8 +347,12 @@ export function ChatArea({
                   <div key={a.path} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary text-[12px] font-bold">
                     <FileText className="size-3.5 text-primary" />
                     <span className="truncate max-w-[120px]">{a.name}</span>
-                    <button onClick={() => setAttachments(prev => prev.filter(x => x.path !== a.path))} className="hover:text-destructive">
-                      <X className="size-3" />
+                    <button 
+                      onClick={() => setAttachments(prev => prev.filter(x => x.path !== a.path))} 
+                      className="hover:text-destructive"
+                      aria-label={t.removeAttachment}
+                    >
+                      <X className="size-3" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -364,17 +373,32 @@ export function ChatArea({
                 />
               </div>
               <div className="flex items-center gap-1.5 pb-2 pr-2">
-                 <InputToolBtn icon={Paperclip} onClick={() => fileInputRef.current?.click()} active={uploading} />
-                 <InputToolBtn icon={Slash} onClick={onCommandPaletteOpen} />
-                 <InputToolBtn icon={isVocalMode ? Mic : MicOff} onClick={toggleVocalMode} active={isVocalMode} />
-                 <div className="w-[1px] h-6 bg-border mx-1" />
-                 <button
-                   onClick={handleSubmit}
-                   disabled={(!input.trim() && attachments.length === 0) || isLoading}
-                   className="size-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
-                 >
-                   <Send className="size-4" />
-                 </button>
+                  <InputToolBtn 
+                    icon={Paperclip} 
+                    onClick={() => fileInputRef.current?.click()} 
+                    active={uploading} 
+                    ariaLabel={t.uploadFile}
+                  />
+                  <InputToolBtn 
+                    icon={Slash} 
+                    onClick={onCommandPaletteOpen} 
+                    ariaLabel={t.openCommands}
+                  />
+                  <InputToolBtn 
+                    icon={isVocalMode ? Mic : MicOff} 
+                    onClick={toggleVocalMode} 
+                    active={isVocalMode} 
+                    ariaLabel={t.toggleVoice}
+                  />
+                  <div className="w-[1px] h-6 bg-border mx-1" />
+                  <button
+                    onClick={handleSubmit}
+                    disabled={(!input.trim() && attachments.length === 0) || isLoading}
+                    className="size-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+                    aria-label={t.sendMessage}
+                  >
+                    <Send className="size-4" aria-hidden="true" />
+                  </button>
               </div>
             </div>
           </div>
@@ -384,12 +408,31 @@ export function ChatArea({
         </div>
       </div>
 
-      <input ref={fileInputRef} type="file" multiple className="hidden" onChange={(e) => e.target.files && handleFiles(e.target.files)} />
+      <input 
+        ref={fileInputRef} 
+        type="file" 
+        multiple 
+        className="hidden" 
+        onChange={(e) => {
+          if (e.target.files) handleFiles(e.target.files);
+          e.target.value = '';
+        }} 
+      />
     </div>
   );
 }
 
-function InputToolBtn({ icon: Icon, onClick, active }: { icon: any, onClick: () => void, active?: boolean }) {
+function InputToolBtn({ 
+  icon: Icon, 
+  onClick, 
+  active,
+  ariaLabel
+}: { 
+  icon: any, 
+  onClick: () => void, 
+  active?: boolean,
+  ariaLabel: string
+}) {
   return (
     <button 
       onClick={onClick}
@@ -397,8 +440,9 @@ function InputToolBtn({ icon: Icon, onClick, active }: { icon: any, onClick: () 
         "size-10 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all",
         active && "text-primary bg-primary/10"
       )}
+      aria-label={ariaLabel}
     >
-      <Icon className="size-4.5" />
+      <Icon className="size-4.5" aria-hidden="true" />
     </button>
   );
 }

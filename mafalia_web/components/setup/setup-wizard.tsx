@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { translations, type Language } from "@/lib/i18n";
 import { ProviderSelector, ALL_PROVIDERS } from "./provider-selector";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface SetupWizardProps {
   open: boolean;
@@ -45,6 +46,19 @@ export function SetupWizard({ open, config, language, onSave, onClose }: SetupWi
   const [baseUrl, setBaseUrl] = React.useState(config?.baseUrl || "");
   const [isSaving, setIsSaving] = React.useState(false);
 
+  // Validate model against provider
+  React.useEffect(() => {
+    if (!provider) return;
+    const p = ALL_PROVIDERS.find(x => x.id === provider);
+    if (!p) return;
+    const allModels = [...p.freeModels, ...p.paidModels];
+    const isValid = allModels.some(m => m.id === model);
+    if (!isValid && model !== "" && provider !== "custom") {
+      // If model is invalid for provider, reset to first free model or empty
+      setModel(p.freeModels[0]?.id || p.paidModels[0]?.id || "");
+    }
+  }, [provider, model]);
+
   const currentProvider = ALL_PROVIDERS.find((p) => p.id === provider);
   const selectedModel =
     currentProvider?.freeModels.find((m) => m.id === model) ||
@@ -57,6 +71,14 @@ export function SetupWizard({ open, config, language, onSave, onClose }: SetupWi
       setStep(2);
       return;
     }
+    const isSupported = (provider === "custom") || 
+      [...(currentProvider?.freeModels || []), ...(currentProvider?.paidModels || [])].some(m => m.id === model);
+
+    if (!isSupported) {
+      toast.error(language === "en" ? "Selected model is not supported by this provider." : "Le modèle sélectionné n'est pas supporté par ce fournisseur.");
+      return;
+    }
+
     setIsSaving(true);
     await new Promise((r) => setTimeout(r, 300));
     let resolvedBaseUrl = baseUrl.trim();
