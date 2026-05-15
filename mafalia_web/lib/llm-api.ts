@@ -2,27 +2,10 @@ import type { Config } from "./types";
 import { PROVIDERS } from "./types";
 
 const MODEL_STRATEGIES = {
-  simple: {
-    models: ["google/gemini-2.0-flash-exp:free", "gemini-2.0-flash-exp", "gpt-4o-mini"],
-    description: "Quick responses for simple questions",
-  },
-  analytics: {
-    models: [
-      "google/gemini-2.5-pro-exp-03-25:free",
-      "gemini-2.5-pro-exp-03-25",
-      "gpt-4o",
-      "claude-sonnet-4-20250514",
-    ],
-    description: "Deep analysis for business data",
-  },
-  complex: {
-    models: ["anthropic/claude-3.5-sonnet", "gpt-4o", "gemini-1.5-pro"],
-    description: "Complex reasoning and strategy",
-  },
-  code: {
-    models: ["deepseek/deepseek-chat:free", "gpt-4o", "claude-3-5-sonnet-20241022"],
-    description: "Technical and code-related queries",
-  },
+  simple: { description: "Quick responses for simple questions" },
+  analytics: { description: "Deep analysis for business data" },
+  complex: { description: "Complex reasoning and strategy" },
+  code: { description: "Technical and code-related queries" },
 } as const;
 
 const QUERY_PATTERNS = {
@@ -76,32 +59,7 @@ Type /config to open settings.`;
     return "analytics";
   }
 
-  getOptimalModel(strategy: Strategy): string {
-    if (!this.config) return "gpt-4o-mini";
-    const strategyModels = MODEL_STRATEGIES[strategy].models as readonly string[];
-    if (strategyModels.includes(this.config.model)) return this.config.model;
-
-    const provider = PROVIDERS.find((p) => p.id === this.config!.provider);
-    if (!provider) return this.config.model;
-
-    if (this.config.provider === "openrouter") {
-      const free = strategyModels.find((m) => m.includes(":free"));
-      return free || strategyModels[0];
-    }
-    const availableMatch = strategyModels.find((m) =>
-      provider.models.some((pm) => m.includes(pm) || pm.includes(m)),
-    );
-
-    if (availableMatch && this.config.provider !== "openrouter") {
-      // Return the native ID that matched instead of the OpenRouter-formatted ID
-      const native = provider.models.find((pm) => availableMatch.includes(pm) || pm.includes(availableMatch));
-      return native || availableMatch;
-    }
-
-    return availableMatch || this.config.model;
-  }
-
-  async chat(message: string): Promise<{ content: string; modelUsed: string }> {
+  chat(message: string): Promise<{ content: string; modelUsed: string }> {
     if (!this.hasValidConfig()) throw new Error("API key not configured");
 
     // Validation to help users with mismatched keys/providers
@@ -115,10 +73,11 @@ Type /config to open settings.`;
     }
 
     const strategy = this.selectModelStrategy(message);
-    const model = this.getOptimalModel(strategy);
+    const model = this.config!.model; // Always use the user's selected model
     const systemPrompt = this.buildSystemPrompt(strategy);
-    const content = await this.callProvider(this.config!.provider, model, systemPrompt, message);
-    return { content, modelUsed: model };
+    
+    return this.callProvider(provider, model, systemPrompt, message)
+      .then(content => ({ content, modelUsed: model }));
   }
 
   private buildSystemPrompt(strategy: Strategy): string {

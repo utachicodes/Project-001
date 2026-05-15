@@ -39,6 +39,7 @@ import {
   Layers,
   Users,
   Activity,
+  Cpu,
   type LucideIcon,
 } from "lucide-react";
 import type { Agent, ChatSession } from "@/lib/types";
@@ -96,6 +97,8 @@ interface SidebarProps {
   alerts: AlertItem[];
   loadingMetrics: boolean;
   language: Language;
+  activeView: "overview" | "chat" | "files";
+  onViewChange: (view: "overview" | "chat" | "files") => void;
   onAgentClick: (agentId: string) => void;
   onKpiClick: (cmd: string) => void;
   onSettingsClick: () => void;
@@ -115,15 +118,12 @@ export function Sidebar({
   userEmail,
   chatHistory,
   currentChatId,
-  kpiData,
-  alerts,
-  loadingMetrics,
+  activeView,
+  onViewChange,
   onAgentClick,
-  onKpiClick,
   onSettingsClick,
   onPrivacyClick,
   onCommandPaletteOpen,
-  onQuickAction,
   onNewChat,
   onLoadChat,
   onDeleteChat,
@@ -132,133 +132,66 @@ export function Sidebar({
   language,
 }: SidebarProps) {
   const t = translations[language || "en"];
-  const [showHistory, setShowHistory] = React.useState(false);
-  const [showTools, setShowTools] = React.useState(true);
   const [showAgents, setShowAgents] = React.useState(true);
-  const [time, setTime] = React.useState("");
-  const [tipIndex] = React.useState(() => Math.floor(Math.random() * DAILY_TIPS.length));
-
-  React.useEffect(() => {
-    const tick = () => {
-      setTime(
-        new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-      );
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const kpi = kpiData ?? EMPTY_KPI;
-  const kpiKeys = Object.keys(KPI_COMMANDS) as (keyof KpiData)[];
+  const [showHistory, setShowHistory] = React.useState(true);
 
   return (
-    <aside className="w-[300px] min-w-[300px] h-full flex flex-col bg-background border-r border-border overflow-hidden">
-      {/* ── Header ── */}
-      <div className="px-4 py-3 border-b border-border">
-        <Link href="/" className="flex items-center justify-center hover:opacity-80 transition-opacity">
-          <div className="relative w-8 h-8 flex-shrink-0">
+    <aside className="w-[280px] min-w-[280px] h-full flex flex-col bg-background border-r border-border overflow-hidden select-none">
+      {/* ── Brand ── */}
+      <div className="px-6 py-6">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform">
             <Image
               src="/mafalia-logo.png"
               alt="Mafalia"
-              width={32}
-              height={32}
+              width={24}
+              height={24}
               className="object-contain"
             />
           </div>
+          <span className="text-[18px] font-bold tracking-tight text-foreground">Mafalia</span>
         </Link>
       </div>
 
-      {/* ── Business Pulse ── */}
-      <div className="px-4 py-3 border-b border-border">
-        <div className="grid grid-cols-2 gap-2">
-          {kpiKeys.map((key) => {
-            const m = kpi[key];
-            const labels = getKpiLabels(language);
-            return (
-              <button
-                key={key}
-                onClick={() => onKpiClick(KPI_COMMANDS[key])}
-                className="rounded-lg border border-border bg-secondary/30 px-2 py-1.5 hover:bg-secondary hover:border-primary/30 transition-all text-left"
-              >
-                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">
-                  {labels[key]}
-                </p>
-                <p className="text-[13px] font-bold text-foreground tabular-nums">{m.value}</p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Main Actions ── */}
-      <div className="px-4 py-3 space-y-2">
-        <button
-          onClick={onNewChat}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-semibold text-[13px] bg-primary shadow-sm hover:bg-primary/90 transition-all"
-        >
-          <Plus className="size-4" strokeWidth={2.5} />
-          <span>{t.newSession}</span>
-        </button>
-        <button
-          onClick={onCommandPaletteOpen}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary hover:bg-accent text-muted-foreground transition-colors border border-border/80"
-        >
-          <Search className="size-3.5" />
-          <span className="flex-1 text-left text-[12px] font-medium">{t.searchPlaceholder}</span>
-          <kbd className="inline-flex h-5 px-1.5 items-center rounded border border-border bg-background font-mono text-[10px]">
-            /
-          </kbd>
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin px-2 space-y-4 pt-2">
-        {/* Deep Tools */}
+      <div className="flex-1 overflow-y-auto scrollbar-none px-4 space-y-8">
+        
+        {/* ── Operations Layer ── */}
         <div className="space-y-1">
-          <button
-            onClick={() => setShowTools(!showTools)}
-            className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
-          >
-            <div className="flex items-center gap-1.5">
-              <Zap className="size-3" />
-              <span>{t.specialOperations}</span>
-            </div>
-            <motion.div animate={{ rotate: showTools ? 90 : 0 }}>
-              <ChevronRight className="size-3" />
-            </motion.div>
-          </button>
-          <AnimatePresence>
-            {showTools && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden space-y-0.5"
-              >
-                <QuickBtn icon={ShieldAlert} label={t.bizHealth} onClick={() => onQuickAction("summary")} />
-                <QuickBtn icon={Target} label={t.revPulse} onClick={() => onQuickAction("metrics")} />
-                <QuickBtn icon={Layers} label={t.campForge} onClick={() => onQuickAction("create")} />
-                <QuickBtn icon={Globe} label={t.marketIntel} onClick={() => onQuickAction("research")} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <p className="px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-60">
+            Operations
+          </p>
+          <NavBtn 
+            icon={Activity} 
+            label="Overview" 
+            active={activeView === "overview"} 
+            onClick={() => onViewChange("overview")} 
+          />
+          <NavBtn 
+            icon={MessageSquare} 
+            label="Chat" 
+            active={activeView === "chat"} 
+            onClick={() => onViewChange("chat")} 
+          />
+          <NavBtn 
+            icon={Package} 
+            label="Files" 
+            active={activeView === "files"} 
+            onClick={() => onViewChange("files")} 
+          />
         </div>
 
-        {/* Agents */}
+        {/* ── Intelligence Core ── */}
         <div className="space-y-1">
           <button
             onClick={() => setShowAgents(!showAgents)}
-            className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
+            className="w-full flex items-center justify-between px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-60 hover:opacity-100 transition-opacity"
           >
-            <div className="flex items-center gap-1.5">
-              <Users className="size-3" />
-              <span>{t.intelligenceSquad}</span>
-            </div>
+            <span>Intelligence Core</span>
             <motion.div animate={{ rotate: showAgents ? 90 : 0 }}>
               <ChevronRight className="size-3" />
             </motion.div>
           </button>
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {showAgents && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
@@ -266,24 +199,18 @@ export function Sidebar({
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden space-y-0.5"
               >
-                {agents.map((agent) => {
+                {agents.slice(0, 5).map((agent) => {
                   const Icon = AGENT_ICONS[agent.id];
                   return (
                     <button
                       key={agent.id}
                       onClick={() => onAgentClick(agent.id)}
-                      className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-secondary transition-colors group"
+                      className="w-full flex items-center gap-3 px-3 py-1.5 rounded-xl hover:bg-secondary transition-colors group"
                     >
-                      <div className="size-6 rounded-md flex items-center justify-center flex-shrink-0 bg-secondary group-hover:bg-background border border-border/50">
-                        {Icon ? (
-                          <Icon className="size-3 text-muted-foreground group-hover:text-primary transition-colors" />
-                        ) : (
-                          <span className="text-[9px] font-bold text-muted-foreground">
-                            {agent.tag.slice(1, 4)}
-                          </span>
-                        )}
+                      <div className="size-5 rounded-md flex items-center justify-center bg-secondary group-hover:bg-primary/10 transition-colors">
+                        {Icon ? <Icon className="size-3 text-muted-foreground group-hover:text-primary" /> : <Cpu className="size-3" />}
                       </div>
-                      <span className="text-[12px] font-medium text-muted-foreground group-hover:text-foreground transition-colors truncate">
+                      <span className="text-[13px] font-medium text-muted-foreground group-hover:text-foreground">
                         {agent.name}
                       </span>
                     </button>
@@ -294,142 +221,110 @@ export function Sidebar({
           </AnimatePresence>
         </div>
 
-        {/* Sessions */}
+        {/* ── Sessions History ── */}
         <div className="space-y-1">
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
+            className="w-full flex items-center justify-between px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-60 hover:opacity-100 transition-opacity"
           >
-            <div className="flex items-center gap-1.5">
-              <History className="size-3.5" />
-              <span>{t.sessions}</span>
-              {chatHistory.length > 0 && (
-                <span className="ml-1 text-[9px] px-1 py-0 rounded-full bg-secondary border border-border">
-                  {chatHistory.length}
-                </span>
-              )}
-            </div>
+            <span>Sessions</span>
             <motion.div animate={{ rotate: showHistory ? 90 : 0 }}>
               <ChevronRight className="size-3" />
             </motion.div>
           </button>
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {showHistory && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden space-y-0.5"
+                className="overflow-hidden space-y-1"
               >
-                {chatHistory.map((chat) => {
-                  const active = currentChatId === chat.id;
-                  return (
-                    <div
-                      key={chat.id}
-                      onClick={() => onLoadChat(chat.id)}
-                      className={cn(
-                        "group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-colors",
-                        active ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-muted-foreground hover:text-foreground",
-                      )}
+                <button
+                  onClick={onNewChat}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-primary/5 hover:bg-primary/10 text-primary transition-colors mb-2"
+                >
+                  <Plus className="size-4" />
+                  <span className="text-[13px] font-bold">New Session</span>
+                </button>
+                {chatHistory.slice(0, 5).map((chat) => (
+                  <div
+                    key={chat.id}
+                    onClick={() => onLoadChat(chat.id)}
+                    className={cn(
+                      "group flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all",
+                      currentChatId === chat.id ? "bg-secondary text-foreground" : "hover:bg-secondary/50 text-muted-foreground"
+                    )}
+                  >
+                    <span className="text-[12.5px] truncate font-medium">{chat.title}</span>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onDeleteChat(chat.id); }}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive"
                     >
-                      <span className="text-[11.5px] truncate font-medium">{chat.title}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteChat(chat.id);
-                        }}
-                        className={cn(
-                          "opacity-0 group-hover:opacity-100 p-1 rounded transition-all",
-                          active ? "hover:bg-white/20" : "hover:bg-destructive/10 hover:text-destructive",
-                        )}
-                      >
-                        <Trash2 className="size-3" />
-                      </button>
-                    </div>
-                  );
-                })}
+                      <Trash2 className="size-3" />
+                    </button>
+                  </div>
+                ))}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
 
-      {/* ── Live Alerts ── */}
-      <div className="px-4 py-2.5 border-t border-border bg-secondary/30">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5">
-            <Bell className="size-3 text-muted-foreground" />
-            <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-widest">
-              {t.liveAlerts}
-            </p>
-          </div>
-          {loadingMetrics && <Loader2 className="size-3 animate-spin text-muted-foreground" />}
-        </div>
-        <div className="space-y-1.5">
-          {alerts.slice(0, 2).map((alert, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <span className={cn("mt-1 size-1 rounded-full flex-shrink-0", alert.type === "warning" ? "bg-amber-400" : "bg-emerald-400")} />
-              <p className="text-[10px] text-muted-foreground leading-tight">{alert.text}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-2.5 pt-2 border-t border-border/60 flex items-start gap-1.5">
-          <Lightbulb className="size-3 text-amber-400 flex-shrink-0 mt-0.5" />
-          <p className="text-[9.5px] text-muted-foreground leading-tight italic">
-            {DAILY_TIPS[tipIndex]}
-          </p>
-        </div>
-      </div>
-
       {/* ── Footer ── */}
-      <div className="p-3 border-t border-border bg-secondary/20">
-        <div className="flex items-center justify-between mb-3 px-1">
-          <div className="flex items-center gap-2">
-            <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
+      <div className="p-4 border-t border-border bg-secondary/10 space-y-4">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-3">
+            <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-[12px] font-bold text-primary">
               {userEmail?.[0]?.toUpperCase()}
             </div>
-            <span className="text-[10.5px] font-bold text-muted-foreground truncate max-w-[100px]">
-              {userEmail?.split("@")[0]}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-[13px] font-bold text-foreground leading-none">{userEmail?.split("@")[0]}</span>
+              <span className="text-[10px] font-medium text-muted-foreground mt-1">Free Plan</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <ThemeToggle />
-            <button onClick={onRefreshMetrics} disabled={loadingMetrics} className="p-1 rounded text-muted-foreground hover:text-foreground">
-              <RefreshCw className={cn("size-3", loadingMetrics && "animate-spin")} />
-            </button>
-            <button onClick={onSettingsClick} className="p-1 rounded text-muted-foreground hover:text-foreground">
-              <Settings className="size-3" />
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={onPrivacyClick} className="flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] font-bold bg-secondary hover:bg-background border border-border text-muted-foreground">
-            <ShieldCheck className="size-3" />
-            <span>{t.privacy}</span>
-          </button>
-          <button onClick={onSignOut} className="flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] font-bold bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all border border-destructive/20">
-            <LogOut className="size-3" />
-            <span>{t.signOut}</span>
+          <button onClick={onSettingsClick} className="p-2 rounded-xl hover:bg-secondary text-muted-foreground transition-colors">
+            <Settings className="size-4" />
           </button>
         </div>
-
-        <div className="mt-3 flex items-center justify-between px-1">
-          <div className="flex items-center gap-1.5">
-            <span
-              className={cn(
-                "size-1 rounded-full",
-                status.toLowerCase().includes("ready") ? "bg-emerald-500 animate-pulse-soft" : "bg-muted-foreground/40",
-              )}
-            />
-            <span className="text-[9px] font-bold text-muted-foreground uppercase">{status}</span>
-          </div>
-          <span className="text-[9px] font-mono text-muted-foreground/60">{time}</span>
+        
+        <div className="flex items-center gap-2">
+          <button onClick={onSignOut} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-destructive/5 text-destructive text-[12px] font-bold hover:bg-destructive hover:text-white transition-all border border-destructive/10">
+            <LogOut className="size-4" />
+            <span>Sign Out</span>
+          </button>
+          <ThemeToggle />
         </div>
       </div>
     </aside>
   );
 }
+
+function NavBtn({ 
+  icon: Icon, 
+  label, 
+  active, 
+  onClick 
+}: { 
+  icon: any, 
+  label: string, 
+  active?: boolean, 
+  onClick: () => void 
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
+        active ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-secondary text-muted-foreground hover:text-foreground"
+      )}
+    >
+      <Icon className={cn("size-4.5 transition-transform", active ? "scale-110" : "group-hover:scale-105")} />
+      <span className="text-[14px] font-bold">{label}</span>
+    </button>
+  );
+}
+
 
 function QuickBtn({
   icon: Icon,

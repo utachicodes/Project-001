@@ -40,7 +40,7 @@ export function SetupWizard({ open, config, language, onSave, onClose }: SetupWi
   const t = translations[language || "en"];
   const [step, setStep] = React.useState(1);
   const [provider, setProvider] = React.useState(config?.provider || "openrouter");
-  const [model, setModel] = React.useState(config?.model || "z-ai/glm-4.5-air:free");
+  const [model, setModel] = React.useState(config?.model || "");
   const [apiKey, setApiKey] = React.useState(config?.apiKey || "");
   const [baseUrl, setBaseUrl] = React.useState(config?.baseUrl || "");
   const [isSaving, setIsSaving] = React.useState(false);
@@ -329,7 +329,7 @@ export function SetupWizard({ open, config, language, onSave, onClose }: SetupWi
               <Button
                 variant="mafalia"
                 onClick={handleSave}
-                disabled={(needsApiKey && !apiKey.trim()) || isSaving}
+                disabled={(needsApiKey && !apiKey.trim()) || !model || isSaving}
               >
                 {isSaving ? (
                   <>

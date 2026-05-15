@@ -52,7 +52,7 @@ export const PROVIDERS: Provider[] = [
     baseUrl: "https://openrouter.ai/api/v1",
     models: [
       "google/gemini-2.0-flash-exp:free",
-      "google/gemini-2.5-pro-exp-03-25:free",
+      "google/gemini-2.0-pro-exp-02-05:free",
       "z-ai/glm-4.5-air:free",
       "meta-llama/llama-3.2-11b-vision-instruct:free",
       "deepseek/deepseek-chat:free",
@@ -64,7 +64,7 @@ export const PROVIDERS: Provider[] = [
     id: "google",
     name: "Google (Gemini — Free Tier)",
     baseUrl: "https://generativelanguage.googleapis.com/v1beta",
-    models: ["gemini-2.0-flash-exp", "gemini-2.5-pro-exp-03-25", "gemini-1.5-flash", "gemini-1.5-pro"],
+    models: ["gemini-2.0-flash-exp", "gemini-2.0-pro-exp-02-05", "gemini-1.5-flash", "gemini-1.5-pro"],
   },
   {
     id: "openai",
