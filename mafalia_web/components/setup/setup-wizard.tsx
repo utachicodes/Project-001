@@ -46,20 +46,68 @@ export function SetupWizard({ open, config, language, onSave, onClose }: SetupWi
   const [baseUrl, setBaseUrl] = React.useState(config?.baseUrl || "");
   const [isSaving, setIsSaving] = React.useState(false);
 
-  // Validate model against provider
+  const [dynamicProviders, setDynamicProviders] = React.useState(ALL_PROVIDERS);
+  const [loadingModels, setLoadingModels] = React.useState(false);
+
+  // Fetch OpenRouter models dynamically
+  React.useEffect(() => {
+    async function fetchOpenRouterModels() {
+      setLoadingModels(true);
+      try {
+        const res = await fetch("https://openrouter.ai/api/v1/models");
+        if (!res.ok) throw new Error("Failed to fetch models");
+        const { data } = await res.json();
+        
+        if (Array.isArray(data)) {
+          const orModels = data.map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            description: m.description || "OpenRouter AI model",
+            isFree: parseFloat(m.pricing?.prompt || "1") === 0,
+            contextLength: `${Math.floor(m.context_length / 1024)}K`,
+            strengths: [m.id.split("/")[0], "API"],
+          }));
+
+          setDynamicProviders(prev => prev.map(p => {
+            if (p.id === "openrouter") {
+              return {
+                ...p,
+                freeModels: orModels.filter(m => m.isFree),
+                paidModels: orModels.filter(m => !m.isFree),
+              };
+            }
+            return p;
+          }));
+        }
+      } catch (err) {
+        console.error("OpenRouter fetch error:", err);
+      } finally {
+        setLoadingModels(false);
+      }
+    }
+
+    fetchOpenRouterModels();
+  }, []);
+
+  // Validate model against provider and set defaults
   React.useEffect(() => {
     if (!provider) return;
-    const p = ALL_PROVIDERS.find(x => x.id === provider);
+    const p = dynamicProviders.find(x => x.id === provider);
     if (!p) return;
+    
     const allModels = [...p.freeModels, ...p.paidModels];
     const isValid = allModels.some(m => m.id === model);
-    if (!isValid && model !== "" && provider !== "custom") {
-      // If model is invalid for provider, reset to first free model or empty
-      setModel(p.freeModels[0]?.id || p.paidModels[0]?.id || "");
+    
+    // If model is invalid for provider OR empty, reset to first available model
+    if ((!isValid || model === "") && provider !== "custom") {
+      const defaultModel = p.freeModels[0]?.id || p.paidModels[0]?.id || "";
+      if (defaultModel && model !== defaultModel) {
+        setModel(defaultModel);
+      }
     }
-  }, [provider, model]);
+  }, [provider, model, dynamicProviders]);
 
-  const currentProvider = ALL_PROVIDERS.find((p) => p.id === provider);
+  const currentProvider = dynamicProviders.find((p) => p.id === provider);
   const selectedModel =
     currentProvider?.freeModels.find((m) => m.id === model) ||
     currentProvider?.paidModels.find((m) => m.id === model);
@@ -180,6 +228,8 @@ export function SetupWizard({ open, config, language, onSave, onClose }: SetupWi
                 onProviderChange={setProvider}
                 onModelChange={setModel}
                 onApiKeyChange={setApiKey}
+                providers={dynamicProviders}
+                loading={loadingModels}
               />
             </div>
           )}

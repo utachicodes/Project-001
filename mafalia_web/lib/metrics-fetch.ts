@@ -51,9 +51,16 @@ export async function fetchLiveMetrics(
   const cleaned = raw
     .replace(/^```[\w]*\n?/, "")
     .replace(/\n?```$/, "")
+    .replace(/^\{/, "{") // Ensure it starts with {
     .trim();
 
-  const data = JSON.parse(cleaned);
+  let data: any;
+  try {
+    data = JSON.parse(cleaned);
+  } catch (err) {
+    console.error("fetchLiveMetrics JSON parse error:", err, "Raw content:", raw);
+    return { kpi: EMPTY_KPI, alerts: [] };
+  }
 
   const kpi: KpiData = {
     revenue: {

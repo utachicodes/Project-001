@@ -120,6 +120,8 @@ interface ProviderSelectorProps {
   onProviderChange: (provider: string) => void;
   onModelChange: (model: string) => void;
   onApiKeyChange: (key: string) => void;
+  providers?: ProviderInfo[];
+  loading?: boolean;
 }
 
 export function ProviderSelector({
@@ -129,12 +131,14 @@ export function ProviderSelector({
   onProviderChange,
   onModelChange,
   onApiKeyChange,
+  providers = ALL_PROVIDERS,
+  loading = false,
 }: ProviderSelectorProps) {
   const [expandedProvider, setExpandedProvider] = React.useState<string | null>(selectedProvider);
   const [showFreeOnly, setShowFreeOnly] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  const filtered = ALL_PROVIDERS.filter((p) => {
+  const filtered = providers.filter((p) => {
     if (!searchQuery) return true;
     return [...p.freeModels, ...p.paidModels].some(
       (m) =>
@@ -213,6 +217,9 @@ export function ProviderSelector({
                       <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[9.5px] font-bold border border-emerald-500/25">
                         {provider.freeModels.length} FREE
                       </span>
+                    )}
+                    {provider.id === "openrouter" && loading && (
+                      <Sparkles className="size-3 text-primary animate-pulse" />
                     )}
                   </div>
                   <p className="text-[11.5px] text-muted-foreground truncate">{provider.description}</p>

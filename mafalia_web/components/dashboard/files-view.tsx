@@ -20,20 +20,12 @@ import { Language, translations } from "@/lib/i18n";
 
 interface FilesViewProps {
   language: Language;
+  files: any[];
 }
 
-export function FilesView({ language }: FilesViewProps) {
+export function FilesView({ language, files }: FilesViewProps) {
   const t = translations[language || "en"];
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid");
-
-  const files = [
-    { id: 1, name: "Q4_Revenue_Forecast.xlsx", type: "excel", size: "2.4 MB", date: "2 hours ago", agent: "SANA" },
-    { id: 2, name: "Market_Intelligence_Report.pdf", type: "pdf", size: "1.8 MB", date: "5 hours ago", agent: "LUNA" },
-    { id: 3, name: "Customer_Segments_2025.csv", type: "csv", size: "850 KB", date: "Yesterday", agent: "OMAR" },
-    { id: 4, name: "Automation_Workflow.json", type: "code", size: "12 KB", date: "2 days ago", agent: "RAVI" },
-    { id: 5, name: "Brand_Identity_Brief.docx", type: "doc", size: "120 KB", date: "3 days ago", agent: "NALA" },
-    { id: 6, name: "Operations_Audit.pdf", type: "pdf", size: "4.2 MB", date: "1 week ago", agent: "KOFI" },
-  ];
 
   return (
     <div className="flex-1 h-full flex flex-col bg-[#F9F9F9] dark:bg-[#0A0A0A] overflow-hidden">
@@ -81,47 +73,59 @@ export function FilesView({ language }: FilesViewProps) {
 
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto p-8 scrollbar-none">
-        {viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {files.map((file) => (
-              <FileCard key={file.id} file={file} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-border bg-background overflow-hidden shadow-sm">
-             <table className="w-full text-left text-[13px]">
-               <thead className="bg-secondary/30 border-b border-border text-muted-foreground font-bold uppercase tracking-wider text-[10px]">
-                 <tr>
-                   <th className="px-6 py-3">{t.name}</th>
-                   <th className="px-6 py-3">{t.size}</th>
-                   <th className="px-6 py-3">{t.modified}</th>
-                   <th className="px-6 py-3">{t.agent}</th>
-                   <th className="px-6 py-3 text-right">{t.actions}</th>
-                 </tr>
-               </thead>
-               <tbody className="divide-y divide-border">
-                 {files.map((file) => (
-                   <tr key={file.id} className="hover:bg-secondary/20 transition-colors group">
-                     <td className="px-6 py-4 flex items-center gap-3 font-bold">
-                       <FileText className="size-4 text-primary" />
-                       {file.name}
-                     </td>
-                     <td className="px-6 py-4 text-muted-foreground font-medium">{file.size}</td>
-                     <td className="px-6 py-4 text-muted-foreground font-medium">{file.date}</td>
-                     <td className="px-6 py-4">
-                        <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-black text-[9px]">
-                          {file.agent}
-                        </span>
-                     </td>
-                     <td className="px-6 py-4 text-right">
-                        <button className="p-1 rounded hover:bg-secondary">
-                          <MoreVertical className="size-4 text-muted-foreground" />
-                        </button>
-                     </td>
+        {files.length > 0 ? (
+          viewMode === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {files.map((file) => (
+                <FileCard key={file.id} file={file} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-border bg-background overflow-hidden shadow-sm">
+               <table className="w-full text-left text-[13px]">
+                 <thead className="bg-secondary/30 border-b border-border text-muted-foreground font-bold uppercase tracking-wider text-[10px]">
+                   <tr>
+                     <th className="px-6 py-3">{t.name}</th>
+                     <th className="px-6 py-3">{t.size}</th>
+                     <th className="px-6 py-3">{t.modified}</th>
+                     <th className="px-6 py-3">{t.agent}</th>
+                     <th className="px-6 py-3 text-right">{t.actions}</th>
                    </tr>
-                 ))}
-               </tbody>
-             </table>
+                 </thead>
+                 <tbody className="divide-y divide-border">
+                   {files.map((file) => (
+                     <tr key={file.id} className="hover:bg-secondary/20 transition-colors group">
+                       <td className="px-6 py-4 flex items-center gap-3 font-bold">
+                         <FileText className="size-4 text-primary" />
+                         {file.name}
+                       </td>
+                       <td className="px-6 py-4 text-muted-foreground font-medium">{file.size}</td>
+                       <td className="px-6 py-4 text-muted-foreground font-medium">{file.date}</td>
+                       <td className="px-6 py-4">
+                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-black text-[9px]">
+                            {file.agent}
+                          </span>
+                       </td>
+                       <td className="px-6 py-4 text-right">
+                          <button className="p-1 rounded hover:bg-secondary">
+                            <MoreVertical className="size-4 text-muted-foreground" />
+                          </button>
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+            </div>
+          )
+        ) : (
+          <div className="h-full flex flex-col items-center justify-center text-center py-20">
+            <div className="size-20 rounded-full bg-secondary/50 flex items-center justify-center mb-6">
+              <FileBox className="size-10 text-muted-foreground/30" />
+            </div>
+            <h3 className="text-[20px] font-bold mb-2">No documents yet</h3>
+            <p className="text-muted-foreground max-w-[300px]">
+              Intelligence documents and generated reports will appear here once you start orchestrating.
+            </p>
           </div>
         )}
       </div>

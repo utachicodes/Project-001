@@ -29,7 +29,12 @@ export async function getConnections(limit = 50) {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(limit);
-  if (error) console.error("getConnections:", error.message);
+  if (error) {
+    if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
+      return [];
+    }
+    console.error("getConnections:", error.message);
+  }
   return data ?? [];
 }
 

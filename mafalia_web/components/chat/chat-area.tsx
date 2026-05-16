@@ -19,6 +19,8 @@ import {
   FileText,
   Mic,
   MicOff,
+  Volume2,
+  Speech,
   type LucideIcon,
 } from "lucide-react";
 import type { Message } from "@/lib/types";
@@ -53,6 +55,15 @@ interface ChatAreaProps {
   language: Language;
 }
 
+// Sync voice language with app language
+const getVoiceLang = (lang: Language): VoiceLanguage => {
+  switch (lang) {
+    case "fr": return "fr-FR";
+    case "ar": return "ar-SA";
+    default: return "en-US";
+  }
+};
+
 export function ChatArea({
   messages,
   isLoading,
@@ -85,28 +96,24 @@ export function ChatArea({
   const isWelcome =
     messages.length === 0 || (messages.length === 1 && !messages[0].content);
 
-  // Sync voice language with app language
-  const getVoiceLang = (lang: Language): VoiceLanguage => {
-    switch (lang) {
-      case "fr": return "fr-FR";
-      case "ar": return "ar-SA";
-      default: return "en-US";
-    }
-  };
-
-  // Speak AI response if vocal mode is on
+  // Speak AI response if vocal mode is on removed to allow manual control via the "mouth" icon
+  /*
   React.useEffect(() => {
     const lastMsg = messages[messages.length - 1];
     if (isVocalMode && lastMsg && lastMsg.role === "assistant" && !isLoading) {
       setIsSpeaking(true);
       voiceService.speak(lastMsg.content, getVoiceLang(language), () => {
         setIsSpeaking(false);
-        // Automatically start listening again after speaking
-        if (isVocalModeRef.current) startVoiceRecording();
+        // Automatically start listening again after speaking with a small delay
+        if (isVocalModeRef.current) {
+          setTimeout(() => {
+            if (isVocalModeRef.current) startVoiceRecording();
+          }, 500);
+        }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, isLoading, isVocalMode]);
+  */
 
   const startVoiceRecording = () => {
     if (!voiceService.isSupported()) {
@@ -141,6 +148,8 @@ export function ChatArea({
         setIsListening(false);
         if (error === 'not-allowed') {
           toast.error(language === "en" ? "Microphone access denied." : "Accès au microphone refusé.");
+        } else if (error === 'network') {
+          toast.error(language === "en" ? "Network error. High-quality speech recognition requires a stable connection." : "Erreur réseau. La reconnaissance vocale nécessite une connexion stable.");
         }
       }
     );
@@ -266,7 +275,7 @@ export function ChatArea({
           <div className="flex items-center gap-2">
             <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              {currentModel ? currentModel.split("/").pop() : "Intelligence Core"}
+              {currentModel ? currentModel.split("/").pop() : "Mafalia AI"}
             </span>
           </div>
           {(isListening || isSpeaking) && (
@@ -319,7 +328,7 @@ export function ChatArea({
           ) : (
             <div className="space-y-12">
               {messages.map((msg) => (
-                <MessageBubble key={msg.id} msg={msg} />
+                <MessageBubble key={msg.id} msg={msg} language={language} />
               ))}
               {isLoading && (
                 <div className="flex items-start gap-4">
@@ -447,7 +456,7 @@ function InputToolBtn({
   );
 }
 
-function MessageBubble({ msg }: { msg: Message }) {
+function MessageBubble({ msg, language }: { msg: Message, language: Language }) {
   const isUser = msg.role === "user";
   
   return (
@@ -487,7 +496,17 @@ function MessageBubble({ msg }: { msg: Message }) {
           {isUser ? (
             <p>{msg.content}</p>
           ) : (
-            <Markdown content={msg.content} />
+            <div className="relative group/msg">
+              <Markdown content={msg.content} />
+              
+              <button
+                onClick={() => voiceService.speak(msg.content, getVoiceLang(language))}
+                className="absolute -right-10 top-0 p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-primary transition-all opacity-0 group-hover/msg:opacity-100"
+                title="Listen to response"
+              >
+                <Speech className="size-4" />
+              </button>
+            </div>
           )}
 
           {msg.attachments && msg.attachments.length > 0 && (
