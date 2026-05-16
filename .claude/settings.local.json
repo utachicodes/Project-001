@@ -8,7 +8,9 @@
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder npx next build)",
       "Bash(git check-ignore *)",
       "Bash(git add *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "WebFetch(domain:bright-vista-craft.lovable.app)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

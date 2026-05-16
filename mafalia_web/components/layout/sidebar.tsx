@@ -60,6 +60,7 @@ const AGENT_ICONS: Record<string, LucideIcon> = {
   ravi: Wrench,
   luna: Rocket,
   omar: Handshake,
+  malik: ShieldCheck,
 };
 
 // Which command to run when a KPI card is clicked
@@ -139,17 +140,14 @@ export function Sidebar({
     <aside className="w-[280px] min-w-[280px] h-full flex flex-col bg-background border-r border-border overflow-hidden select-none">
       {/* ── Brand ── */}
       <div className="px-6 py-6">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform">
-            <Image
-              src="/mafalia-logo.png"
-              alt="Mafalia"
-              width={24}
-              height={24}
-              className="object-contain"
-            />
-          </div>
-          <span className="text-[18px] font-bold tracking-tight text-foreground">Mafalia</span>
+        <Link href="/" className="flex items-center group">
+          <Image
+            src="/mafalia-logo.png"
+            alt="Mafalia"
+            width={36}
+            height={36}
+            className="object-contain group-hover:scale-105 transition-transform"
+          />
         </Link>
       </div>
 
@@ -186,7 +184,7 @@ export function Sidebar({
             onClick={() => setShowAgents(!showAgents)}
             className="w-full flex items-center justify-between px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-60 hover:opacity-100 transition-opacity"
           >
-            <span>Intelligence Core</span>
+            <span>Business Agents</span>
             <motion.div animate={{ rotate: showAgents ? 90 : 0 }}>
               <ChevronRight className="size-3" />
             </motion.div>
@@ -199,7 +197,7 @@ export function Sidebar({
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden space-y-0.5"
               >
-                {agents.slice(0, 5).map((agent) => {
+                {agents.map((agent) => {
                   const Icon = AGENT_ICONS[agent.id];
                   return (
                     <button
@@ -248,9 +246,12 @@ export function Sidebar({
                   <span className="text-[13px] font-bold">New Session</span>
                 </button>
                 {chatHistory.slice(0, 5).map((chat) => (
-                  <button
+                  <div
                     key={chat.id}
                     onClick={() => onLoadChat(chat.id)}
+                    onKeyDown={(e) => e.key === 'Enter' && onLoadChat(chat.id)}
+                    role="button"
+                    tabIndex={0}
                     className={cn(
                       "w-full group flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all border-none outline-none focus:ring-2 focus:ring-primary/20",
                       currentChatId === chat.id ? "bg-secondary text-foreground" : "hover:bg-secondary/50 text-muted-foreground"
@@ -265,7 +266,7 @@ export function Sidebar({
                     >
                       <Trash2 className="size-3" />
                     </button>
-                  </button>
+                  </div>
                 ))}
               </motion.div>
             )}

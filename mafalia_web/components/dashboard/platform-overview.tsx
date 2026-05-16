@@ -22,6 +22,7 @@ import Image from "next/image";
 interface PlatformOverviewProps {
   language: Language;
   kpiData: KpiData | null;
+  recentFiles: any[];
   onNavigateToFiles: () => void;
   onNavigateToChat: () => void;
 }
@@ -29,16 +30,11 @@ interface PlatformOverviewProps {
 export function PlatformOverview({ 
   language, 
   kpiData,
+  recentFiles,
   onNavigateToFiles,
   onNavigateToChat 
 }: PlatformOverviewProps) {
   const t = translations[language || "en"];
-
-  const recentFiles = [
-    { name: "Annual Financial Report 2025.xlsx", size: "213KB", type: "excel" },
-    { name: "Market Research Q4.pdf", size: "1.2MB", type: "pdf" },
-    { name: "Agent Configuration.json", size: "45KB", type: "code" },
-  ];
 
   return (
     <div className="flex-1 h-full overflow-y-auto bg-[#F9F9F9] dark:bg-[#0A0A0A] p-8 scrollbar-none">
@@ -51,10 +47,6 @@ export function PlatformOverview({
             <p className="text-muted-foreground font-medium">{t.controlCenter}</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{t.systemLive}</span>
-            </div>
           </div>
         </div>
 
@@ -63,22 +55,22 @@ export function PlatformOverview({
           <StatCard 
             icon={TrendingUp} 
             label={t.revenueGrowth} 
-            value={kpiData?.revenue.value || "$0.00"} 
-            trend="+12.5%" 
+            value={kpiData?.revenue.value || "—"} 
+            trend={kpiData?.revenue.change}
             color="primary"
           />
           <StatCard 
             icon={Database} 
             label={t.dataProcessed} 
-            value="1.2 TB" 
-            trend="+5.2%" 
+            value={kpiData?.clients.value || "—"} 
+            trend={kpiData?.clients.change} 
             color="blue"
           />
           <StatCard 
             icon={ShieldCheck} 
             label={t.securityGuard} 
-            value="Active" 
-            subValue="3 Layers" 
+            value={kpiData?.orders.value || "—"} 
+            trend={kpiData?.orders.change}
             color="emerald"
           />
         </div>
@@ -98,7 +90,7 @@ export function PlatformOverview({
                </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              {recentFiles.map((file, i) => (
+              {recentFiles.length > 0 ? recentFiles.map((file, i) => (
                 <div 
                   key={i}
                   className="group p-4 rounded-2xl bg-background border border-border hover:border-primary/30 transition-all cursor-pointer shadow-sm"
@@ -109,7 +101,12 @@ export function PlatformOverview({
                   <p className="text-[13px] font-bold truncate mb-1">{file.name}</p>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase">{file.size}</p>
                 </div>
-              ))}
+              )) : (
+                <div className="col-span-2 p-8 rounded-2xl border border-dashed border-border bg-background/50 flex flex-col items-center justify-center text-center">
+                  <FileText className="size-8 text-muted-foreground/30 mb-2" />
+                  <p className="text-[12px] font-medium text-muted-foreground">{t.noRecentFiles || "No recent data files"}</p>
+                </div>
+              )}
             </div>
           </section>
 
@@ -122,10 +119,14 @@ export function PlatformOverview({
               </div>
             </div>
             <div className="rounded-2xl border border-border bg-background overflow-hidden shadow-sm">
-              <div className="p-4 space-y-4">
-                <LogEntry agent="SANA" action="Analyzing Q4 Revenue" time="2m ago" />
-                <LogEntry agent="RAVI" action="Optimizing Workflow" time="15m ago" />
-                <LogEntry agent="IDRIS" action="Inventory Check" time="45m ago" />
+              <div className="p-8 flex flex-col items-center justify-center text-center">
+                <Activity className="size-8 text-primary/20 mb-3 animate-pulse" />
+                <p className="text-[13px] font-medium text-muted-foreground">
+                  Monitoring System Activity...
+                </p>
+                <p className="text-[11px] text-muted-foreground/60 mt-1 uppercase tracking-widest font-bold">
+                  Standby for agent activity
+                </p>
               </div>
               <div className="bg-secondary/30 p-3 border-t border-border flex justify-center">
                 <button className="text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest">
@@ -204,16 +205,4 @@ function StatCard({
   );
 }
 
-function LogEntry({ agent, action, time }: { agent: string, action: string, time: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-[9px] font-black text-primary tracking-tighter">
-          {agent}
-        </div>
-        <span className="text-[13px] font-medium text-foreground">{action}</span>
-      </div>
-      <span className="text-[11px] text-muted-foreground tabular-nums font-medium">{time}</span>
-    </div>
-  );
-}
+

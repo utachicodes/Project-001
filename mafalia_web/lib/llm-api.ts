@@ -59,7 +59,7 @@ Type /config to open settings.`;
     return "analytics";
   }
 
-  chat(message: string): Promise<{ content: string; modelUsed: string }> {
+  async chat(message: string): Promise<{ content: string; modelUsed: string }> {
     if (!this.hasValidConfig()) {
       const missing = [];
       if (!this.config?.provider) missing.push("Provider");
@@ -81,34 +81,51 @@ Type /config to open settings.`;
     }
 
     const strategy = this.selectModelStrategy(message);
-    const model = this.config!.model; // Always use the user's selected model
-    const systemPrompt = this.buildSystemPrompt(strategy);
+    const model = this.config!.model; 
     
-    return this.callProvider(provider, model, systemPrompt, message)
-      .then(content => ({ content, modelUsed: model }));
+    // Fetch live context from Supabase
+    const context = await this.fetchContext();
+    const systemPrompt = `${this.buildSystemPrompt(strategy)}\n\nBUSINESS DATA CONTEXT:\n${context}`;
+    
+    const content = await this.callProvider(provider, model, systemPrompt, message);
+    return { content, modelUsed: model };
+  }
+
+  private async fetchContext(): Promise<string> {
+    try {
+      const { getConnections } = await import("./supabase/data");
+      const connections = await getConnections(10);
+      
+      if (!connections || connections.length === 0) return "No active business connections or data found in database.";
+
+      return connections.map(c => 
+        `- Connection: ${c.name} | Role: ${c.role || "N/A"} | Company: ${c.company || "N/A"} | Source: ${c.source || "N/A"}`
+      ).join("\n");
+    } catch (err: any) {
+      if (err.code === 'PGRST116' || err.message.includes('does not exist')) {
+        return "No active business connections or data found in database.";
+      }
+      console.warn("fetchContext error:", err);
+      return "Unable to retrieve real-time business data at this moment.";
+    }
   }
 
   private buildSystemPrompt(strategy: Strategy): string {
     const langName = { en: "English", fr: "French", ar: "Arabic" }[this.config?.language || "en"];
-    return `You are Mafalia Intelligence, a sophisticated business orchestration platform.
+    const now = new Date().toUTCString();
+    return `You are Mafalia Intelligence, a conversational yet professional business orchestration platform.
+Current Time: ${now}
 
-You have access to 11 business agents:
-- Zara [REV]: Revenue strategy, pricing, profit analysis
-- Kofi [OPS]: Operations, efficiency, workflows
-- Amara [CUS]: Customer insights, churn, loyalty
-- Idris [INV]: Inventory, stock, waste management
-- Nala [MKT]: Marketing campaigns, social media
-- Tariq [FIN]: Finance, cash flow, health scores
-- Sana [DAT]: Data science, forecasting, patterns
-- Ravi [TEC]: Technology, APIs, data engineering
-- Luna [GRO]: Growth hacking, funnels, experiments
-- Omar [PAR]: Partnerships, suppliers, deals
-- Malik [SEC]: Security reviews, compliance, access controls
+STRICT RESPONSE RULES:
+1. NO EMOJIS.
+2. NO "AI slop" - avoid flowery language, polite fillers, or generic AI introductions.
+3. NO DASHES - use numbered lists or bold headers for structure.
+4. BE CONVERSATIONAL - act as a sophisticated partner, engage with the user's queries directly.
+5. BE DIRECT - provide high-impact, data-driven responses.
+6. Respond in concise markdown using **bold** for emphasis.
+7. Respond ONLY in ${langName}.
 
-Query type: ${MODEL_STRATEGIES[strategy].description}
-
-Respond in clear, concise markdown. Use **bold** for emphasis, bullet lists, and headings.
-Respond ONLY in ${langName}.`;
+Orchestration context: ${MODEL_STRATEGIES[strategy].description}`;
   }
 
   private async callProvider(
@@ -218,25 +235,51 @@ Respond ONLY in ${langName}.`;
   private async callOpenRouter(apiKey: string, model: string, systemPrompt: string, message: string) {
     const referer =
       typeof window !== "undefined" ? window.location.origin : "https://mafalia.ai";
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": referer,
-        "X-Title": "Mafalia Intelligence",
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message },
-        ],
-        temperature: this.config!.temperature,
-        max_tokens: this.config!.maxTokens,
-      }),
-    });
-    if (!res.ok) throw new Error(`OpenRouter API error: ${await res.text()}`);
+    
+    const fetchWithModel = async (targetModel: string) => {
+      return fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": referer,
+          "X-Title": "Mafalia Intelligence",
+        },
+        body: JSON.stringify({
+          model: targetModel,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: message },
+          ],
+          temperature: this.config!.temperature,
+          max_tokens: this.config!.maxTokens,
+        }),
+      });
+    };
+
+    let res = await fetchWithModel(model);
+    let responseText = "";
+
+    // If rate limited, try a fallback free model
+    if (res.status === 429) {
+      responseText = await res.text();
+      const isFreeModel = model.endsWith(":free") || model.includes("owl-alpha") || responseText.toLowerCase().includes("rate-limited");
+      
+      if (isFreeModel) {
+        const fallbackModel = "google/gemini-2.0-flash-exp:free";
+        if (model !== fallbackModel) {
+          console.warn(`Model ${model} rate limited, falling back to ${fallbackModel}`);
+          res = await fetchWithModel(fallbackModel);
+          if (!res.ok) responseText = await res.text();
+        }
+      }
+    }
+
+    if (!res.ok) {
+      const errorMsg = responseText || await res.text();
+      throw new Error(`OpenRouter API error: ${errorMsg}`);
+    }
+    
     const data = await res.json();
     return data.choices[0].message.content as string;
   }

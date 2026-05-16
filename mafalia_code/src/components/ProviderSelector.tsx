@@ -33,12 +33,14 @@ export const ALL_PROVIDERS: ProviderInfo[] = [
     requiresApiKey: true,
     color: '#8b5cf6',
     freeModels: [
-      { id: 'google/gemini-2.0-flash-exp:free', name: 'Gemini 2.0 Flash', description: 'Fast multimodal model', isFree: true, contextLength: '1M tokens', strengths: ['Speed', 'Multimodal'], provider: 'google' },
-      { id: 'google/gemini-2.5-pro-exp-03-25:free', name: 'Gemini 2.5 Pro', description: 'Advanced reasoning', isFree: true, contextLength: '1M tokens', strengths: ['Coding', 'Reasoning'], provider: 'google' },
-      { id: 'meta-llama/llama-3.2-11b-vision-instruct:free', name: 'Llama 3.2 11B', description: 'Open-source with vision', isFree: true, contextLength: '128K tokens', strengths: ['Vision', 'Open source'], provider: 'meta' },
-      { id: 'nvidia/llama-3.1-nemotron-70b-instruct:free', name: 'Nemotron 70B', description: 'Powerful instruct model', isFree: true, contextLength: '128K tokens', strengths: ['Helpfulness'], provider: 'nvidia' },
-      { id: 'qwen/qwen-2.5-72b-instruct:free', name: 'Qwen 2.5 72B', description: 'Large multilingual model', isFree: true, contextLength: '128K tokens', strengths: ['Multilingual', 'Math'], provider: 'qwen' },
-      { id: 'z-ai/glm-4.5-air:free', name: 'GLM 4.5 Air', description: 'Advanced Chinese LLM', isFree: true, contextLength: '128K tokens', strengths: ['Multilingual', 'Reasoning'], provider: 'z-ai' },
+      { id: 'google/gemini-2.0-flash-exp:free', name: 'Gemini 2.0 Flash', description: 'Ultra-fast multimodal model', isFree: true, contextLength: '1M tokens', strengths: ['Speed', 'Multimodal'], provider: 'google' },
+      { id: 'google/gemini-2.0-pro-exp-02-05:free', name: 'Gemini 2.0 Pro', description: 'Deep reasoning & coding', isFree: true, contextLength: '1M tokens', strengths: ['Coding', 'Reasoning'], provider: 'google' },
+      { id: 'deepseek/deepseek-v4-flash:free', name: 'DeepSeek V4 Flash', description: 'Efficient reasoning model', isFree: true, contextLength: '1M tokens', strengths: ['Reasoning', 'Throughput'], provider: 'deepseek' },
+      { id: 'google/gemma-4-31b:free', name: 'Gemma 4 31B', description: "Google's latest open multimodal", isFree: true, contextLength: '262K tokens', strengths: ['Vision', 'Multilingual'], provider: 'google' },
+      { id: 'nvidia/nemotron-3-super:free', name: 'Nemotron 3 Super', description: 'Powerful hybrid MoE', isFree: true, contextLength: '1M tokens', strengths: ['Accuracy', 'Efficiency'], provider: 'nvidia' },
+      { id: 'openai/gpt-oss-120b:free', name: 'GPT-OSS 120B', description: 'Open reasoning from OpenAI', isFree: true, contextLength: '131K tokens', strengths: ['Reasoning', 'Agentic'], provider: 'openai' },
+      { id: 'minimax/minimax-m2.5:free', name: 'MiniMax M2.5', description: 'Productivity & office tasks', isFree: true, contextLength: '205K tokens', strengths: ['Coding', 'Automation'], provider: 'minimax' },
+      { id: 'z-ai/glm-4.5-air:free', name: 'GLM 4.5 Air', description: 'Lightweight flagship reasoning', isFree: true, contextLength: '131K tokens', strengths: ['Multilingual', 'Reasoning'], provider: 'z-ai' },
       { id: 'deepseek/deepseek-chat:free', name: 'DeepSeek Chat', description: 'Great for coding', isFree: true, contextLength: '64K tokens', strengths: ['Coding', 'Technical'], provider: 'deepseek' },
     ],
     paidModels: [
@@ -56,7 +58,7 @@ export const ALL_PROVIDERS: ProviderInfo[] = [
     color: '#10b981',
     freeModels: [
       { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', description: 'Fast multimodal', isFree: true, contextLength: '1M tokens', strengths: ['Speed', 'Free tier'], provider: 'google' },
-      { id: 'gemini-2.5-pro-exp-03-25', name: 'Gemini 2.5 Pro', description: 'Advanced reasoning', isFree: true, contextLength: '1M tokens', strengths: ['Reasoning', 'Coding'], provider: 'google' },
+      { id: 'gemini-2.0-pro-exp-02-05', name: 'Gemini 2.0 Pro', description: 'Advanced reasoning', isFree: true, contextLength: '1M tokens', strengths: ["Reasoning", "Coding"], provider: 'google' },
     ],
     paidModels: [
       { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'Production-ready', isFree: false, contextLength: '2M tokens', strengths: ['Production', 'Enterprise'], provider: 'google' },

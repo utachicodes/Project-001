@@ -94,6 +94,7 @@ export const translations = {
     modified: "Modified",
     agent: "Agent",
     actions: "Actions",
+    noRecentFiles: "No recent data files",
   },
   fr: {
     home: "Accueil",
@@ -189,6 +190,7 @@ export const translations = {
     modified: "Modifié",
     agent: "Agent",
     actions: "Actions",
+    noRecentFiles: "Aucun fichier récent",
   },
   ar: {
     home: "الرئيسية",
@@ -284,6 +286,7 @@ export const translations = {
     modified: "تاريخ التعديل",
     agent: "العميل",
     actions: "الإجراءات",
+    noRecentFiles: "لا توجد ملفات حديثة",
   },
 };
 

@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Sidebar } from "@/components/layout/sidebar";
 import { ChatArea } from "@/components/chat/chat-area";
@@ -69,8 +70,27 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
   const [kpiData, setKpiData] = React.useState<KpiData | null>(null);
   const [sidebarAlerts, setSidebarAlerts] = React.useState<AlertItem[]>([]);
   const [loadingMetrics, setLoadingMetrics] = React.useState(false);
+  const [recentFiles, setRecentFiles] = React.useState<any[]>([]);
 
   const initRef = React.useRef(false);
+
+  const refreshFiles = React.useCallback(async () => {
+    if (!userId) return;
+    try {
+      const { listUserFiles } = await import("@/lib/supabase/storage");
+      const files = await listUserFiles(userId);
+      setRecentFiles(files.map(f => ({
+        id: f.id,
+        name: f.name.split("_").slice(1).join("_") || f.name,
+        size: f.metadata ? (f.metadata.size / 1024).toFixed(1) + " KB" : "—",
+        date: f.created_at ? new Date(f.created_at).toLocaleDateString() : "—",
+        agent: "INTEL",
+        raw: f
+      })));
+    } catch (err) {
+      console.error("refreshFiles:", err);
+    }
+  }, [userId]);
 
   const refreshMetrics = React.useCallback(async () => {
     if (!llmClient.hasValidConfig()) return;
@@ -96,7 +116,10 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       llmClient.setConfig(saved);
       const t = translations[saved.language || "en"];
       setStatus(hasValid ? `${t.ready}: ${saved.provider}` : `${t.setupRequired}: ${saved.provider}`);
-      if (hasValid) refreshMetrics();
+      if (hasValid) {
+        refreshMetrics();
+        refreshFiles();
+      }
     }
     if (!hasValid) {
       setShowSetup(true);
@@ -214,6 +237,7 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       attachments: attachments?.map((a) => ({ name: a.name, url: a.url, size: a.size })),
     };
     setMessages((prev) => [...prev, userMsg]);
+    if (attachments?.length) refreshFiles();
 
     if (!llmClient.hasValidConfig()) {
       addMsg(mkAssistantMsg(llmClient.getMissingConfigMessage()));
@@ -275,45 +299,135 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
 
     switch (name) {
       case "/help":
-        response = `**Available Commands**
-// ... truncated help text ...
-• \`/summary\` — Full business health check
-• \`/metrics\` — Live KPI dashboard
-• \`/agents\` — List all 11 agents
-• \`/ask <agent> <question>\` — Ask a specific agent`;
+        response = `**Intelligence Command Reference**
+        
+• \`/summary\` — Execute full business health check (Sana [DAT])
+• \`/metrics\` — Pulse check on live KPIs
+• \`/agents\` — Review your 11 specialized agents
+• \`/analyze <topic>\` — Deep analysis (revenue, churn, ops...)
+• \`/predict <topic>\` — Forecasting and trends
+• \`/create <item>\` — Generate campaigns, code, plans
+• \`/research <topic>\` — Market and competitor intelligence
+• \`/ask <agent> <msg>\` — Direct message to a specific agent
+• \`/boss\` — Executive oversight dashboard
+• \`/clear\` — Start a fresh intelligence session
+• \`/config\` — Open provider settings`;
         break;
 
       case "/agents":
-        response = DEFAULT_AGENTS.map((a) => `${a.tag} **${a.name}** — ${a.title}`).join("\n");
+        response = `### Your Intelligence Squad\n\n` + DEFAULT_AGENTS.map((a) => `• **${a.name}** ${a.tag} — ${a.title}`).join("\n");
         break;
-      // ... rest of handleCommand switch ...
-      case "/rooms":
-        response = "**Agent Rooms:**\n\n" + DEFAULT_AGENTS.map((a) => `• **${a.name}** ${a.tag} — ${a.room}`).join("\n");
-        break;
-      case "/boss":
-        response = "**Boss View** — high-level oversight across all 11 agents.";
-        break;
-      case "/summary": {
-        const r = await askLLM("Give a full business health check.", "sana");
+
+      case "/analyze": {
+        const topic = parts[1]?.toLowerCase();
+        const agentId = ANALYZE_MAP[topic || ""] || "sana";
+        const r = await askLLM(`Analyze this: ${parts.slice(1).join(" ") || "general business performance"}`, agentId);
         response = r.content;
         tag = r.tag;
         break;
       }
+
+      case "/predict": {
+        const topic = parts[1]?.toLowerCase();
+        const agentId = PREDICT_MAP[topic || ""] || "sana";
+        const r = await askLLM(`Predict/Forecast: ${parts.slice(1).join(" ") || "next quarter performance"}`, agentId);
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
+      case "/create": {
+        const topic = parts[1]?.toLowerCase();
+        const agentId = CREATE_MAP[topic || ""] || "omar";
+        const r = await askLLM(`Create/Generate: ${parts.slice(1).join(" ") || "a business report"}`, agentId);
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
+      case "/research": {
+        const r = await askLLM(`Research: ${parts.slice(1).join(" ") || "current market trends"}`, "sana");
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
+      case "/ask": {
+        const target = parts[1]?.toLowerCase();
+        const agent = DEFAULT_AGENTS.find(a => a.id === target || a.name.toLowerCase() === target || a.tag.toLowerCase().includes(target || ""));
+        if (!agent) {
+          response = "Agent not found. Use `/agents` to see available squad members.";
+          break;
+        }
+        const r = await askLLM(parts.slice(2).join(" "), agent.id);
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
+      case "/design": {
+        const r = await askLLM(`Design brief: ${parts.slice(1).join(" ")}`, "nala");
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
+      case "/automate": {
+        const r = await askLLM(`Automation workflow: ${parts.slice(1).join(" ")}`, "kofi");
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
+      case "/scrape":
+      case "/search": {
+        const r = await askLLM(`Execute web operation: ${cmd}`, "ravi");
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
+      case "/connect":
+      case "/connections": {
+        const r = await askLLM(`Manage ecosystem connections: ${cmd}`, "omar");
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
+      case "/rooms":
+        response = "**Agent Room Assignments:**\n\n" + DEFAULT_AGENTS.map((a) => `• **${a.name}** ${a.tag} — ${a.room}`).join("\n");
+        break;
+
+      case "/boss":
+        response = "**Boss View Activated**\n\nOrchestrating high-level oversight across all 11 agents. Monitoring real-time risk through Malik [GOV].";
+        break;
+
+      case "/summary": {
+        const r = await askLLM("Give a full business health check across all departments.", "sana");
+        response = r.content;
+        tag = r.tag;
+        break;
+      }
+
       case "/metrics": {
-        const r = await askLLM("Render a live KPI dashboard summary.", "sana");
+        const r = await askLLM("Generate a live KPI dashboard summary with current performance metrics.", "sana");
         response = r.content;
         tag = r.tag;
         refreshMetrics();
         break;
       }
+
       case "/clear":
         handleNewChat();
         return;
+
       case "/config":
         setShowSetup(true);
         return;
+
       default:
-        response = `Unknown command: \`${name}\`\n\nType \`/help\` to see all commands.`;
+        response = `Unknown command: \`${name}\`\n\nType \`/help\` to see the full intelligence command set.`;
     }
 
     addMsg({
@@ -374,16 +488,17 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
       />
 
       <main className="flex-1 relative flex flex-col h-full overflow-hidden">
-        {activeView === "overview" && (
+        <div className={cn("flex-1 h-full flex flex-col", activeView !== "overview" && "hidden")}>
           <PlatformOverview 
             language={config.language}
             kpiData={kpiData}
+            recentFiles={recentFiles}
             onNavigateToFiles={() => setActiveView("files")}
             onNavigateToChat={() => setActiveView("chat")}
           />
-        )}
+        </div>
 
-        {activeView === "chat" && (
+        <div className={cn("flex-1 h-full flex flex-col", activeView !== "chat" && "hidden")}>
           <ChatArea
             messages={messages}
             isLoading={isLoading}
@@ -395,11 +510,11 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
             onCommandPaletteOpen={() => setShowCmdPalette(true)}
             onPendingInputConsumed={() => setPendingInput("")}
           />
-        )}
+        </div>
 
-        {activeView === "files" && (
-          <FilesView language={config.language} />
-        )}
+        <div className={cn("flex-1 h-full flex flex-col", activeView !== "files" && "hidden")}>
+          <FilesView language={config.language} files={recentFiles} />
+        </div>
       </main>
 
       <CommandPalette

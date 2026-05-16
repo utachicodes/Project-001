@@ -17,8 +17,8 @@ export class VoiceService {
       if (SpeechRecognition) {
         this.recognition = new SpeechRecognition();
         this.recognition.continuous = false;
-        this.recognition.interimResults = true;
-        console.log('VoiceService: SpeechRecognition initialized');
+        this.recognition.interimResults = false; // Disable interim results to reduce network noise and improve stability
+        console.log('VoiceService: SpeechRecognition initialized (Stability Mode)');
       } else {
         console.warn('VoiceService: SpeechRecognition not supported in this browser');
       }
@@ -42,8 +42,8 @@ export class VoiceService {
     }
 
     if (this.isListening) {
-      console.warn('VoiceService: Already listening, stopping previous session');
-      this.stopListening();
+      console.warn('VoiceService: Already listening');
+      return;
     }
 
     this.recognition.lang = lang;
@@ -61,19 +61,36 @@ export class VoiceService {
     };
 
     this.recognition.onerror = (event: any) => {
-      console.error('VoiceService: Recognition error', event.error);
+      if (event.error === 'aborted') {
+        console.log('VoiceService: Recognition aborted');
+      } else if (event.error === 'network') {
+        console.warn('VoiceService: Network error detected. This often happens if the speech service is temporarily unavailable or blocked.');
+        onError('network');
+      } else {
+        console.error('VoiceService: Recognition error', event.error);
+        onError(event.error);
+      }
       this.isListening = false;
-      onError(event.error);
     };
 
     try {
+      // Re-initialize if previously failed with network error
+      if (this.isListening) {
+        this.recognition.abort();
+      }
+      
       this.recognition.start();
       this.isListening = true;
       console.log('VoiceService: Started listening', lang);
-    } catch (e) {
-      console.error('VoiceService: Failed to start listening', e);
-      this.isListening = false;
-      onError(e);
+    } catch (e: any) {
+      if (e.name === 'InvalidStateError' || e.message?.includes('already started')) {
+        console.warn('VoiceService: Recognition already started, ignoring request');
+        this.isListening = true;
+      } else {
+        console.error('VoiceService: Failed to start listening', e);
+        this.isListening = false;
+        onError(e);
+      }
     }
   }
 
@@ -89,22 +106,45 @@ export class VoiceService {
     }
   }
 
+  private stripMarkdown(text: string): string {
+    return text
+      .replace(/#{1,6}\s?/g, '') // Headers
+      .replace(/\*\*/g, '') // Bold
+      .replace(/\*/g, '') // Italic
+      .replace(/`{1,3}[^`]*`{1,3}/g, '') // Code blocks
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Links
+      .replace(/[-*+]\s/g, '') // List markers
+      .replace(/\d+\.\s/g, '') // Numbered list markers
+      .replace(/\n+/g, ' ') // Newlines to spaces
+      .trim();
+  }
+
   public speak(text: string, lang: VoiceLanguage, onEnd?: () => void) {
     if (!this.synth) {
       console.error('VoiceService: Synthesis not supported');
       return;
     }
 
-    console.log('VoiceService: Speaking', text.substring(0, 30) + '...', lang);
+    const cleanText = this.stripMarkdown(text);
+    console.log('VoiceService: Speaking', cleanText.substring(0, 30) + '...', lang);
     this.synth.cancel();
 
     const speakNow = () => {
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.lang = lang;
+      
+      // Natural voice tuning
+      utterance.rate = 0.95; // Slightly slower for better clarity
+      utterance.pitch = 1.05; // Slightly higher for a friendly, professional tone
       
       const voices = this.synth!.getVoices();
       // Try to find a high-quality voice for the language
-      const preferredVoice = voices.find(v => v.lang.startsWith(lang.split('-')[0])) || voices[0];
+      // Prefer "Google" voices for better quality in Chrome, or "premium" voices
+      const languageMatch = voices.filter(v => v.lang.startsWith(lang.split('-')[0]));
+      const preferredVoice = languageMatch.find(v => v.name.includes('Google') || v.name.includes('Premium')) 
+        || languageMatch[0] 
+        || voices[0];
+        
       if (preferredVoice) {
         utterance.voice = preferredVoice;
       }

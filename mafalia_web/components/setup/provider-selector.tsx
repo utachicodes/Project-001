@@ -32,11 +32,14 @@ export const ALL_PROVIDERS: ProviderInfo[] = [
     website: "https://openrouter.ai",
     requiresApiKey: true,
     freeModels: [
-      { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash", description: "Fast multimodal model", isFree: true, contextLength: "1M tokens", strengths: ["Speed", "Multimodal"] },
-      { id: "google/gemini-2.0-pro-exp-02-05:free", name: "Gemini 2.0 Pro", description: "Advanced reasoning", isFree: true, contextLength: "1M tokens", strengths: ["Coding", "Reasoning"] },
-      { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", description: "Advanced multilingual LLM", isFree: true, contextLength: "128K tokens", strengths: ["Multilingual", "Reasoning"] },
-      { id: "meta-llama/llama-3.2-11b-vision-instruct:free", name: "Llama 3.2 11B", description: "Open-source with vision", isFree: true, contextLength: "128K tokens", strengths: ["Vision", "Open source"] },
-      { id: "deepseek/deepseek-chat:free", name: "DeepSeek Chat", description: "Great for coding", isFree: true, contextLength: "64K tokens", strengths: ["Coding", "Technical"] },
+      { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash", description: "Ultra-fast multimodal model", isFree: true, contextLength: "1M tokens", strengths: ["Speed", "Multimodal"] },
+      { id: "google/gemini-2.0-pro-exp-02-05:free", name: "Gemini 2.0 Pro", description: "Deep reasoning & coding", isFree: true, contextLength: "1M tokens", strengths: ["Coding", "Reasoning"] },
+      { id: "deepseek/deepseek-v4-flash:free", name: "DeepSeek V4 Flash", description: "Efficient reasoning model", isFree: true, contextLength: "1M tokens", strengths: ["Reasoning", "Throughput"] },
+      { id: "google/gemma-4-31b:free", name: "Gemma 4 31B", description: "Google's latest open multimodal", isFree: true, contextLength: "262K tokens", strengths: ["Vision", "Multilingual"] },
+      { id: "nvidia/nemotron-3-super:free", name: "Nemotron 3 Super", description: "Powerful hybrid MoE", isFree: true, contextLength: "1M tokens", strengths: ["Accuracy", "Efficiency"] },
+      { id: "openai/gpt-oss-120b:free", name: "GPT-OSS 120B", description: "Open reasoning from OpenAI", isFree: true, contextLength: "131K tokens", strengths: ["Reasoning", "Agentic"] },
+      { id: "minimax/minimax-m2.5:free", name: "MiniMax M2.5", description: "Productivity & office tasks", isFree: true, contextLength: "205K tokens", strengths: ["Coding", "Automation"] },
+      { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", description: "Lightweight flagship reasoning", isFree: true, contextLength: "131K tokens", strengths: ["Multilingual", "Reasoning"] },
     ],
     paidModels: [
       { id: "anthropic/claude-3.5-sonnet", name: "Claude 3.5 Sonnet", description: "Complex reasoning", isFree: false, contextLength: "200K tokens", strengths: ["Reasoning", "Analysis"] },
@@ -117,6 +120,8 @@ interface ProviderSelectorProps {
   onProviderChange: (provider: string) => void;
   onModelChange: (model: string) => void;
   onApiKeyChange: (key: string) => void;
+  providers?: ProviderInfo[];
+  loading?: boolean;
 }
 
 export function ProviderSelector({
@@ -126,12 +131,14 @@ export function ProviderSelector({
   onProviderChange,
   onModelChange,
   onApiKeyChange,
+  providers = ALL_PROVIDERS,
+  loading = false,
 }: ProviderSelectorProps) {
   const [expandedProvider, setExpandedProvider] = React.useState<string | null>(selectedProvider);
   const [showFreeOnly, setShowFreeOnly] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  const filtered = ALL_PROVIDERS.filter((p) => {
+  const filtered = providers.filter((p) => {
     if (!searchQuery) return true;
     return [...p.freeModels, ...p.paidModels].some(
       (m) =>
@@ -210,6 +217,9 @@ export function ProviderSelector({
                       <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[9.5px] font-bold border border-emerald-500/25">
                         {provider.freeModels.length} FREE
                       </span>
+                    )}
+                    {provider.id === "openrouter" && loading && (
+                      <Sparkles className="size-3 text-primary animate-pulse" />
                     )}
                   </div>
                   <p className="text-[11.5px] text-muted-foreground truncate">{provider.description}</p>

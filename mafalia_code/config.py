@@ -42,7 +42,7 @@ PROVIDERS = {
         "name": "Google (Gemini)",
         "base_url": "https://generativelanguage.googleapis.com/v1beta",
         "models": [
-            "gemini-2.5-pro-preview-06-05",
+            "gemini-2.0-pro-exp-02-05",
             "gemini-2.0-flash",
             "gemini-1.5-pro",
             "gemini-1.5-flash",
@@ -53,10 +53,14 @@ PROVIDERS = {
         "name": "OpenRouter (Any Model)",
         "base_url": "https://openrouter.ai/api/v1",
         "models": [
-            "anthropic/claude-sonnet-4-20250514",
-            "openai/gpt-4o",
-            "google/gemini-2.5-pro-preview-06-05",
-            "meta-llama/llama-3.1-405b-instruct",
+            "google/gemini-2.0-flash-exp:free",
+            "google/gemini-2.0-pro-exp-02-05:free",
+            "deepseek/deepseek-v4-flash:free",
+            "google/gemma-4-31b:free",
+            "nvidia/nemotron-3-super:free",
+            "openai/gpt-oss-120b:free",
+            "minimax/minimax-m2.5:free",
+            "z-ai/glm-4.5-air:free",
             "deepseek/deepseek-chat",
         ],
         "env_key": "OPENROUTER_API_KEY",
@@ -116,7 +120,7 @@ def load_config() -> Dict[str, Any]:
         cfg["provider"] = "openrouter"
         cfg["api_key"] = os.environ.get("OPENROUTER_API_KEY")
         if not cfg.get("model"):
-            cfg["model"] = "google/gemini-2.5-pro-preview-06-05"
+            cfg["model"] = "google/gemini-2.0-pro-exp-02-05:free"
     
     return cfg
 
