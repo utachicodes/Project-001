@@ -68,7 +68,7 @@ Mafalia Code supports multiple LLM providers with automatic configuration valida
 **Supported Providers:**
 - **OpenAI** - GPT-4o, GPT-4o-mini, GPT-4-turbo, o1-preview, o1-mini
 - **Anthropic (Claude)** - claude-sonnet-4, claude-3-5-sonnet, claude-3-5-haiku, claude-3-opus
-- **Google (Gemini)** - gemini-2.5-pro, gemini-2.0-flash, gemini-1.5-pro
+- **Google (Gemini)** - gemini-2.0-pro, gemini-2.0-flash, gemini-1.5-pro
 - **OpenRouter** - Access to 100+ models via single API key
 - **Ollama (Local)** - llama3.2, llama3.1, mistral, gemma2, qwen2.5, phi3, deepseek-coder
 - **Custom** - Any OpenAI-compatible endpoint

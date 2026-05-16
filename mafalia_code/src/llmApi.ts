@@ -7,6 +7,7 @@ const MODEL_STRATEGIES = {
   simple: {
     models: [
       'google/gemini-2.0-flash-exp:free',
+      'deepseek/deepseek-v4-flash:free',
       'gemini-2.0-flash-exp',
       'gpt-4o-mini',
     ],
@@ -15,28 +16,30 @@ const MODEL_STRATEGIES = {
   // Analytics queries - use models good at data analysis
   analytics: {
     models: [
-      'google/gemini-2.5-pro-exp-03-25:free',
-      'gemini-2.5-pro-exp-03-25',
+      'google/gemini-2.0-pro-exp-02-05:free',
+      'nvidia/nemotron-3-super:free',
+      'gemini-2.0-pro-exp-02-05',
       'gpt-4o',
-      'claude-sonnet-4-20250514',
     ],
     description: 'Deep analysis for business data',
   },
   // Complex reasoning - use best available models
   complex: {
     models: [
+      'openai/gpt-oss-120b:free',
+      'google/gemma-4-31b:free',
       'anthropic/claude-3.5-sonnet',
       'gpt-4o',
-      'gemini-1.5-pro',
     ],
     description: 'Complex reasoning and strategy',
   },
   // Code/technical - use code-capable models
   code: {
     models: [
+      'minimax/minimax-m2.5:free',
+      'deepseek/deepseek-v4-flash:free',
       'deepseek/deepseek-chat:free',
       'gpt-4o',
-      'claude-3-5-sonnet-20241022',
     ],
     description: 'Technical and code-related queries',
   },
