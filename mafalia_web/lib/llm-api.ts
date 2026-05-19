@@ -62,6 +62,7 @@ Type /config to open settings.`;
     return "analytics";
   }
 
+  /** Sends a message to the configured LLM provider and returns the response content and model used. */
   async chat(message: string): Promise<{ content: string; modelUsed: string }> {
     if (!this.hasValidConfig()) {
       const missing = [];
