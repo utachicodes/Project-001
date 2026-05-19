@@ -1,5 +1,6 @@
 import type { Config } from "./types";
 import { PROVIDERS } from "./types";
+import { LIMITS } from "./constants";
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -116,7 +117,7 @@ Type /config to open settings.`;
         sections.push(
           "SCRAPED MARKET INTELLIGENCE:\n" +
           pages.map(p =>
-            `  - [${p.title || p.url}] ${p.content ? p.content.slice(0, 300).replace(/\s+/g, " ") + "…" : "(no content)"}`
+            `  - [${p.title || p.url}] ${p.content ? p.content.slice(0, LIMITS.CONTENT_PREVIEW).replace(/\s+/g, " ") + "…" : "(no content)"}`
           ).join("\n")
         );
       }
