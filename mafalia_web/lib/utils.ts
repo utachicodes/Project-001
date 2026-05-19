@@ -10,6 +10,10 @@ export function truncate(str: string, maxLength: number): string {
   return str.slice(0, maxLength).trimEnd() + '…';
 }
 
+export function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
