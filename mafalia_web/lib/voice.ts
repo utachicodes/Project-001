@@ -95,6 +95,7 @@ export class VoiceService {
     }
   }
 
+  /** Stops the active speech recognition session. */
   public stopListening() {
     if (this.recognition && this.isListening) {
       try {
