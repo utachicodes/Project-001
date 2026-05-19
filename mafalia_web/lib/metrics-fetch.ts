@@ -1,3 +1,5 @@
+import { LIMITS } from './constants';
+
 export interface KpiMetric {
   value: string;
   change: string;
@@ -86,7 +88,7 @@ export async function fetchLiveMetrics(
   };
 
   const alerts: AlertItem[] = Array.isArray(data.alerts)
-    ? data.alerts.slice(0, 3).map((a: { type?: string; text?: string }) => ({
+    ? data.alerts.slice(0, LIMITS.ALERTS).map((a: { type?: string; text?: string }) => ({
         type: (["warning", "info", "success"].includes(a.type ?? "") ? a.type : "info") as AlertItem["type"],
         text: String(a.text ?? ""),
       }))
