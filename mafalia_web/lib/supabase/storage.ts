@@ -1,6 +1,7 @@
 import { createClient } from "./client";
+import { STORAGE_BUCKETS, DURATIONS } from '../constants';
 
-const BUCKET = "mafalia-uploads";
+const BUCKET = STORAGE_BUCKETS.UPLOADS;
 
 export interface UploadedFile {
   name: string;
@@ -22,7 +23,7 @@ export async function uploadFile(file: File, userId: string): Promise<UploadedFi
 
   const { data: signed } = await supabase.storage
     .from(BUCKET)
-    .createSignedUrl(path, 60 * 60 * 24 * 7);
+    .createSignedUrl(path, DURATIONS.SIGNED_URL_SECONDS);
 
   return {
     name: file.name,
