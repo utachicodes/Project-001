@@ -1,6 +1,8 @@
 import type { Config } from "./types";
 import { PROVIDERS } from "./types";
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const MODEL_STRATEGIES = {
   simple: { description: "Quick responses for simple questions" },
   analytics: { description: "Deep analysis for business data" },
@@ -145,7 +147,7 @@ Type /config to open settings.`;
 
       return sections.join("\n\n");
     } catch (err: any) {
-      console.warn("fetchContext error:", err);
+      if (isDev) console.warn("fetchContext error:", err);
       return "Unable to retrieve database context at this moment.";
     }
   }
@@ -308,7 +310,7 @@ Orchestration context: ${MODEL_STRATEGIES[strategy].description}`;
       if (isFreeModel) {
         const fallbackModel = "google/gemini-2.0-flash-exp:free";
         if (model !== fallbackModel) {
-          console.warn(`Model ${model} rate limited, falling back to ${fallbackModel}`);
+          if (isDev) console.warn(`Model ${model} rate limited, falling back to ${fallbackModel}`);
           res = await fetchWithModel(fallbackModel);
           if (!res.ok) responseText = await res.text();
         }
