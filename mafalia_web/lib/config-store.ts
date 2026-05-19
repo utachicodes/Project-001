@@ -43,6 +43,14 @@ export function loadChatHistory(): ChatSession[] {
   }
 }
 
+export function clearChatHistory(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.CHAT_HISTORY);
+  } catch {
+    // localStorage unavailable
+  }
+}
+
 export function hasConfig(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEYS.CONFIG) !== null;
