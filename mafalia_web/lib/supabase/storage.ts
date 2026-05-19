@@ -34,6 +34,7 @@ export async function uploadFile(file: File, userId: string): Promise<UploadedFi
   };
 }
 
+/** Lists all files for a given user in the uploads bucket. */
 export async function listUserFiles(userId: string) {
   const supabase = createClient();
   const { data, error } = await supabase.storage
