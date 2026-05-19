@@ -22,15 +22,15 @@ export async function addConnection(conn: Omit<DbConnection, "id" | "created_at"
   return data;
 }
 
-/** Fetches business connections from the database with optional limit. */
-export async function getConnections(limit = 50) {
+/** Fetches business connections from the database with optional limit and offset. */
+export async function getConnections(limit = 50, offset = 0) {
   if (!isSupabaseConfigured) return [];
   const supabase = createClient();
   const { data, error } = await supabase
     .from("connections")
     .select("*")
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
   if (error) {
     if (error.code === 'PGRST116' || error.message.includes('does not exist')) return [];
     // error handled by caller
