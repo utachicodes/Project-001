@@ -95,6 +95,7 @@ Type /config to open settings.`;
     return { content, modelUsed: model };
   }
 
+  /** Builds the business data context string from Supabase for injection into the system prompt. */
   private async fetchContext(): Promise<string> {
     try {
       const { getConnections, getScrapedPages, tryFetchTable, BUSINESS_TABLES } = await import("./supabase/data");
