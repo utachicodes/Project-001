@@ -13,6 +13,7 @@ export interface DbConnection {
   created_at?: string;
 }
 
+/** Adds a new business connection to the database. */
 export async function addConnection(conn: Omit<DbConnection, "id" | "created_at">) {
   if (!isSupabaseConfigured) return null;
   const supabase = createClient();
@@ -21,6 +22,7 @@ export async function addConnection(conn: Omit<DbConnection, "id" | "created_at"
   return data;
 }
 
+/** Fetches business connections from the database with optional limit. */
 export async function getConnections(limit = 50) {
   if (!isSupabaseConfigured) return [];
   const supabase = createClient();
@@ -72,7 +74,8 @@ export async function getScrapedPages(limit = 20) {
 }
 
 // Generic table fetcher — tries to read any table the user has added
-export async function tryFetchTable(table: string, limit = 30): Promise<any[]> {
+/** Attempts to fetch any named table, silently returning empty array on access error. */
+export async function tryFetchTable(table: string, limit = 30): Promise<Record<string, unknown>[]> {
   if (!isSupabaseConfigured) return [];
   const supabase = createClient();
   const { data, error } = await supabase
