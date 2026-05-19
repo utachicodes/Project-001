@@ -43,6 +43,7 @@ Use this exact structure and populate with realistic, specific numbers based on 
 
 Return ONLY the JSON object. Vary the numbers slightly each call to reflect live conditions.`;
 
+/** Fetches live business metrics by invoking the LLM with a structured prompt and parsing the JSON response. */
 export async function fetchLiveMetrics(
   chatFn: (msg: string) => Promise<{ content: string; modelUsed: string }>,
 ): Promise<{ kpi: KpiData; alerts: AlertItem[] }> {
