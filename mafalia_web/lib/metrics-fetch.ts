@@ -1,5 +1,7 @@
 import { LIMITS } from './constants';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export class MetricsFetchError extends Error {
   constructor(message: string, public readonly statusCode?: number) {
     super(message);
@@ -70,7 +72,7 @@ export async function fetchLiveMetrics(
   try {
     data = JSON.parse(cleaned);
   } catch (err) {
-    console.error("fetchLiveMetrics JSON parse error:", err, "Raw content:", raw);
+    if (isDev) console.error("fetchLiveMetrics JSON parse error:", err, "Raw content:", raw);
     return { kpi: EMPTY_KPI, alerts: [] };
   }
 
