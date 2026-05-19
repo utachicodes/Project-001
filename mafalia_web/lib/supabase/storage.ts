@@ -10,6 +10,7 @@ export interface UploadedFile {
   path: string;
 }
 
+/** Uploads a file to Supabase storage and returns the public URL. */
 export async function uploadFile(file: File, userId: string): Promise<UploadedFile> {
   const supabase = createClient();
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
