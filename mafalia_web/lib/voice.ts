@@ -1,4 +1,6 @@
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export type VoiceLanguage = 'en-US' | 'fr-FR' | 'ar-SA';
 
 export interface SpeechRecognitionResult {
@@ -6,8 +8,9 @@ export interface SpeechRecognitionResult {
   isFinal: boolean;
 }
 
+/** Manages browser speech recognition and speech synthesis for voice interactions. */
 export class VoiceService {
-  private recognition: any = null;
+  private recognition: { start(): void; stop(): void; abort(): void; lang: string; continuous: boolean; interimResults: boolean; onresult: ((e: Event) => void) | null; onend: (() => void) | null; onerror: ((e: Event) => void) | null } | null = null;
   private synth: SpeechSynthesis | null = null;
   private isListening: boolean = false;
 
@@ -15,12 +18,12 @@ export class VoiceService {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
-        this.recognition = new SpeechRecognition();
-        this.recognition.continuous = false;
-        this.recognition.interimResults = false; // Disable interim results to reduce network noise and improve stability
-        console.log('VoiceService: SpeechRecognition initialized (Stability Mode)');
+        const rec = new SpeechRecognition();
+        rec.continuous = false;
+        rec.interimResults = false;
+        this.recognition = rec;
       } else {
-        console.warn('VoiceService: SpeechRecognition not supported in this browser');
+        if (isDev) console.warn('VoiceService: SpeechRecognition not supported in this browser');
       }
       this.synth = window.speechSynthesis;
     }
@@ -30,6 +33,7 @@ export class VoiceService {
     return !!this.recognition;
   }
 
+  /** Starts speech recognition in the given language and fires callbacks on result, end, or error. */
   public startListening(
     lang: VoiceLanguage,
     onResult: (result: SpeechRecognitionResult) => void,
@@ -37,12 +41,12 @@ export class VoiceService {
     onError: (error: any) => void
   ) {
     if (!this.recognition) {
-      console.error('VoiceService: Recognition not supported');
+      if (isDev) console.error('VoiceService: Recognition not supported');
       return;
     }
 
     if (this.isListening) {
-      console.warn('VoiceService: Already listening');
+      if (isDev) console.warn('VoiceService: Already listening');
       return;
     }
 
@@ -55,19 +59,18 @@ export class VoiceService {
     };
 
     this.recognition.onend = () => {
-      console.log('VoiceService: Recognition ended');
       this.isListening = false;
       onEnd();
     };
 
     this.recognition.onerror = (event: any) => {
       if (event.error === 'aborted') {
-        console.log('VoiceService: Recognition aborted');
+        // recognition aborted — no action needed
       } else if (event.error === 'network') {
-        console.warn('VoiceService: Network error detected. This often happens if the speech service is temporarily unavailable or blocked.');
+        if (isDev) console.warn('VoiceService: Network error detected.');
         onError('network');
       } else {
-        console.error('VoiceService: Recognition error', event.error);
+        if (isDev) console.error('VoiceService: Recognition error', event.error);
         onError(event.error);
       }
       this.isListening = false;
@@ -81,26 +84,25 @@ export class VoiceService {
       
       this.recognition.start();
       this.isListening = true;
-      console.log('VoiceService: Started listening', lang);
     } catch (e: any) {
       if (e.name === 'InvalidStateError' || e.message?.includes('already started')) {
-        console.warn('VoiceService: Recognition already started, ignoring request');
+        if (isDev) console.warn('VoiceService: Recognition already started, ignoring request');
         this.isListening = true;
       } else {
-        console.error('VoiceService: Failed to start listening', e);
+        if (isDev) console.error('VoiceService: Failed to start listening', e);
         this.isListening = false;
         onError(e);
       }
     }
   }
 
+  /** Stops the active speech recognition session. */
   public stopListening() {
     if (this.recognition && this.isListening) {
       try {
         this.recognition.stop();
-        console.log('VoiceService: Stopped listening');
       } catch (e) {
-        console.error('VoiceService: Error stopping recognition', e);
+        if (isDev) console.error('VoiceService: Error stopping recognition', e);
       }
       this.isListening = false;
     }
@@ -149,7 +151,7 @@ export class VoiceService {
 
   public speak(text: string, lang: VoiceLanguage, onEnd?: () => void) {
     if (!this.synth) {
-      console.error('VoiceService: Synthesis not supported');
+      if (isDev) console.error('VoiceService: Synthesis not supported');
       return;
     }
 
@@ -199,9 +201,28 @@ export class VoiceService {
   public stopSpeaking() {
     if (this.synth) {
       this.synth.cancel();
-      console.log('VoiceService: Stopped speaking');
     }
   }
 }
 
 export const voiceService = new VoiceService();
+
+export class VoiceError extends Error {
+  constructor(message: string, public readonly code?: string) {
+    super(message);
+    this.name = 'VoiceError';
+  }
+}
+
+export function isVoiceSupported(): boolean {
+  return typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+}
+
+export function getSupportedLanguages(): Array<{ code: string; name: string }> {
+  return [
+    { code: 'en-US', name: 'English' },
+    { code: 'fr-FR', name: 'French' },
+    { code: 'ar-SA', name: 'Arabic' },
+  ];
+}

@@ -1,7 +1,8 @@
 import type { Config, ChatSession } from "./types";
+import { STORAGE_KEYS } from './constants';
 
-const CONFIG_KEY = "mafalia_config";
-const HISTORY_KEY = "mafalia_chat_history";
+const CONFIG_KEY = STORAGE_KEYS.CONFIG;
+const HISTORY_KEY = STORAGE_KEYS.CHAT_HISTORY;
 
 export const DEFAULT_CONFIG: Config = {
   provider: "openrouter",
@@ -13,6 +14,7 @@ export const DEFAULT_CONFIG: Config = {
   language: "en",
 };
 
+/** Loads the application configuration from localStorage. Returns null if not found. */
 export function loadConfig(): Config | null {
   if (typeof window === "undefined") return null;
   try {
@@ -23,6 +25,7 @@ export function loadConfig(): Config | null {
   }
 }
 
+/** Persists the application configuration to localStorage. */
 export function saveConfig(config: Config) {
   if (typeof window === "undefined") return;
   try {
@@ -39,6 +42,30 @@ export function loadChatHistory(): ChatSession[] {
     return raw ? (JSON.parse(raw) as ChatSession[]) : [];
   } catch {
     return [];
+  }
+}
+
+export function clearChatHistory(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.CHAT_HISTORY);
+  } catch {
+    // localStorage unavailable
+  }
+}
+
+export function hasConfig(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.CONFIG) !== null;
+  } catch {
+    return false;
+  }
+}
+
+export function clearConfig(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.CONFIG);
+  } catch {
+    // localStorage unavailable
   }
 }
 

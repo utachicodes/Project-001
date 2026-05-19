@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+/** Creates a Supabase client for server-side usage with cookie handling. */
 export async function createClient() {
   const cookieStore = await cookies();
   return createServerClient(

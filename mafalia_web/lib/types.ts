@@ -45,6 +45,73 @@ export interface Provider {
   models: string[];
 }
 
+export interface PaginationOptions {
+  page: number;
+  limit: number;
+  offset?: number;
+}
+
+export interface VoiceState {
+  isListening: boolean;
+  isSupported: boolean;
+  transcript: string;
+  error?: string;
+}
+
+export interface UploadResult {
+  url: string;
+  path: string;
+  filename: string;
+  size: number;
+}
+
+export interface AuthState {
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  userId?: string;
+  email?: string;
+}
+
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
+
+export interface ToastOptions {
+  type: ToastType;
+  message: string;
+  duration?: number;
+}
+
+export interface MetricData {
+  label: string;
+  value: number | string;
+  change?: number;
+  unit?: string;
+}
+
+export interface LLMConfig {
+  provider: string;
+  model: string;
+  apiKey: string;
+  baseUrl?: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
+export interface AgentCommand {
+  command: string;
+  agentId: string;
+  description: string;
+}
+
+export interface FileRecord {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+  created_at: string;
+  user_id: string;
+}
+
 export const PROVIDERS: Provider[] = [
   {
     id: "openrouter",

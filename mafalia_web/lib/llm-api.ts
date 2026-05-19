@@ -1,5 +1,8 @@
 import type { Config } from "./types";
 import { PROVIDERS } from "./types";
+import { LIMITS } from "./constants";
+
+const isDev = process.env.NODE_ENV === 'development';
 
 const MODEL_STRATEGIES = {
   simple: { description: "Quick responses for simple questions" },
@@ -59,6 +62,7 @@ Type /config to open settings.`;
     return "analytics";
   }
 
+  /** Sends a message to the configured LLM provider and returns the response content and model used. */
   async chat(message: string): Promise<{ content: string; modelUsed: string }> {
     if (!this.hasValidConfig()) {
       const missing = [];
@@ -91,6 +95,7 @@ Type /config to open settings.`;
     return { content, modelUsed: model };
   }
 
+  /** Builds the business data context string from Supabase for injection into the system prompt. */
   private async fetchContext(): Promise<string> {
     try {
       const { getConnections, getScrapedPages, tryFetchTable, BUSINESS_TABLES } = await import("./supabase/data");
@@ -114,7 +119,7 @@ Type /config to open settings.`;
         sections.push(
           "SCRAPED MARKET INTELLIGENCE:\n" +
           pages.map(p =>
-            `  - [${p.title || p.url}] ${p.content ? p.content.slice(0, 300).replace(/\s+/g, " ") + "…" : "(no content)"}`
+            `  - [${p.title || p.url}] ${p.content ? p.content.slice(0, LIMITS.CONTENT_PREVIEW).replace(/\s+/g, " ") + "…" : "(no content)"}`
           ).join("\n")
         );
       }
@@ -129,10 +134,10 @@ Type /config to open settings.`;
       for (const result of tableResults) {
         if (!result) continue;
         const { table, rows } = result;
-        const preview = rows.slice(0, 10).map(r => {
+        const preview = rows.slice(0, LIMITS.ROWS_PREVIEW).map(r => {
           const fields = Object.entries(r)
             .filter(([k]) => !["id", "user_id", "created_at", "updated_at"].includes(k))
-            .map(([k, v]) => `${k}: ${String(v).slice(0, 80)}`)
+            .map(([k, v]) => `${k}: ${String(v).slice(0, LIMITS.FIELD_VALUE)}`)
             .join(" | ");
           return `  - ${fields}`;
         }).join("\n");
@@ -144,8 +149,9 @@ Type /config to open settings.`;
       }
 
       return sections.join("\n\n");
-    } catch (err: any) {
-      console.warn("fetchContext error:", err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      if (isDev) console.warn("fetchContext error:", error.message);
       return "Unable to retrieve database context at this moment.";
     }
   }
@@ -308,7 +314,7 @@ Orchestration context: ${MODEL_STRATEGIES[strategy].description}`;
       if (isFreeModel) {
         const fallbackModel = "google/gemini-2.0-flash-exp:free";
         if (model !== fallbackModel) {
-          console.warn(`Model ${model} rate limited, falling back to ${fallbackModel}`);
+          if (isDev) console.warn(`Model ${model} rate limited, falling back to ${fallbackModel}`);
           res = await fetchWithModel(fallbackModel);
           if (!res.ok) responseText = await res.text();
         }

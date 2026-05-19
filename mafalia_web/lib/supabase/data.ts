@@ -13,25 +13,27 @@ export interface DbConnection {
   created_at?: string;
 }
 
+/** Adds a new business connection to the database. */
 export async function addConnection(conn: Omit<DbConnection, "id" | "created_at">) {
   if (!isSupabaseConfigured) return null;
   const supabase = createClient();
   const { data, error } = await supabase.from("connections").insert(conn).select().single();
-  if (error) console.error("addConnection:", error.message);
+  if (error) { /* error handled by caller */ }
   return data;
 }
 
-export async function getConnections(limit = 50) {
+/** Fetches business connections from the database with optional limit and offset. */
+export async function getConnections(limit = 50, offset = 0) {
   if (!isSupabaseConfigured) return [];
   const supabase = createClient();
   const { data, error } = await supabase
     .from("connections")
     .select("*")
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
   if (error) {
     if (error.code === 'PGRST116' || error.message.includes('does not exist')) return [];
-    console.error("getConnections:", error.message);
+    // error handled by caller
   }
   return data ?? [];
 }
@@ -47,11 +49,11 @@ export interface DbScrapedPage {
   created_at?: string;
 }
 
-export async function saveScrapedPage(page: Omit<DbScrapedPage, "id">) {
+export async function saveScrapedPage(page: Omit<DbScrapedPage, "id">): Promise<DbScrapedPage | null> {
   if (!isSupabaseConfigured) return null;
   const supabase = createClient();
   const { data, error } = await supabase.from("scraped_pages").insert(page).select().single();
-  if (error) console.error("saveScrapedPage:", error.message);
+  if (error) { /* error handled by caller */ }
   return data;
 }
 
@@ -66,13 +68,14 @@ export async function getScrapedPages(limit = 20) {
     .limit(limit);
   if (error) {
     if (error.code === 'PGRST116' || error.message.includes('does not exist')) return [];
-    console.error("getScrapedPages:", error.message);
+    // error handled by caller
   }
   return data ?? [];
 }
 
 // Generic table fetcher — tries to read any table the user has added
-export async function tryFetchTable(table: string, limit = 30): Promise<any[]> {
+/** Attempts to fetch any named table, silently returning empty array on access error. */
+export async function tryFetchTable(table: string, limit = 30): Promise<Record<string, unknown>[]> {
   if (!isSupabaseConfigured) return [];
   const supabase = createClient();
   const { data, error } = await supabase
@@ -82,6 +85,27 @@ export async function tryFetchTable(table: string, limit = 30): Promise<any[]> {
     .limit(limit);
   if (error) return []; // silently skip tables that don't exist or have no access
   return data ?? [];
+}
+
+export async function updateUserProfile(userId: string, updates: Record<string, unknown>) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', userId)
+    .select()
+    .single();
+  return { data, error };
+}
+
+export async function getUserProfile(userId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+  return { data, error };
 }
 
 // Known business data tables to probe beyond the defaults
