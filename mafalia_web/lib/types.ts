@@ -45,6 +45,13 @@ export interface Provider {
   models: string[];
 }
 
+export interface VoiceState {
+  isListening: boolean;
+  isSupported: boolean;
+  transcript: string;
+  error?: string;
+}
+
 export interface UploadResult {
   url: string;
   path: string;
