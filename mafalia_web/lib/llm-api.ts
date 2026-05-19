@@ -135,7 +135,7 @@ Type /config to open settings.`;
         const preview = rows.slice(0, LIMITS.ROWS_PREVIEW).map(r => {
           const fields = Object.entries(r)
             .filter(([k]) => !["id", "user_id", "created_at", "updated_at"].includes(k))
-            .map(([k, v]) => `${k}: ${String(v).slice(0, 80)}`)
+            .map(([k, v]) => `${k}: ${String(v).slice(0, LIMITS.FIELD_VALUE)}`)
             .join(" | ");
           return `  - ${fields}`;
         }).join("\n");
