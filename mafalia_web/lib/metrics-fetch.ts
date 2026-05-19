@@ -1,5 +1,12 @@
 import { LIMITS } from './constants';
 
+export class MetricsFetchError extends Error {
+  constructor(message: string, public readonly statusCode?: number) {
+    super(message);
+    this.name = 'MetricsFetchError';
+  }
+}
+
 export interface KpiMetric {
   value: string;
   change: string;
