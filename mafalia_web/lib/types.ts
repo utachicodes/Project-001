@@ -45,6 +45,14 @@ export interface Provider {
   models: string[];
 }
 
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
+
+export interface ToastOptions {
+  type: ToastType;
+  message: string;
+  duration?: number;
+}
+
 export interface MetricData {
   label: string;
   value: number | string;
