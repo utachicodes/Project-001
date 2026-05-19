@@ -108,15 +108,43 @@ export class VoiceService {
 
   private stripMarkdown(text: string): string {
     return text
-      .replace(/#{1,6}\s?/g, '') // Headers
-      .replace(/\*\*/g, '') // Bold
-      .replace(/\*/g, '') // Italic
-      .replace(/`{1,3}[^`]*`{1,3}/g, '') // Code blocks
+      .replace(/```[\s\S]*?```/g, 'code block omitted') // Fenced code blocks
+      .replace(/`[^`]+`/g, '') // Inline code
+      .replace(/#{1,6}\s*/g, '') // Headers
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // Bold
+      .replace(/\*([^*]+)\*/g, '$1') // Italic
+      .replace(/__([^_]+)__/g, '$1') // Bold underline
+      .replace(/_([^_]+)_/g, '$1') // Italic underline
       .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Links
-      .replace(/[-*+]\s/g, '') // List markers
-      .replace(/\d+\.\s/g, '') // Numbered list markers
-      .replace(/\n+/g, ' ') // Newlines to spaces
+      .replace(/!\[[^\]]*\]\([^\)]+\)/g, '') // Images
+      .replace(/^[-*+]\s+/gm, '') // Unordered list markers
+      .replace(/^\d+\.\s+/gm, '') // Ordered list markers
+      .replace(/^>\s*/gm, '') // Blockquotes
+      .replace(/^[-*_]{3,}\s*$/gm, '') // Horizontal rules
+      .replace(/\|[^\n]+\|/g, '') // Tables
+      .replace(/https?:\/\/\S+/g, '') // Raw URLs
+      .replace(/\n{2,}/g, '. ') // Multiple newlines to sentence break
+      .replace(/\n/g, ' ') // Single newlines to spaces
+      .replace(/\s{2,}/g, ' ') // Collapse multiple spaces
       .trim();
+  }
+
+  private selectBestVoice(voices: SpeechSynthesisVoice[], lang: VoiceLanguage): SpeechSynthesisVoice | null {
+    const langCode = lang.split('-')[0];
+    const exactMatch = voices.filter(v => v.lang === lang);
+    const langMatch = voices.filter(v => v.lang.startsWith(langCode));
+    const pool = exactMatch.length > 0 ? exactMatch : langMatch;
+
+    // Priority order: known high-quality voices
+    const qualityNames = [
+      'Google', 'Microsoft', 'Samantha', 'Karen', 'Daniel', 'Moira',
+      'Tessa', 'Rishi', 'Premium', 'Enhanced', 'Natural',
+    ];
+    for (const q of qualityNames) {
+      const v = pool.find(v => v.name.includes(q));
+      if (v) return v;
+    }
+    return pool[0] || voices[0] || null;
   }
 
   public speak(text: string, lang: VoiceLanguage, onEnd?: () => void) {
@@ -126,50 +154,45 @@ export class VoiceService {
     }
 
     const cleanText = this.stripMarkdown(text);
-    console.log('VoiceService: Speaking', cleanText.substring(0, 30) + '...', lang);
+    if (!cleanText) { if (onEnd) onEnd(); return; }
+
     this.synth.cancel();
 
-    const speakNow = () => {
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.lang = lang;
-      
-      // Natural voice tuning
-      utterance.rate = 0.95; // Slightly slower for better clarity
-      utterance.pitch = 1.05; // Slightly higher for a friendly, professional tone
-      
+    const doSpeak = () => {
       const voices = this.synth!.getVoices();
-      // Try to find a high-quality voice for the language
-      // Prefer "Google" voices for better quality in Chrome, or "premium" voices
-      const languageMatch = voices.filter(v => v.lang.startsWith(lang.split('-')[0]));
-      const preferredVoice = languageMatch.find(v => v.name.includes('Google') || v.name.includes('Premium')) 
-        || languageMatch[0] 
-        || voices[0];
-        
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
+      const voice = this.selectBestVoice(voices, lang);
 
-      utterance.onend = () => {
-        console.log('VoiceService: Speaking ended');
-        if (onEnd) onEnd();
+      // Split into sentences for more natural delivery
+      const sentences = cleanText.match(/[^.!?]+[.!?]*/g) || [cleanText];
+      let idx = 0;
+
+      const speakNext = () => {
+        if (idx >= sentences.length) { if (onEnd) onEnd(); return; }
+        const sentence = sentences[idx++].trim();
+        if (!sentence) { speakNext(); return; }
+
+        const utt = new SpeechSynthesisUtterance(sentence);
+        utt.lang = lang;
+        utt.rate = 0.92;
+        utt.pitch = 1.0;
+        utt.volume = 1.0;
+        if (voice) utt.voice = voice;
+
+        utt.onend = speakNext;
+        utt.onerror = () => { if (onEnd) onEnd(); };
+        this.synth!.speak(utt);
       };
 
-      utterance.onerror = (e) => {
-        console.error('VoiceService: Speaking error', e);
-        if (onEnd) onEnd();
-      };
-
-      this.synth!.speak(utterance);
+      speakNext();
     };
 
-    // Chrome workaround: voices might not be loaded yet
     if (this.synth.getVoices().length === 0) {
       this.synth.onvoiceschanged = () => {
-        this.synth!.onvoiceschanged = null; // Prevent multiple triggers
-        speakNow();
+        this.synth!.onvoiceschanged = null;
+        doSpeak();
       };
     } else {
-      speakNow();
+      doSpeak();
     }
   }
 

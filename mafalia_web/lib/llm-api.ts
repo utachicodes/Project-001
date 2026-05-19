@@ -93,20 +93,60 @@ Type /config to open settings.`;
 
   private async fetchContext(): Promise<string> {
     try {
-      const { getConnections } = await import("./supabase/data");
-      const connections = await getConnections(10);
-      
-      if (!connections || connections.length === 0) return "No active business connections or data found in database.";
+      const { getConnections, getScrapedPages, tryFetchTable, BUSINESS_TABLES } = await import("./supabase/data");
 
-      return connections.map(c => 
-        `- Connection: ${c.name} | Role: ${c.role || "N/A"} | Company: ${c.company || "N/A"} | Source: ${c.source || "N/A"}`
-      ).join("\n");
-    } catch (err: any) {
-      if (err.code === 'PGRST116' || err.message.includes('does not exist')) {
-        return "No active business connections or data found in database.";
+      const sections: string[] = [];
+
+      // 1. Contacts / Connections
+      const connections = await getConnections(30);
+      if (connections.length > 0) {
+        sections.push(
+          "CONTACTS/CONNECTIONS:\n" +
+          connections.map(c =>
+            `  - ${c.name}${c.company ? ` @ ${c.company}` : ""}${c.role ? ` (${c.role})` : ""}${c.email ? ` <${c.email}>` : ""}${c.source ? ` [${c.source}]` : ""}${c.notes ? ` | Notes: ${c.notes}` : ""}`
+          ).join("\n")
+        );
       }
+
+      // 2. Scraped pages / market intelligence
+      const pages = await getScrapedPages(10);
+      if (pages.length > 0) {
+        sections.push(
+          "SCRAPED MARKET INTELLIGENCE:\n" +
+          pages.map(p =>
+            `  - [${p.title || p.url}] ${p.content ? p.content.slice(0, 300).replace(/\s+/g, " ") + "…" : "(no content)"}`
+          ).join("\n")
+        );
+      }
+
+      // 3. Probe known business tables and include any that have data
+      const tableResults = await Promise.all(
+        BUSINESS_TABLES.map(async (table) => {
+          const rows = await tryFetchTable(table, 20);
+          return rows.length > 0 ? { table, rows } : null;
+        })
+      );
+      for (const result of tableResults) {
+        if (!result) continue;
+        const { table, rows } = result;
+        const preview = rows.slice(0, 10).map(r => {
+          const fields = Object.entries(r)
+            .filter(([k]) => !["id", "user_id", "created_at", "updated_at"].includes(k))
+            .map(([k, v]) => `${k}: ${String(v).slice(0, 80)}`)
+            .join(" | ");
+          return `  - ${fields}`;
+        }).join("\n");
+        sections.push(`${table.toUpperCase()} (${rows.length} records):\n${preview}${rows.length > 10 ? `\n  … and ${rows.length - 10} more` : ""}`);
+      }
+
+      if (sections.length === 0) {
+        return "Database is connected but no business data found yet. The user has not added any records.";
+      }
+
+      return sections.join("\n\n");
+    } catch (err: any) {
       console.warn("fetchContext error:", err);
-      return "Unable to retrieve real-time business data at this moment.";
+      return "Unable to retrieve database context at this moment.";
     }
   }
 

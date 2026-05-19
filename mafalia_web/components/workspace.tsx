@@ -21,7 +21,6 @@ import type { KpiData, AlertItem } from "@/lib/metrics-fetch";
 import { fetchLiveMetrics } from "@/lib/metrics-fetch";
 import { llmClient } from "@/lib/llm-api";
 import { createClient } from "@/lib/supabase/client";
-import { addConnection, getConnections } from "@/lib/supabase/data";
 import type { UploadedFile } from "@/lib/supabase/storage";
 import { translations, type Language } from "@/lib/i18n";
 
@@ -253,7 +252,6 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
     }
 
     try {
-      const strategy = llmClient.selectModelStrategy(text);
       setCurrentModel(config.model);
       const attachmentNote = attachments?.length
         ? `\n\n[User attached ${attachments.length} file(s): ${attachments.map((a) => a.name).join(", ")}]`
@@ -399,9 +397,15 @@ export function Workspace({ userId, userEmail }: WorkspaceProps) {
         response = "**Agent Room Assignments:**\n\n" + DEFAULT_AGENTS.map((a) => `• **${a.name}** ${a.tag} — ${a.room}`).join("\n");
         break;
 
-      case "/boss":
-        response = "**Boss View Activated**\n\nOrchestrating high-level oversight across all 11 agents. Monitoring real-time risk through Malik [GOV].";
+      case "/boss": {
+        const r = await askLLM(
+          "Provide an executive boss-view summary: cross-department risk flags, top 3 priorities, and current operational health across all departments. Be direct and concise.",
+          "malik"
+        );
+        response = r.content;
+        tag = r.tag;
         break;
+      }
 
       case "/summary": {
         const r = await askLLM("Give a full business health check across all departments.", "sana");

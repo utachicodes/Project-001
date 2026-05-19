@@ -30,9 +30,7 @@ export async function getConnections(limit = 50) {
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) {
-    if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
-      return [];
-    }
+    if (error.code === 'PGRST116' || error.message.includes('does not exist')) return [];
     console.error("getConnections:", error.message);
   }
   return data ?? [];
@@ -46,6 +44,7 @@ export interface DbScrapedPage {
   word_count?: number;
   status: "pending" | "scraped" | "failed";
   user_id?: string;
+  created_at?: string;
 }
 
 export async function saveScrapedPage(page: Omit<DbScrapedPage, "id">) {
@@ -55,3 +54,39 @@ export async function saveScrapedPage(page: Omit<DbScrapedPage, "id">) {
   if (error) console.error("saveScrapedPage:", error.message);
   return data;
 }
+
+export async function getScrapedPages(limit = 20) {
+  if (!isSupabaseConfigured) return [];
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("scraped_pages")
+    .select("url, title, content, word_count, status, created_at")
+    .eq("status", "scraped")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    if (error.code === 'PGRST116' || error.message.includes('does not exist')) return [];
+    console.error("getScrapedPages:", error.message);
+  }
+  return data ?? [];
+}
+
+// Generic table fetcher — tries to read any table the user has added
+export async function tryFetchTable(table: string, limit = 30): Promise<any[]> {
+  if (!isSupabaseConfigured) return [];
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from(table)
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) return []; // silently skip tables that don't exist or have no access
+  return data ?? [];
+}
+
+// Known business data tables to probe beyond the defaults
+export const BUSINESS_TABLES = [
+  "products", "orders", "customers", "sales", "inventory",
+  "transactions", "invoices", "leads", "tasks", "projects",
+  "employees", "campaigns", "events", "feedback", "tickets",
+] as const;
