@@ -87,6 +87,16 @@ export async function tryFetchTable(table: string, limit = 30): Promise<Record<s
   return data ?? [];
 }
 
+export async function getUserProfile(userId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+  return { data, error };
+}
+
 // Known business data tables to probe beyond the defaults
 export const BUSINESS_TABLES = [
   "products", "orders", "customers", "sales", "inventory",
