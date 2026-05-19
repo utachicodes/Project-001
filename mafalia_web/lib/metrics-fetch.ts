@@ -57,7 +57,9 @@ export async function fetchLiveMetrics(
     .replace(/^\{/, "{") // Ensure it starts with {
     .trim();
 
-  let data: any;
+  type RawMetric = { value?: unknown; change?: unknown; positive?: unknown };
+  type RawData = { revenue?: RawMetric; clients?: RawMetric; orders?: RawMetric; stock?: RawMetric; alerts?: unknown[] };
+  let data: RawData;
   try {
     data = JSON.parse(cleaned);
   } catch (err) {
@@ -89,10 +91,13 @@ export async function fetchLiveMetrics(
   };
 
   const alerts: AlertItem[] = Array.isArray(data.alerts)
-    ? data.alerts.slice(0, LIMITS.ALERTS).map((a: { type?: string; text?: string }) => ({
-        type: (["warning", "info", "success"].includes(a.type ?? "") ? a.type : "info") as AlertItem["type"],
-        text: String(a.text ?? ""),
-      }))
+    ? data.alerts.slice(0, LIMITS.ALERTS).map((raw) => {
+        const a = raw as { type?: string; text?: string };
+        return {
+          type: (["warning", "info", "success"].includes(a.type ?? "") ? a.type : "info") as AlertItem["type"],
+          text: String(a.text ?? ""),
+        };
+      })
     : [];
 
   return { kpi, alerts };
