@@ -32,6 +32,7 @@ export class VoiceService {
     return !!this.recognition;
   }
 
+  /** Starts speech recognition in the given language and fires callbacks on result, end, or error. */
   public startListening(
     lang: VoiceLanguage,
     onResult: (result: SpeechRecognitionResult) => void,
