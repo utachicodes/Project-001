@@ -87,6 +87,17 @@ export async function tryFetchTable(table: string, limit = 30): Promise<Record<s
   return data ?? [];
 }
 
+export async function updateUserProfile(userId: string, updates: Record<string, unknown>) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', userId)
+    .select()
+    .single();
+  return { data, error };
+}
+
 export async function getUserProfile(userId: string) {
   const supabase = createClient();
   const { data, error } = await supabase
