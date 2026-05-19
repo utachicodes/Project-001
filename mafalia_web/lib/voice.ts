@@ -8,6 +8,7 @@ export interface SpeechRecognitionResult {
   isFinal: boolean;
 }
 
+/** Manages browser speech recognition and speech synthesis for voice interactions. */
 export class VoiceService {
   private recognition: any = null;
   private synth: SpeechSynthesis | null = null;
