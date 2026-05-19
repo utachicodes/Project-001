@@ -132,7 +132,7 @@ Type /config to open settings.`;
       for (const result of tableResults) {
         if (!result) continue;
         const { table, rows } = result;
-        const preview = rows.slice(0, 10).map(r => {
+        const preview = rows.slice(0, LIMITS.ROWS_PREVIEW).map(r => {
           const fields = Object.entries(r)
             .filter(([k]) => !["id", "user_id", "created_at", "updated_at"].includes(k))
             .map(([k, v]) => `${k}: ${String(v).slice(0, 80)}`)
