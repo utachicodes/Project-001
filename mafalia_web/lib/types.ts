@@ -45,6 +45,15 @@ export interface Provider {
   models: string[];
 }
 
+export interface LLMConfig {
+  provider: string;
+  model: string;
+  apiKey: string;
+  baseUrl?: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
 export interface AgentCommand {
   command: string;
   agentId: string;
