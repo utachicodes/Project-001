@@ -45,6 +45,16 @@ export interface Provider {
   models: string[];
 }
 
+export interface FileRecord {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+  created_at: string;
+  user_id: string;
+}
+
 export const PROVIDERS: Provider[] = [
   {
     id: "openrouter",
