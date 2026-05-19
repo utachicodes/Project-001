@@ -49,7 +49,7 @@ export interface DbScrapedPage {
   created_at?: string;
 }
 
-export async function saveScrapedPage(page: Omit<DbScrapedPage, "id">) {
+export async function saveScrapedPage(page: Omit<DbScrapedPage, "id">): Promise<DbScrapedPage | null> {
   if (!isSupabaseConfigured) return null;
   const supabase = createClient();
   const { data, error } = await supabase.from("scraped_pages").insert(page).select().single();
