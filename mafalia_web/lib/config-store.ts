@@ -14,6 +14,7 @@ export const DEFAULT_CONFIG: Config = {
   language: "en",
 };
 
+/** Loads the application configuration from localStorage. Returns null if not found. */
 export function loadConfig(): Config | null {
   if (typeof window === "undefined") return null;
   try {
