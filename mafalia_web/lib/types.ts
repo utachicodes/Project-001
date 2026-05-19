@@ -45,6 +45,12 @@ export interface Provider {
   models: string[];
 }
 
+export interface AgentCommand {
+  command: string;
+  agentId: string;
+  description: string;
+}
+
 export interface FileRecord {
   id: string;
   name: string;
