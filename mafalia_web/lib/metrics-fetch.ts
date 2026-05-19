@@ -2,6 +2,9 @@ import { LIMITS } from './constants';
 
 const isDev = process.env.NODE_ENV === 'development';
 
+/** Maximum time in milliseconds to wait for a metrics response. */
+export const METRICS_TIMEOUT_MS = 30_000;
+
 export class MetricsFetchError extends Error {
   constructor(message: string, public readonly statusCode?: number) {
     super(message);
