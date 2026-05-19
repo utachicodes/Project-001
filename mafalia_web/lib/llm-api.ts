@@ -149,8 +149,9 @@ Type /config to open settings.`;
       }
 
       return sections.join("\n\n");
-    } catch (err: any) {
-      if (isDev) console.warn("fetchContext error:", err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      if (isDev) console.warn("fetchContext error:", error.message);
       return "Unable to retrieve database context at this moment.";
     }
   }
