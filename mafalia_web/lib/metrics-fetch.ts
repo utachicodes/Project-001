@@ -1,9 +1,22 @@
 import { LIMITS } from './constants';
+import type { MetricData } from './types';
 
 const isDev = process.env.NODE_ENV === 'development';
 
 /** Maximum time in milliseconds to wait for a metrics response. */
 export const METRICS_TIMEOUT_MS = 30_000;
+
+/** Transforms raw database rows into typed MetricData objects. */
+function transformMetrics(raw: Record<string, unknown>[]): MetricData[] {
+  return raw.map(item => ({
+    label: String(item['label'] ?? ''),
+    value: item['value'] as number | string,
+    change: typeof item['change'] === 'number' ? item['change'] : undefined,
+    unit: typeof item['unit'] === 'string' ? item['unit'] : undefined,
+  }));
+}
+
+export { transformMetrics };
 
 export class MetricsFetchError extends Error {
   constructor(message: string, public readonly statusCode?: number) {
