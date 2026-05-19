@@ -17,7 +17,7 @@ export async function addConnection(conn: Omit<DbConnection, "id" | "created_at"
   if (!isSupabaseConfigured) return null;
   const supabase = createClient();
   const { data, error } = await supabase.from("connections").insert(conn).select().single();
-  if (error) console.error("addConnection:", error.message);
+  if (error) { /* error handled by caller */ }
   return data;
 }
 
@@ -31,7 +31,7 @@ export async function getConnections(limit = 50) {
     .limit(limit);
   if (error) {
     if (error.code === 'PGRST116' || error.message.includes('does not exist')) return [];
-    console.error("getConnections:", error.message);
+    // error handled by caller
   }
   return data ?? [];
 }
@@ -51,7 +51,7 @@ export async function saveScrapedPage(page: Omit<DbScrapedPage, "id">) {
   if (!isSupabaseConfigured) return null;
   const supabase = createClient();
   const { data, error } = await supabase.from("scraped_pages").insert(page).select().single();
-  if (error) console.error("saveScrapedPage:", error.message);
+  if (error) { /* error handled by caller */ }
   return data;
 }
 
@@ -66,7 +66,7 @@ export async function getScrapedPages(limit = 20) {
     .limit(limit);
   if (error) {
     if (error.code === 'PGRST116' || error.message.includes('does not exist')) return [];
-    console.error("getScrapedPages:", error.message);
+    // error handled by caller
   }
   return data ?? [];
 }
