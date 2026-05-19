@@ -45,6 +45,13 @@ export interface Provider {
   models: string[];
 }
 
+export interface MetricData {
+  label: string;
+  value: number | string;
+  change?: number;
+  unit?: string;
+}
+
 export interface LLMConfig {
   provider: string;
   model: string;
