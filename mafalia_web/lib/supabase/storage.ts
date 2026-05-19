@@ -43,3 +43,11 @@ export async function listUserFiles(userId: string) {
   if (error) throw new Error(error.message);
   return data ?? [];
 }
+
+export async function deleteFile(path: string): Promise<{ error: Error | null }> {
+  const supabase = createClient();
+  const { error } = await supabase.storage
+    .from(STORAGE_BUCKETS.UPLOADS)
+    .remove([path]);
+  return { error };
+}
