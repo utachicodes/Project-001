@@ -24,6 +24,7 @@ export function loadConfig(): Config | null {
   }
 }
 
+/** Persists the application configuration to localStorage. */
 export function saveConfig(config: Config) {
   if (typeof window === "undefined") return;
   try {
