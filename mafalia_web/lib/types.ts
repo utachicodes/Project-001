@@ -45,6 +45,12 @@ export interface Provider {
   models: string[];
 }
 
+export interface PaginationOptions {
+  page: number;
+  limit: number;
+  offset?: number;
+}
+
 export interface VoiceState {
   isListening: boolean;
   isSupported: boolean;
