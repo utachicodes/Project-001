@@ -45,6 +45,13 @@ export interface Provider {
   models: string[];
 }
 
+export interface UploadResult {
+  url: string;
+  path: string;
+  filename: string;
+  size: number;
+}
+
 export interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
