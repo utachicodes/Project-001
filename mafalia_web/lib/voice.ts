@@ -18,7 +18,6 @@ export class VoiceService {
         this.recognition = new SpeechRecognition();
         this.recognition.continuous = false;
         this.recognition.interimResults = false; // Disable interim results to reduce network noise and improve stability
-        console.log('VoiceService: SpeechRecognition initialized (Stability Mode)');
       } else {
         console.warn('VoiceService: SpeechRecognition not supported in this browser');
       }
@@ -55,14 +54,13 @@ export class VoiceService {
     };
 
     this.recognition.onend = () => {
-      console.log('VoiceService: Recognition ended');
       this.isListening = false;
       onEnd();
     };
 
     this.recognition.onerror = (event: any) => {
       if (event.error === 'aborted') {
-        console.log('VoiceService: Recognition aborted');
+        // recognition aborted — no action needed
       } else if (event.error === 'network') {
         console.warn('VoiceService: Network error detected. This often happens if the speech service is temporarily unavailable or blocked.');
         onError('network');
@@ -81,7 +79,6 @@ export class VoiceService {
       
       this.recognition.start();
       this.isListening = true;
-      console.log('VoiceService: Started listening', lang);
     } catch (e: any) {
       if (e.name === 'InvalidStateError' || e.message?.includes('already started')) {
         console.warn('VoiceService: Recognition already started, ignoring request');
@@ -98,7 +95,6 @@ export class VoiceService {
     if (this.recognition && this.isListening) {
       try {
         this.recognition.stop();
-        console.log('VoiceService: Stopped listening');
       } catch (e) {
         console.error('VoiceService: Error stopping recognition', e);
       }
@@ -199,7 +195,6 @@ export class VoiceService {
   public stopSpeaking() {
     if (this.synth) {
       this.synth.cancel();
-      console.log('VoiceService: Stopped speaking');
     }
   }
 }
