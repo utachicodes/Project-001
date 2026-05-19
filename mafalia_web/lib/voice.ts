@@ -207,6 +207,11 @@ export class VoiceService {
 
 export const voiceService = new VoiceService();
 
+export function isVoiceSupported(): boolean {
+  return typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+}
+
 export function getSupportedLanguages(): Array<{ code: string; name: string }> {
   return [
     { code: 'en-US', name: 'English' },
