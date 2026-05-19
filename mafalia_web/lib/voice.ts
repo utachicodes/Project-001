@@ -10,7 +10,7 @@ export interface SpeechRecognitionResult {
 
 /** Manages browser speech recognition and speech synthesis for voice interactions. */
 export class VoiceService {
-  private recognition: any = null;
+  private recognition: { start(): void; stop(): void; abort(): void; lang: string; continuous: boolean; interimResults: boolean; onresult: ((e: Event) => void) | null; onend: (() => void) | null; onerror: ((e: Event) => void) | null } | null = null;
   private synth: SpeechSynthesis | null = null;
   private isListening: boolean = false;
 
@@ -18,11 +18,12 @@ export class VoiceService {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
-        this.recognition = new SpeechRecognition();
-        this.recognition.continuous = false;
-        this.recognition.interimResults = false; // Disable interim results to reduce network noise and improve stability
+        const rec = new SpeechRecognition();
+        rec.continuous = false;
+        rec.interimResults = false;
+        this.recognition = rec;
       } else {
-        console.warn('VoiceService: SpeechRecognition not supported in this browser');
+        if (isDev) console.warn('VoiceService: SpeechRecognition not supported in this browser');
       }
       this.synth = window.speechSynthesis;
     }
