@@ -206,3 +206,11 @@ export class VoiceService {
 }
 
 export const voiceService = new VoiceService();
+
+export function getSupportedLanguages(): Array<{ code: string; name: string }> {
+  return [
+    { code: 'en-US', name: 'English' },
+    { code: 'fr-FR', name: 'French' },
+    { code: 'ar-SA', name: 'Arabic' },
+  ];
+}
