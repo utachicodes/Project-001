@@ -56,6 +56,7 @@ Return ONLY the JSON object. Vary the numbers slightly each call to reflect live
 export async function fetchLiveMetrics(
   chatFn: (msg: string) => Promise<{ content: string; modelUsed: string }>,
 ): Promise<{ kpi: KpiData; alerts: AlertItem[] }> {
+  // Return type is explicit: { kpi: KpiData; alerts: AlertItem[] }
   const result = await chatFn(METRICS_PROMPT);
   const raw = result.content.trim();
 
