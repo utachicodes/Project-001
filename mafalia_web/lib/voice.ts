@@ -207,6 +207,13 @@ export class VoiceService {
 
 export const voiceService = new VoiceService();
 
+export class VoiceError extends Error {
+  constructor(message: string, public readonly code?: string) {
+    super(message);
+    this.name = 'VoiceError';
+  }
+}
+
 export function isVoiceSupported(): boolean {
   return typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
