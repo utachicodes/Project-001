@@ -1,7 +1,8 @@
 import type { Config, ChatSession } from "./types";
+import { STORAGE_KEYS } from './constants';
 
-const CONFIG_KEY = "mafalia_config";
-const HISTORY_KEY = "mafalia_chat_history";
+const CONFIG_KEY = STORAGE_KEYS.CONFIG;
+const HISTORY_KEY = STORAGE_KEYS.CHAT_HISTORY;
 
 export const DEFAULT_CONFIG: Config = {
   provider: "openrouter",
