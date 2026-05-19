@@ -1,4 +1,6 @@
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export type VoiceLanguage = 'en-US' | 'fr-FR' | 'ar-SA';
 
 export interface SpeechRecognitionResult {
@@ -36,12 +38,12 @@ export class VoiceService {
     onError: (error: any) => void
   ) {
     if (!this.recognition) {
-      console.error('VoiceService: Recognition not supported');
+      if (isDev) console.error('VoiceService: Recognition not supported');
       return;
     }
 
     if (this.isListening) {
-      console.warn('VoiceService: Already listening');
+      if (isDev) console.warn('VoiceService: Already listening');
       return;
     }
 
@@ -62,10 +64,10 @@ export class VoiceService {
       if (event.error === 'aborted') {
         // recognition aborted — no action needed
       } else if (event.error === 'network') {
-        console.warn('VoiceService: Network error detected. This often happens if the speech service is temporarily unavailable or blocked.');
+        if (isDev) console.warn('VoiceService: Network error detected.');
         onError('network');
       } else {
-        console.error('VoiceService: Recognition error', event.error);
+        if (isDev) console.error('VoiceService: Recognition error', event.error);
         onError(event.error);
       }
       this.isListening = false;
@@ -81,10 +83,10 @@ export class VoiceService {
       this.isListening = true;
     } catch (e: any) {
       if (e.name === 'InvalidStateError' || e.message?.includes('already started')) {
-        console.warn('VoiceService: Recognition already started, ignoring request');
+        if (isDev) console.warn('VoiceService: Recognition already started, ignoring request');
         this.isListening = true;
       } else {
-        console.error('VoiceService: Failed to start listening', e);
+        if (isDev) console.error('VoiceService: Failed to start listening', e);
         this.isListening = false;
         onError(e);
       }
@@ -96,7 +98,7 @@ export class VoiceService {
       try {
         this.recognition.stop();
       } catch (e) {
-        console.error('VoiceService: Error stopping recognition', e);
+        if (isDev) console.error('VoiceService: Error stopping recognition', e);
       }
       this.isListening = false;
     }
@@ -145,7 +147,7 @@ export class VoiceService {
 
   public speak(text: string, lang: VoiceLanguage, onEnd?: () => void) {
     if (!this.synth) {
-      console.error('VoiceService: Synthesis not supported');
+      if (isDev) console.error('VoiceService: Synthesis not supported');
       return;
     }
 
