@@ -45,6 +45,13 @@ export interface Provider {
   models: string[];
 }
 
+export interface AuthState {
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  userId?: string;
+  email?: string;
+}
+
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastOptions {
