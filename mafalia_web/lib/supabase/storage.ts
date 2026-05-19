@@ -44,6 +44,14 @@ export async function listUserFiles(userId: string) {
   return data ?? [];
 }
 
+export async function listFiles(folder: string): Promise<{ data: unknown[] | null; error: Error | null }> {
+  const supabase = createClient();
+  const { data, error } = await supabase.storage
+    .from(STORAGE_BUCKETS.UPLOADS)
+    .list(folder);
+  return { data, error };
+}
+
 export async function deleteFile(path: string): Promise<{ error: Error | null }> {
   const supabase = createClient();
   const { error } = await supabase.storage
